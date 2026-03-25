@@ -54,10 +54,10 @@ export default async function handler(req, res) {
 
     // ── Register ──
     if (action === 'register' && req.method === 'POST') {
-      const { username, display_name, password } = body;
+      const { username, password } = body;
 
-      if (!username || !password || !display_name) {
-        return res.status(400).json({ error: '請填寫所有欄位（用戶名、顯示名稱、密碼）' });
+      if (!username || !password) {
+        return res.status(400).json({ error: '請填寫用戶名和密碼' });
       }
       if (!/^[a-zA-Z0-9_]{2,30}$/.test(username)) {
         return res.status(400).json({ error: '用戶名只能包含英文、數字或底線，長度 2-30 字元' });
@@ -89,11 +89,10 @@ export default async function handler(req, res) {
         .from('users')
         .insert({
           username,
-          display_name,
           password_hash: hashPassword(password),
           is_admin: false,
         })
-        .select('username, display_name, is_admin')
+        .select('username, is_admin')
         .single();
 
       if (error) {
@@ -120,7 +119,7 @@ export default async function handler(req, res) {
       // Use maybeSingle: returns null (not an error) when 0 rows found
       const { data, error } = await supabase
         .from('users')
-        .select('username, display_name, is_admin, password_hash')
+        .select('username, is_admin, password_hash')
         .eq('username', username)
         .maybeSingle();
 
@@ -138,7 +137,7 @@ export default async function handler(req, res) {
       const token = `${username}-${Date.now()}`;
       return res.status(200).json({
         ok: true,
-        user: { username: data.username, display_name: data.display_name, is_admin: data.is_admin },
+        user: { username: data.username, is_admin: data.is_admin },
         token,
       });
     }
@@ -147,7 +146,7 @@ export default async function handler(req, res) {
     if (action === 'list' && req.method === 'GET') {
       const { data, error } = await supabase
         .from('users')
-        .select('username, display_name')
+        .select('username')
         .order('username');
       if (error) {
         console.error('[auth] list error:', JSON.stringify(error));

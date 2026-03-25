@@ -286,10 +286,6 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
       <span class="f-lbl">用戶名</span>
       <input class="f-input" id="authUser" type="text" placeholder="英文、數字或底線" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
     </div>
-    <div class="auth-field" id="authDisplaySec" style="display:none;">
-      <span class="f-lbl">顯示名稱</span>
-      <input class="f-input" id="authDisplay" type="text" placeholder="你的暱稱">
-    </div>
     <div class="auth-field" style="margin-bottom:20px;">
       <span class="f-lbl">密碼</span>
       <input class="f-input" id="authPass" type="password" placeholder="請輸入密碼" autocomplete="current-password">
@@ -751,7 +747,7 @@ let selMeal = '早餐', selMood = '😊';
 let pendingPhotos = [], sheetOpen = false;
 let calViewYear, calViewMonth;
 let cachedEntries = {}; // { date: [entries] }
-let authUser = null;   // { username, display_name, is_admin, token }
+let authUser = null;   // { username, is_admin, token }
 let adminMode = false;
 function getGoal(){ return parseInt(localStorage.getItem('chitji_goal')||'2000'); }
 
@@ -791,7 +787,7 @@ function switchTab(name){
   document.getElementById('fab').style.display = name==='log'?'flex':'none';
   if(name==='report') renderReport(reportRange);
   if(name==='weight') renderWeight();
-  if(name==='settings'){ renderMembers(); renderDataStats(); document.getElementById('nameInput').value=authUser?.display_name||''; document.getElementById('goalInput').value=localStorage.getItem('chitji_goal')||''; }
+  if(name==='settings'){ renderMembers(); renderDataStats(); document.getElementById('nameInput').value=authUser?.username||''; document.getElementById('goalInput').value=localStorage.getItem('chitji_goal')||''; }
 }
 
 // ── Users ──
@@ -811,10 +807,7 @@ function switchUser(user){
 function saveName(){
   const val = document.getElementById('nameInput').value.trim();
   if(!val){showToast(T.toastNoName);return;}
-  if(authUser){
-    authUser.display_name = val;
-    localStorage.setItem('chitji_auth', JSON.stringify(authUser));
-  }
+  if(authUser) localStorage.setItem('chitji_auth', JSON.stringify(authUser));
   showToast(T.toastNameSaved);
 }
 function addMember(){
@@ -1394,7 +1387,6 @@ function enterApp(){
 function switchAuthTab(mode){
   document.getElementById('authTabLogin').classList.toggle('active',mode==='login');
   document.getElementById('authTabReg').classList.toggle('active',mode==='register');
-  document.getElementById('authDisplaySec').style.display=mode==='register'?'block':'none';
   document.getElementById('authSubmitBtn').textContent=mode==='login'?'登入':'註冊';
   document.getElementById('authError').classList.remove('show');
   document.getElementById('authUser').dataset.mode=mode;
@@ -1404,16 +1396,14 @@ async function submitAuth(){
   const mode=document.getElementById('authTabLogin').classList.contains('active')?'login':'register';
   const username=document.getElementById('authUser').value.trim().toLowerCase();
   const password=document.getElementById('authPass').value;
-  const display_name=document.getElementById('authDisplay').value.trim();
   if(!username||!password){showAuthError('請填寫用戶名和密碼');return;}
-  if(mode==='register'&&!display_name){showAuthError('請填寫顯示名稱');return;}
   const btn=document.getElementById('authSubmitBtn');
   btn.disabled=true; btn.textContent=mode==='login'?'登入中…':'註冊中…';
   try{
     const r=await fetch(`${API_BASE}/api/auth?action=${mode}`,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({username,password,display_name})
+      body:JSON.stringify({username,password})
     });
     const data=await r.json();
     if(!r.ok){
@@ -1446,7 +1436,6 @@ function logout(){
   document.getElementById('authScreen').classList.remove('hidden');
   document.getElementById('authUser').value='';
   document.getElementById('authPass').value='';
-  document.getElementById('authDisplay').value='';
   document.getElementById('authError').classList.remove('show');
   switchAuthTab('login');
 }
