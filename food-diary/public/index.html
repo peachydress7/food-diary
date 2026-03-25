@@ -448,7 +448,7 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
           <span id="wDpillTxt"></span>
         </div>
       </div>
-      <div class="f-row">
+      <div class="f-row" style="grid-template-columns:2fr 3fr;">
         <div><span class="f-lbl" id="lblWeightKg">體重 (kg)</span><input class="f-input" id="wInput" type="number" step="0.1" min="0" placeholder="65.0" inputmode="decimal"></div>
         <div><span class="f-lbl" id="lblWeightNote">備註</span><input class="f-input" id="wNote" type="text" placeholder="起床後、飯後…" autocomplete="off"></div>
       </div>
@@ -470,6 +470,7 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
     </div>
 
     <div style="margin:0 20px 12px;">
+      <div class="set-label" id="lblRecentRecords" style="margin-bottom:8px;">近期紀錄</div>
       <div id="wList"></div>
     </div>
   </div>
@@ -604,8 +605,8 @@ const STRINGS = {
     goalWarning:(goal,cur)=>`⚠️ 已超過今日目標（目標 ${goal.toLocaleString()} kcal，目前 ${cur.toLocaleString()} kcal）`,
     tabWeight:'體重', weightTitle:'⚖️ 體重', weightSub:'追蹤你的體重變化',
     weightKgLabel:'體重 (kg)', weightNoteLabel:'備註', weightNotePh:'起床後、飯後…',
-    saveWeightBtn:'儲存體重 ✓', weekAvg:'本週平均', monthAvg:'本月平均',
-    maxWeight:'最高', minWeight:'最低', chartTrend:'30 天趨勢',
+    saveWeightBtn:'儲存體重 ✓', updateWeightBtn:'更新體重 ✓', weekAvg:'本週平均', monthAvg:'本月平均',
+    maxWeight:'最高', minWeight:'最低', chartTrend:'30 天趨勢', recentRecords:'近期紀錄',
     noWeightData:'還沒有體重紀錄', noWeightSub:'輸入今天的體重開始追蹤',
     toastWeightSaved:'✓ 體重已儲存！', toastWeightFail:'❌ 儲存失敗', toastNoWeight:'請輸入體重',
     toastWeightDeleted:'已刪除',
@@ -651,8 +652,8 @@ const STRINGS = {
     goalWarning:(goal,cur)=>`⚠️ Daily goal exceeded (goal: ${goal.toLocaleString()} kcal, current: ${cur.toLocaleString()} kcal)`,
     tabWeight:'Weight', weightTitle:'⚖️ Weight', weightSub:'Track your weight changes',
     weightKgLabel:'Weight (kg)', weightNoteLabel:'Note', weightNotePh:'After waking up, after meal…',
-    saveWeightBtn:'Save Weight ✓', weekAvg:'Week Avg', monthAvg:'Month Avg',
-    maxWeight:'Highest', minWeight:'Lowest', chartTrend:'30-Day Trend',
+    saveWeightBtn:'Save Weight ✓', updateWeightBtn:'Update Weight ✓', weekAvg:'Week Avg', monthAvg:'Month Avg',
+    maxWeight:'Highest', minWeight:'Lowest', chartTrend:'30-Day Trend', recentRecords:'Recent Records',
     noWeightData:'No weight records yet', noWeightSub:'Enter today\'s weight to start tracking',
     toastWeightSaved:'✓ Weight saved!', toastWeightFail:'❌ Save failed', toastNoWeight:'Please enter weight',
     toastWeightDeleted:'Deleted',
@@ -738,6 +739,7 @@ function applyLang(){
   document.getElementById('lblWMax').textContent=T.maxWeight;
   document.getElementById('lblWMin').textContent=T.minWeight;
   document.getElementById('lblWChart').textContent=T.chartTrend;
+  document.getElementById('lblRecentRecords').textContent=T.recentRecords;
   // Re-render dynamic content
   renderLog();
   if(document.getElementById('p-report').classList.contains('active')) renderReport(reportRange);
@@ -1194,11 +1196,9 @@ async function saveWeight(){
     });
     if(!r.ok) throw new Error('save failed');
     showToast(T.toastWeightSaved);
-    document.getElementById('wInput').value='';
-    document.getElementById('wNote').value='';
     renderWeight();
   }catch(e){ showToast(T.toastWeightFail); }
-  finally{ btn.disabled=false; btn.textContent=T.saveWeightBtn; }
+  finally{ btn.disabled=false; }
 }
 async function deleteWeight(id){
   if(!confirm(T.deleteConfirm)) return;
@@ -1207,6 +1207,12 @@ async function deleteWeight(id){
     showToast(T.toastWeightDeleted);
   }catch(e){}
   renderWeight();
+}
+function editWeightRecord(dateStr){
+  const picker=document.getElementById('wDatePicker');
+  picker.value=dateStr;
+  onWeightDateChange(dateStr);
+  document.getElementById('p-weight').scrollTo({top:0,behavior:'smooth'});
 }
 function onWeightDateChange(val){
   wDate=val;
@@ -1218,6 +1224,7 @@ function onWeightDateChange(val){
   const existing=weightRecords.find(r=>r.log_date===val);
   document.getElementById('wInput').value=existing?existing.weight:'';
   document.getElementById('wNote').value=existing?(existing.note||''):'';
+  document.getElementById('wSaveBtn').textContent=existing?T.updateWeightBtn:T.saveWeightBtn;
 }
 async function renderWeight(){
   let records=[];
@@ -1226,9 +1233,10 @@ async function renderWeight(){
     if(r.ok) records=await r.json();
   }catch(e){}
   weightRecords=records;
-  // Init date picker to today (preserve selection if already set)
+  // Sync date picker and pre-fill inputs for selected date
   const picker=document.getElementById('wDatePicker');
-  if(!picker.value){ picker.value=wDate; onWeightDateChange(wDate); }
+  picker.value=wDate;
+  onWeightDateChange(wDate);
 
   // Stats
   const now=new Date();
@@ -1252,13 +1260,17 @@ async function renderWeight(){
     listEl.innerHTML=`<div class="empty"><span class="empty-e">⚖️</span><div class="empty-t">${T.noWeightData}</div><div class="empty-s">${T.noWeightSub}</div></div>`;
     return;
   }
-  listEl.innerHTML=recent.map(r=>`
-    <div class="w-record">
-      <div class="w-rec-date">${r.log_date}</div>
+  const locale=lang==='en'?'en-US':'zh-TW';
+  listEl.innerHTML=recent.map(r=>{
+    const d=new Date(r.log_date+'T00:00:00');
+    const dateStr=d.toLocaleDateString(locale,{month:'numeric',day:'numeric',weekday:'short'});
+    return `<div class="w-record" style="cursor:pointer;" onclick="editWeightRecord('${r.log_date}')">
+      <div class="w-rec-date">${dateStr}</div>
       <div class="w-rec-val">${parseFloat(r.weight).toFixed(1)} kg</div>
       ${r.note?`<div class="w-rec-note">${r.note}</div>`:'<div style="flex:1"></div>'}
-      <button class="del-btn" onclick="deleteWeight(${r.id})">✕</button>
-    </div>`).join('');
+      <button class="del-btn" onclick="event.stopPropagation();deleteWeight(${r.id})">✕</button>
+    </div>`;
+  }).join('');
 }
 function renderWeightChart(records){
   const el=document.getElementById('wChart');
