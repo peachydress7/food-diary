@@ -255,7 +255,7 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
   <!-- ══ PAGE: LOG ══ -->
   <div id="p-log" class="page active">
     <div class="page-header">
-      <div class="page-title">吃·記 🍱</div>
+      <div class="page-title" id="logTitle">吃·記 🍱</div>
       <div class="page-sub" id="hdrSub"></div>
     </div>
 
@@ -283,10 +283,10 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
         </div>
       </div>
       <div class="meal-stats">
-        <div class="ms-row"><div class="ms-dot" style="background:var(--gold)"></div><div class="ms-name">早餐</div><div class="ms-val" id="ms0" style="color:var(--gold)">0</div></div>
-        <div class="ms-row"><div class="ms-dot" style="background:var(--green)"></div><div class="ms-name">午餐</div><div class="ms-val" id="ms1" style="color:var(--green)">0</div></div>
-        <div class="ms-row"><div class="ms-dot" style="background:var(--accent)"></div><div class="ms-name">晚餐</div><div class="ms-val" id="ms2" style="color:var(--accent)">0</div></div>
-        <div class="ms-row"><div class="ms-dot" style="background:var(--blue)"></div><div class="ms-name">點心</div><div class="ms-val" id="ms3" style="color:var(--blue)">0</div></div>
+        <div class="ms-row"><div class="ms-dot" style="background:var(--gold)"></div><div class="ms-name" id="msName0">早餐</div><div class="ms-val" id="ms0" style="color:var(--gold)">0</div></div>
+        <div class="ms-row"><div class="ms-dot" style="background:var(--green)"></div><div class="ms-name" id="msName1">午餐</div><div class="ms-val" id="ms1" style="color:var(--green)">0</div></div>
+        <div class="ms-row"><div class="ms-dot" style="background:var(--accent)"></div><div class="ms-name" id="msName2">晚餐</div><div class="ms-val" id="ms2" style="color:var(--accent)">0</div></div>
+        <div class="ms-row"><div class="ms-dot" style="background:var(--blue)"></div><div class="ms-name" id="msName3">點心</div><div class="ms-val" id="ms3" style="color:var(--blue)">0</div></div>
       </div>
     </div>
 
@@ -299,7 +299,7 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
             <button onclick="calNav(1)">›</button>
           </div>
         </div>
-        <div class="cal-dow"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+        <div class="cal-dow" id="calDow"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
         <div class="cal-grid" id="calGrid"></div>
       </div>
     </div>
@@ -312,13 +312,13 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
   <!-- ══ PAGE: REPORT ══ -->
   <div id="p-report" class="page">
     <div class="page-header">
-      <div class="page-title">報告 📊</div>
-      <div class="page-sub">分析你的飲食習慣</div>
+      <div class="page-title" id="reportTitleEl">報告 📊</div>
+      <div class="page-sub" id="reportSubEl">分析你的飲食習慣</div>
     </div>
     <div class="range-btns">
-      <div class="rbtn active" onclick="setRange(7,this)">近7天</div>
-      <div class="rbtn" onclick="setRange(14,this)">近14天</div>
-      <div class="rbtn" onclick="setRange(30,this)">近30天</div>
+      <div class="rbtn active" id="rBtn7" onclick="setRange(7,this)">近7天</div>
+      <div class="rbtn" id="rBtn14" onclick="setRange(14,this)">近14天</div>
+      <div class="rbtn" id="rBtn30" onclick="setRange(30,this)">近30天</div>
     </div>
     <div id="reportContent"></div>
   </div>
@@ -326,65 +326,47 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
   <!-- ══ PAGE: SETTINGS ══ -->
   <div id="p-settings" class="page">
     <div class="page-header">
-      <div class="page-title">設定 ⚙️</div>
+      <div class="page-title" id="settingsTitleEl">設定 ⚙️</div>
     </div>
 
     <div class="set-section">
-      <span class="set-label">我的名字</span>
+      <span class="set-label" id="lblMyName">我的名字</span>
       <input class="user-name-input" id="nameInput" placeholder="輸入你的名字（顯示在紀錄上）">
-      <button class="save-name-btn" onclick="saveName()">儲存</button>
+      <button class="save-name-btn" id="btnSaveName" onclick="saveName()">儲存</button>
     </div>
 
     <div class="set-section">
-      <span class="set-label">家人 / 朋友</span>
+      <span class="set-label" id="lblFamily">家人 / 朋友</span>
       <div class="set-card">
         <div id="memberList"></div>
         <div class="set-row" onclick="addMember()">
           <div class="set-ico">➕</div>
-          <div class="set-info"><div class="set-title">新增成員</div><div class="set-sub">最多5人共用</div></div>
+          <div class="set-info"><div class="set-title" id="addMemberTitle">新增成員</div><div class="set-sub" id="addMemberSub">最多5人共用</div></div>
           <div class="set-arrow">›</div>
         </div>
       </div>
     </div>
 
     <div class="set-section">
-      <span class="set-label">每日目標熱量</span>
+      <span class="set-label" id="lblDailyGoal">每日目標熱量</span>
       <div style="display:flex;gap:8px;align-items:center;">
         <input class="user-name-input" id="goalInput" type="number" min="0" inputmode="numeric" placeholder="2000" style="flex:1;">
-        <button class="save-name-btn" onclick="saveGoal()">儲存</button>
+        <button class="save-name-btn" id="btnSaveGoal" onclick="saveGoal()">儲存</button>
       </div>
-      <div style="font-size:.72rem;color:var(--text3);margin-top:6px;font-weight:500;">超過目標時，熱量環形圖會變紅並顯示警告</div>
+      <div style="font-size:.72rem;color:var(--text3);margin-top:6px;font-weight:500;" id="goalSubText">超過目標時，熱量環形圖會變紅並顯示警告</div>
     </div>
 
     <div class="set-section">
-      <span class="set-label">Anthropic API 金鑰</span>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <input class="user-name-input" id="apiKeyInput" type="password" placeholder="sk-ant-…" style="flex:1;">
-        <button class="save-name-btn" onclick="saveApiKey()">儲存</button>
-      </div>
-      <div style="font-size:.72rem;color:var(--text3);margin-top:6px;font-weight:500;">供 AI 自動建議熱量功能使用，儲存於本機</div>
-    </div>
-
-    <div class="set-section">
-      <span class="set-label">備份與還原</span>
-      <div class="set-card">
-        <div class="set-row" onclick="exportJSON()">
-          <div class="set-ico">📤</div>
-          <div class="set-info"><div class="set-title">下載備份</div><div class="set-sub">匯出 JSON 備份檔</div></div>
-          <div class="set-arrow">›</div>
-        </div>
-        <div class="set-row" onclick="document.getElementById('restoreInput').click()">
-          <input type="file" id="restoreInput" accept=".json" onchange="importJSON(event)">
-          <div class="set-ico">📥</div>
-          <div class="set-info"><div class="set-title">還原備份</div><div class="set-sub">從 JSON 檔案還原</div></div>
-          <div class="set-arrow">›</div>
-        </div>
+      <span class="set-label" id="lblLanguage">語言 / Language</span>
+      <div class="mpills">
+        <div class="mpill lang-pill s-l active" data-lang="zh" onclick="setLang('zh')">中文</div>
+        <div class="mpill lang-pill" data-lang="en" onclick="setLang('en')">English</div>
       </div>
     </div>
 
     <div class="set-section">
       <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:16px;box-shadow:0 2px 10px var(--shadow);">
-        <div style="font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:10px;">📊 資料統計</div>
+        <div id="statsTitle" style="font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:10px;">📊 資料統計</div>
         <div id="dataStats" style="font-size:.78rem;color:var(--text2);line-height:2;font-weight:500;"></div>
       </div>
     </div>
@@ -393,14 +375,14 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
   <!-- tabbar -->
   <div class="tabbar">
     <div class="tab active" id="tab-log" onclick="switchTab('log')">
-      <div class="tab-pip"></div><div class="tab-icon">🍱</div><div class="tab-label">今日</div>
+      <div class="tab-pip"></div><div class="tab-icon">🍱</div><div class="tab-label" id="tabLblLog">今日</div>
     </div>
     <div class="tab" id="tab-report" onclick="switchTab('report')">
-      <div class="tab-pip"></div><div class="tab-icon">📊</div><div class="tab-label">報告</div>
+      <div class="tab-pip"></div><div class="tab-icon">📊</div><div class="tab-label" id="tabLblReport">報告</div>
     </div>
     <div style="flex:.4"></div>
     <div class="tab" id="tab-settings" onclick="switchTab('settings')">
-      <div class="tab-pip"></div><div class="tab-icon">⚙️</div><div class="tab-label">設定</div>
+      <div class="tab-pip"></div><div class="tab-icon">⚙️</div><div class="tab-label" id="tabLblSettings">設定</div>
     </div>
   </div>
 
@@ -411,9 +393,9 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
     <div class="s-backdrop" onclick="closeSheet()"></div>
     <div class="s-body">
       <div class="s-handle"></div>
-      <div class="s-title">新增飲食 ✨</div>
+      <div class="s-title" id="sheetTitle">新增飲食 ✨</div>
       <div class="f-sec">
-        <span class="f-lbl">餐次</span>
+        <span class="f-lbl" id="lblMeal">餐次</span>
         <div class="mpills" id="mealPills">
           <div class="mpill s-b" data-meal="早餐" onclick="pickMeal(this)">🌅 早餐</div>
           <div class="mpill" data-meal="午餐" onclick="pickMeal(this)">☀️ 午餐</div>
@@ -422,7 +404,7 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
         </div>
       </div>
       <div class="f-sec">
-        <span class="f-lbl">食物名稱</span>
+        <span class="f-lbl" id="lblName">食物名稱</span>
         <div style="display:flex;gap:8px;align-items:stretch;">
           <input class="f-input" id="iName" type="text" placeholder="例：滷肉飯、珍珠奶茶…" autocomplete="off" style="flex:1;">
           <button class="ai-btn" id="aiBtn" onclick="askAiCalories()" type="button">✨ AI建議</button>
@@ -430,16 +412,16 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
       </div>
       <div class="f-sec">
         <div class="f-row">
-          <div><span class="f-lbl">熱量 (kcal)</span><input class="f-input" id="iCal" type="number" placeholder="0" min="0" inputmode="numeric"></div>
-          <div><span class="f-lbl">份量</span><input class="f-input" id="iPortion" type="text" placeholder="1碗、1份…" autocomplete="off"></div>
+          <div><span class="f-lbl" id="lblCal">熱量 (kcal)</span><input class="f-input" id="iCal" type="number" placeholder="0" min="0" inputmode="numeric"></div>
+          <div><span class="f-lbl" id="lblPortion">份量</span><input class="f-input" id="iPortion" type="text" placeholder="1碗、1份…" autocomplete="off"></div>
         </div>
       </div>
       <div class="f-sec">
-        <span class="f-lbl">備註</span>
+        <span class="f-lbl" id="lblNotes">備註</span>
         <textarea class="f-input" id="iNotes" placeholder="口感？健不健康？有什麼特別感受？"></textarea>
       </div>
       <div class="f-sec">
-        <span class="f-lbl">心情感受</span>
+        <span class="f-lbl" id="lblMood">心情感受</span>
         <div class="mood-grid" id="moodGrid">
           <div class="mbtn active" data-mood="😊" onclick="pickMood(this)">😊<span>開心</span></div>
           <div class="mbtn" data-mood="😋" onclick="pickMood(this)">😋<span>好吃</span></div>
@@ -450,11 +432,11 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
         </div>
       </div>
       <div class="f-sec">
-        <span class="f-lbl">照片</span>
+        <span class="f-lbl" id="lblPhoto">照片</span>
         <div class="photo-zone" onclick="document.getElementById('iPhoto').click()">
           <input type="file" id="iPhoto" accept="image/*" multiple onchange="handlePhotos(event)">
           <div style="font-size:1.7rem">📷</div>
-          <div style="font-size:.75rem;color:var(--text2);font-weight:600;">點擊上傳照片（可多張）</div>
+          <div id="photoHint" style="font-size:.75rem;color:var(--text2);font-weight:600;">點擊上傳照片（可多張）</div>
         </div>
         <div class="p-thumbs" id="pThumbs"></div>
       </div>
@@ -471,6 +453,164 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
 // CONFIG — 部署後填入你的 Supabase 資訊
 // ════════════════════════════════════════
 const API_BASE = ''; // 部署到 Vercel 後留空即可，會自動使用相對路徑
+
+// ════════════════════════════════════════
+// i18n
+// ════════════════════════════════════════
+const STRINGS = {
+  zh: {
+    appTitle:'吃·記 🍱', tabLog:'今日', tabReport:'報告', tabSettings:'設定',
+    meals:['早餐','午餐','晚餐','點心'], mealEmojis:['🌅','☀️','🌙','🍪'],
+    dow:['日','一','二','三','四','五','六'],
+    months:['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'],
+    reportTitle:'報告 📊', reportSub:'分析你的飲食習慣',
+    rangeBtn:['近7天','近14天','近30天'],
+    settingsTitle:'設定 ⚙️', myName:'我的名字', save:'儲存',
+    namePlaceholder:'輸入你的名字（顯示在紀錄上）',
+    family:'家人 / 朋友', addMember:'新增成員', addMemberSub:'最多5人共用',
+    dailyGoal:'每日目標熱量', goalSub:'超過目標時，熱量環形圖會變紅並顯示警告',
+    language:'語言 / Language', dataStats:'📊 資料統計',
+    addSheetTitle:'新增飲食 ✨', mealLabel:'餐次', nameLabel:'食物名稱',
+    namePlaceholder2:'例：滷肉飯、珍珠奶茶…', calLabel:'熱量 (kcal)',
+    portionLabel:'份量', portionPlaceholder:'1碗、1份…',
+    notesLabel:'備註', notesPlaceholder:'口感？健不健康？有什麼特別感受？',
+    moodLabel:'心情感受', moods:['開心','好吃','普通','不好','好飽','健康'],
+    photoLabel:'照片', photoHint:'點擊上傳照片（可多張）',
+    saveEntry:'儲存紀錄 ✓', aiBtn:'✨ AI建議', aiLoading:'查詢中...',
+    today:'今天', loading:'載入中…',
+    emptyTitle:'今天還沒有紀錄', emptySub:'點右下角 ＋ 開始記錄<br>今天吃了什麼吧！',
+    saving:'儲存中…',
+    toastSaved:'✓ 已儲存！', toastSavedOffline:'✓ 已儲存（離線模式）',
+    toastDeleted:'已刪除', toastNameSaved:'✓ 名字已儲存！',
+    toastGoalSaved:'✓ 目標熱量已儲存！', toastMemberAdded:name=>`✓ 已新增 ${name}！`, toastMaxMembers:'最多5位成員',
+    toastNoName:'請輸入名字', toastNoFoodName:'請填入食物名稱 🍽',
+    toastNoGoal:'請輸入有效的目標熱量',
+    toastAiNoName:'請先填入食物名稱 🍽', toastAiLoading:'查詢中...',
+    toastAiSuggest:cal=>`✨ AI 建議：${cal} kcal`, toastAiError:msg=>`❌ AI 建議失敗：${msg}`,
+    reportAnalyzing:'分析中…', avgPerDay:'📈 平均/天', topMood:'😊 最常心情',
+    recordCount:n=>`${n} 筆紀錄`, timesStr:n=>`${n} 次`, noData:'尚無',
+    chartCalTrend:'每日熱量趨勢', chartMealDist:'各餐熱量分佈',
+    chartMoodHistory:'心情記錄（近7天）', chartTopFoods:'最常吃的食物',
+    noFoodData:'尚無資料', timesUnit:'次',
+    curUser:u=>`目前用戶：${u}`, recordDays:n=>`記錄天數：${n} 天`,
+    totalRecords:n=>`總筆數：${n} 筆`, earliest:d=>`最早紀錄：${d}`,
+    me:'我', removeConfirm:name=>`確定移除 ${name}？`,
+    addMemberPrompt:'輸入新成員名字：', deleteConfirm:'確定刪除？',
+    goalWarning:(goal,cur)=>`⚠️ 已超過今日目標（目標 ${goal.toLocaleString()} kcal，目前 ${cur.toLocaleString()} kcal）`,
+  },
+  en: {
+    appTitle:'Food Diary 🍱', tabLog:'Today', tabReport:'Report', tabSettings:'Settings',
+    meals:['Breakfast','Lunch','Dinner','Snack'], mealEmojis:['🌅','☀️','🌙','🍪'],
+    dow:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+    months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    reportTitle:'Report 📊', reportSub:'Analyze your eating habits',
+    rangeBtn:['Last 7d','Last 14d','Last 30d'],
+    settingsTitle:'Settings ⚙️', myName:'My Name', save:'Save',
+    namePlaceholder:'Enter your name (shown on records)',
+    family:'Family / Friends', addMember:'Add Member', addMemberSub:'Up to 5 members',
+    dailyGoal:'Daily Calorie Goal', goalSub:'Ring turns red and shows warning when exceeded',
+    language:'語言 / Language', dataStats:'📊 Data Stats',
+    addSheetTitle:'Add Food ✨', mealLabel:'Meal', nameLabel:'Food Name',
+    namePlaceholder2:'e.g. Salad, Coffee…', calLabel:'Calories (kcal)',
+    portionLabel:'Portion', portionPlaceholder:'1 bowl, 1 serving…',
+    notesLabel:'Notes', notesPlaceholder:'Taste? Healthy? How do you feel?',
+    moodLabel:'Mood', moods:['Happy','Yummy','Okay','Bad','Full','Healthy'],
+    photoLabel:'Photos', photoHint:'Tap to upload photos',
+    saveEntry:'Save ✓', aiBtn:'✨ AI Suggest', aiLoading:'Loading...',
+    today:'Today', loading:'Loading…',
+    emptyTitle:'No records today', emptySub:'Tap + to start logging<br>what you ate today!',
+    saving:'Saving…',
+    toastSaved:'✓ Saved!', toastSavedOffline:'✓ Saved (offline)',
+    toastDeleted:'Deleted', toastNameSaved:'✓ Name saved!',
+    toastGoalSaved:'✓ Goal saved!', toastMemberAdded:name=>`✓ Added ${name}!`, toastMaxMembers:'Max 5 members',
+    toastNoName:'Please enter a name', toastNoFoodName:'Please enter a food name 🍽',
+    toastNoGoal:'Please enter a valid calorie goal',
+    toastAiNoName:'Please enter a food name first 🍽', toastAiLoading:'Loading...',
+    toastAiSuggest:cal=>`✨ AI suggests: ${cal} kcal`, toastAiError:msg=>`❌ AI failed: ${msg}`,
+    reportAnalyzing:'Analyzing…', avgPerDay:'📈 Avg/Day', topMood:'😊 Top Mood',
+    recordCount:n=>`${n} records`, timesStr:n=>`${n} times`, noData:'None',
+    chartCalTrend:'Daily Calorie Trend', chartMealDist:'Meal Distribution',
+    chartMoodHistory:'Mood History (last 7d)', chartTopFoods:'Top Foods',
+    noFoodData:'No data yet', timesUnit:'x',
+    curUser:u=>`User: ${u}`, recordDays:n=>`Days logged: ${n}`,
+    totalRecords:n=>`Total records: ${n}`, earliest:d=>`Earliest: ${d}`,
+    me:'Me', removeConfirm:name=>`Remove ${name}?`,
+    addMemberPrompt:'Enter new member name:', deleteConfirm:'Delete this entry?',
+    goalWarning:(goal,cur)=>`⚠️ Daily goal exceeded (goal: ${goal.toLocaleString()} kcal, current: ${cur.toLocaleString()} kcal)`,
+  }
+};
+let lang = localStorage.getItem('chitji_lang')||'zh';
+let T = STRINGS[lang];
+
+function setLang(l){
+  lang=l; T=STRINGS[l];
+  localStorage.setItem('chitji_lang',l);
+  applyLang();
+}
+function applyLang(){
+  // Page titles & subs
+  document.getElementById('logTitle').textContent=T.appTitle;
+  document.getElementById('reportTitleEl').textContent=T.reportTitle;
+  document.getElementById('reportSubEl').textContent=T.reportSub;
+  document.getElementById('settingsTitleEl').textContent=T.settingsTitle;
+  // Tabs
+  document.getElementById('tabLblLog').textContent=T.tabLog;
+  document.getElementById('tabLblReport').textContent=T.tabReport;
+  document.getElementById('tabLblSettings').textContent=T.tabSettings;
+  // Cal day-of-week
+  document.getElementById('calDow').innerHTML=T.dow.map(d=>`<span>${d}</span>`).join('');
+  // Meal stats names
+  T.meals.forEach((m,i)=>{const el=document.getElementById('msName'+i);if(el)el.textContent=m;});
+  // Range buttons
+  document.getElementById('rBtn7').textContent=T.rangeBtn[0];
+  document.getElementById('rBtn14').textContent=T.rangeBtn[1];
+  document.getElementById('rBtn30').textContent=T.rangeBtn[2];
+  // Settings labels
+  document.getElementById('lblMyName').textContent=T.myName;
+  document.getElementById('lblFamily').textContent=T.family;
+  document.getElementById('lblDailyGoal').textContent=T.dailyGoal;
+  document.getElementById('goalSubText').textContent=T.goalSub;
+  document.getElementById('lblLanguage').textContent=T.language;
+  document.getElementById('statsTitle').textContent=T.dataStats;
+  document.getElementById('addMemberTitle').textContent=T.addMember;
+  document.getElementById('addMemberSub').textContent=T.addMemberSub;
+  document.getElementById('btnSaveName').textContent=T.save;
+  document.getElementById('btnSaveGoal').textContent=T.save;
+  document.getElementById('nameInput').placeholder=T.namePlaceholder;
+  // Sheet
+  document.getElementById('sheetTitle').textContent=T.addSheetTitle;
+  document.getElementById('lblMeal').textContent=T.mealLabel;
+  document.getElementById('lblName').textContent=T.nameLabel;
+  document.getElementById('iName').placeholder=T.namePlaceholder2;
+  document.getElementById('lblCal').textContent=T.calLabel;
+  document.getElementById('lblPortion').textContent=T.portionLabel;
+  document.getElementById('iPortion').placeholder=T.portionPlaceholder;
+  document.getElementById('lblNotes').textContent=T.notesLabel;
+  document.getElementById('iNotes').placeholder=T.notesPlaceholder;
+  document.getElementById('lblMood').textContent=T.moodLabel;
+  document.getElementById('lblPhoto').textContent=T.photoLabel;
+  document.getElementById('photoHint').textContent=T.photoHint;
+  document.getElementById('saveBtn').textContent=T.saveEntry;
+  document.getElementById('aiBtn').textContent=T.aiBtn;
+  // Meal pills (keep data-meal as zh key for data storage)
+  const ZH_MEALS=STRINGS.zh.meals;
+  const mStyle={[ZH_MEALS[0]]:'s-b',[ZH_MEALS[1]]:'s-l',[ZH_MEALS[2]]:'s-d',[ZH_MEALS[3]]:'s-s'};
+  document.getElementById('mealPills').innerHTML=ZH_MEALS.map((zh,i)=>{
+    const active=zh===selMeal?` ${mStyle[zh]}`:'';
+    return `<div class="mpill${active}" data-meal="${zh}" onclick="pickMeal(this)">${T.mealEmojis[i]} ${T.meals[i]}</div>`;
+  }).join('');
+  // Mood buttons
+  const MOODS=['😊','😋','😐','😞','😴','💪'];
+  document.getElementById('moodGrid').innerHTML=MOODS.map((emoji,i)=>
+    `<div class="mbtn${emoji===selMood?' active':''}" data-mood="${emoji}" onclick="pickMood(this)">${emoji}<span>${T.moods[i]}</span></div>`
+  ).join('');
+  // Language pills
+  document.querySelectorAll('.lang-pill').forEach(p=>p.classList.toggle('active',p.dataset.lang===lang));
+  // Re-render dynamic content
+  renderLog();
+  if(document.getElementById('p-report').classList.contains('active')) renderReport(reportRange);
+  if(document.getElementById('p-settings').classList.contains('active')){ renderMembers(); renderDataStats(); }
+}
 
 // ── Local state ──
 let cur = todayStr();
@@ -517,7 +657,7 @@ function switchTab(name){
   });
   document.getElementById('fab').style.display = name==='log'?'flex':'none';
   if(name==='report') renderReport(7);
-  if(name==='settings'){ renderMembers(); renderDataStats(); document.getElementById('nameInput').value = curUser==='default'?'':curUser; document.getElementById('goalInput').value=localStorage.getItem('chitji_goal')||''; document.getElementById('apiKeyInput').value=localStorage.getItem('chitji_api_key')||''; }
+  if(name==='settings'){ renderMembers(); renderDataStats(); document.getElementById('nameInput').value=curUser==='default'?'':curUser; document.getElementById('goalInput').value=localStorage.getItem('chitji_goal')||''; }
 }
 
 // ── Users ──
@@ -525,7 +665,7 @@ function renderUserBar(){
   const bar = document.getElementById('userBar');
   if(members.length<=1 && members[0]==='default'){bar.innerHTML='';return;}
   bar.innerHTML = members.map(m=>`
-    <div class="upill ${m===curUser?'active':''}" onclick="switchUser('${m}')">${m==='default'?'我':m}</div>
+    <div class="upill ${m===curUser?'active':''}" onclick="switchUser('${m}')">${m==='default'?T.me:m}</div>
   `).join('');
 }
 function switchUser(user){
@@ -536,7 +676,7 @@ function switchUser(user){
 }
 function saveName(){
   const val = document.getElementById('nameInput').value.trim();
-  if(!val){showToast('請輸入名字');return;}
+  if(!val){showToast(T.toastNoName);return;}
   const old = curUser;
   // update members list
   const idx = members.indexOf(old);
@@ -545,19 +685,19 @@ function saveName(){
   localStorage.setItem('chitji_user',val);
   localStorage.setItem('chitji_members',JSON.stringify(members));
   renderMembers(); renderUserBar();
-  showToast('✓ 名字已儲存！');
+  showToast(T.toastNameSaved);
 }
 function addMember(){
-  if(members.length>=5){showToast('最多5位成員');return;}
-  const name=prompt('輸入新成員名字：');
+  if(members.length>=5){showToast(T.toastMaxMembers);return;}
+  const name=prompt(T.addMemberPrompt);
   if(!name||!name.trim()) return;
   members.push(name.trim());
   localStorage.setItem('chitji_members',JSON.stringify(members));
   renderMembers(); renderUserBar();
-  showToast(`✓ 已新增 ${name.trim()}！`);
+  showToast(T.toastMemberAdded(name.trim()));
 }
 function removeMember(name){
-  if(!confirm(`確定移除 ${name}？`)) return;
+  if(!confirm(T.removeConfirm(name))) return;
   members=members.filter(m=>m!==name);
   if(curUser===name){ curUser=members[0]||'default'; localStorage.setItem('chitji_user',curUser); }
   localStorage.setItem('chitji_members',JSON.stringify(members));
@@ -570,7 +710,7 @@ function renderMembers(){
     <div class="set-row">
       <div class="set-ico">👤</div>
       <div class="set-info"><div class="set-title">${m}</div></div>
-      <div style="font-size:.8rem;color:var(--pink);font-weight:700;cursor:pointer;" onclick="removeMember('${m}')">移除</div>
+      <div style="font-size:.8rem;color:var(--pink);font-weight:700;cursor:pointer;" onclick="removeMember('${m}')">${lang==='en'?'Remove':'移除'}</div>
     </div>
   `).join('');
 }
@@ -593,7 +733,7 @@ function calNav(d){
   renderCalendar();
 }
 function renderCalendar(){
-  const mn=['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+  const mn=T.months;
   const y=calViewYear, m=calViewMonth;
   document.getElementById('calMonth').textContent=`${y}年 ${mn[m]}`;
   const firstDay=new Date(y,m,1).getDay();
@@ -665,9 +805,9 @@ function renderThumbs(){
 }
 async function saveEntry(){
   const name=document.getElementById('iName').value.trim();
-  if(!name){showToast('請填入食物名稱 🍽');return;}
+  if(!name){showToast(T.toastNoFoodName);return;}
   const btn=document.getElementById('saveBtn');
-  btn.disabled=true; btn.textContent='儲存中…';
+  btn.disabled=true; btn.textContent=T.saving;
   const entry={
     meal:selMeal, name, date:cur,
     cal:parseInt(document.getElementById('iCal').value)||0,
@@ -678,7 +818,7 @@ async function saveEntry(){
   };
   try{
     await apiPost(entry, curUser);
-    showToast('✓ 已儲存！');
+    showToast(T.toastSaved);
   }catch(e){
     // offline fallback
     const all=JSON.parse(localStorage.getItem('chitji_offline')||'{}');
@@ -687,7 +827,7 @@ async function saveEntry(){
     entry.id=Date.now();
     all[curUser][cur].push(entry);
     localStorage.setItem('chitji_offline',JSON.stringify(all));
-    showToast('✓ 已儲存（離線模式）');
+    showToast(T.toastSavedOffline);
   }
   // clear form
   document.getElementById('iName').value='';document.getElementById('iCal').value='';
@@ -695,32 +835,33 @@ async function saveEntry(){
   document.getElementById('iPhoto').value='';
   pendingPhotos=[];renderThumbs();selMood='😊';
   document.querySelectorAll('.mbtn').forEach((b,i)=>b.classList.toggle('active',i===0));
-  btn.disabled=false; btn.textContent='儲存紀錄 ✓';
+  btn.disabled=false; btn.textContent=T.saveEntry;
   delete cachedEntries[cur];
   closeSheet(); renderLog();
 }
 async function deleteEntry(id){
-  if(!confirm('確定刪除？')) return;
+  if(!confirm(T.deleteConfirm)) return;
   try{ await apiDelete(id); }catch(e){
     const all=JSON.parse(localStorage.getItem('chitji_offline')||'{}');
     if(all[curUser]?.[cur]) all[curUser][cur]=all[curUser][cur].filter(e=>e.id!==id);
     localStorage.setItem('chitji_offline',JSON.stringify(all));
   }
   delete cachedEntries[cur];
-  renderLog(); showToast('已刪除');
+  renderLog(); showToast(T.toastDeleted);
 }
 
 // ── Render Log ──
 async function renderLog(){
   const d=new Date(cur+'T00:00:00'), isToday=cur===todayStr();
+  const locale=lang==='en'?'en-US':'zh-TW';
   const opts={month:'long',day:'numeric',weekday:'short'};
-  document.getElementById('hdrSub').textContent=isToday?'今天 · '+d.toLocaleDateString('zh-TW',{month:'numeric',day:'numeric'}):d.toLocaleDateString('zh-TW',opts);
-  document.getElementById('dpillTxt').textContent=isToday?'今天':d.toLocaleDateString('zh-TW',{month:'numeric',day:'numeric',weekday:'short'});
+  document.getElementById('hdrSub').textContent=isToday?T.today+' · '+d.toLocaleDateString(locale,{month:'numeric',day:'numeric'}):d.toLocaleDateString(locale,opts);
+  document.getElementById('dpillTxt').textContent=isToday?T.today:d.toLocaleDateString(locale,{month:'numeric',day:'numeric',weekday:'short'});
   document.getElementById('dpill').classList.toggle('today',isToday);
   document.getElementById('datePicker').value=cur;
   renderUserBar();
 
-  document.getElementById('logList').innerHTML='<div class="loading"><span>🍽</span><br>載入中…</div>';
+  document.getElementById('logList').innerHTML=`<div class="loading"><span>🍽</span><br>${T.loading}</div>`;
 
   // fetch
   if(!cachedEntries[cur]){
@@ -737,7 +878,7 @@ async function renderLog(){
   document.getElementById('ringFg').style.strokeDashoffset=219.9-(219.9*pct);
   document.getElementById('ringFg').style.stroke=exceeded?'#e74c3c':'var(--accent)';
   const gw=document.getElementById('goalWarning');
-  if(exceeded){gw.textContent=`⚠️ 已超過今日目標（目標 ${goal.toLocaleString()} kcal，目前 ${totalCal.toLocaleString()} kcal）`;gw.classList.add('show');}
+  if(exceeded){gw.textContent=T.goalWarning(goal,totalCal);gw.classList.add('show');}
   else{gw.classList.remove('show');}
   const meals=['早餐','午餐','晚餐','點心'];
   meals.forEach((m,i)=>{
@@ -750,12 +891,13 @@ async function renderLog(){
   const colors={早餐:'var(--gold)',午餐:'var(--green)',晚餐:'var(--accent)',點心:'var(--blue)'};
   let html='';
   if(!entries.length){
-    html=`<div class="empty"><span class="empty-e">🌸</span><div class="empty-t">今天還沒有紀錄</div><div class="empty-s">點右下角 ＋ 開始記錄<br>今天吃了什麼吧！</div></div>`;
+    html=`<div class="empty"><span class="empty-e">🌸</span><div class="empty-t">${T.emptyTitle}</div><div class="empty-s">${T.emptySub}</div></div>`;
   } else {
-    ['早餐','午餐','晚餐','點心'].forEach(meal=>{
+    const ZH_MEALS=STRINGS.zh.meals;
+    ZH_MEALS.forEach((meal,mi)=>{
       if(!grouped[meal]) return;
       const mc=grouped[meal].reduce((s,e)=>s+(e.calories||e.cal||0),0);
-      html+=`<div class="meal-group"><div class="mg-hdr"><div class="mg-title" style="color:${colors[meal]}">${mealEmoji(meal)} ${meal}</div><div class="mg-cal">${mc} kcal</div></div>`;
+      html+=`<div class="meal-group"><div class="mg-hdr"><div class="mg-title" style="color:${colors[meal]}">${mealEmoji(meal)} ${T.meals[mi]}</div><div class="mg-cal">${mc} kcal</div></div>`;
       grouped[meal].forEach(e=>{
         const cal=e.calories||e.cal||0;
         const photos=e.photos&&e.photos.length?`<div class="food-photos">${e.photos.map(p=>`<img src="${p}" onclick="openLightbox(this.src)">`).join('')}</div>`:'';
@@ -829,7 +971,7 @@ async function renderReport(days){
   const defer=ms=>new Promise(r=>setTimeout(r,ms));
 
   // 第一段：統計卡
-  rc.innerHTML=`<div class="stat-row"><div class="stile"><div class="stlbl">📈 平均/天</div><div class="stnum">${avgCal.toLocaleString()}<span class="stunit"> kcal</span></div><div class="stsub">${allE.length} 筆紀錄</div></div><div class="stile"><div class="stlbl">😊 最常心情</div><div class="stnum" style="font-size:2rem">${topMood?topMood[0]:'—'}</div><div class="stsub">${topMood?`${topMood[1]} 次`:'尚無'}</div></div></div>`+
+  rc.innerHTML=`<div class="stat-row"><div class="stile"><div class="stlbl">${T.avgPerDay}</div><div class="stnum">${avgCal.toLocaleString()}<span class="stunit"> kcal</span></div><div class="stsub">${T.recordCount(allE.length)}</div></div><div class="stile"><div class="stlbl">${T.topMood}</div><div class="stnum" style="font-size:2rem">${topMood?topMood[0]:'—'}</div><div class="stsub">${topMood?T.timesStr(topMood[1]):T.noData}</div></div></div>`+
     `<div id="rc-bars" class="skel skel-chart"></div>`+
     `<div id="rc-meals" class="skel skel-chart sm"></div>`+
     `<div id="rc-mood" class="skel skel-chart sm"></div>`+
@@ -837,19 +979,19 @@ async function renderReport(days){
 
   await defer(0);
   const bars=dayList.map(d=>{const c=d.entries.reduce((s,e)=>s+cal(e),0);const h=Math.round((c/maxDay)*100);return `<div class="bcw"><div class="bcval">${c>0?c:''}</div><div class="bcbar ${c>0?'hd':''}" style="height:${h}%;min-height:${c>0?3:0}px"></div><div class="bclbl">${d.date.slice(5)}</div></div>`;}).join('');
-  document.getElementById('rc-bars').outerHTML=`<div class="chart-card"><div class="cc-title">每日熱量趨勢</div><div class="bar-chart">${bars}</div></div>`;
+  document.getElementById('rc-bars').outerHTML=`<div class="chart-card"><div class="cc-title">${T.chartCalTrend}</div><div class="bar-chart">${bars}</div></div>`;
 
   await defer(0);
-  const mbHTML=Object.entries(mCalMap).map(([m,c])=>{const pct=Math.round((c/totalM)*100);return `<div class="mb-item"><div class="mb-hdr"><div class="mb-name" style="color:${mbColors[m]}">${mealEmoji(m)} ${m}</div><div class="mb-cal">${c} kcal</div></div><div class="mb-track"><div class="mb-fill" style="width:${pct}%;background:${mbColors[m]}"></div></div></div>`;}).join('');
-  document.getElementById('rc-meals').outerHTML=`<div class="chart-card"><div class="cc-title">各餐熱量分佈</div><div class="mb-list">${mbHTML}</div></div>`;
+  const mbHTML=Object.entries(mCalMap).map(([m,c])=>{const pct=Math.round((c/totalM)*100);const mi=STRINGS.zh.meals.indexOf(m);const dn=mi>=0?T.meals[mi]:m;return `<div class="mb-item"><div class="mb-hdr"><div class="mb-name" style="color:${mbColors[m]}">${mealEmoji(m)} ${dn}</div><div class="mb-cal">${c} kcal</div></div><div class="mb-track"><div class="mb-fill" style="width:${pct}%;background:${mbColors[m]}"></div></div></div>`;}).join('');
+  document.getElementById('rc-meals').outerHTML=`<div class="chart-card"><div class="cc-title">${T.chartMealDist}</div><div class="mb-list">${mbHTML}</div></div>`;
 
   await defer(0);
   const moodTL=dayList.slice(-7).map(d=>{const last=d.entries.length?d.entries[d.entries.length-1].mood:'·';return `<div class="mtd"><div class="mtd-b">${last}</div><div class="mtd-l">${d.date.slice(5)}</div></div>`;}).join('');
-  document.getElementById('rc-mood').outerHTML=`<div class="chart-card"><div class="cc-title">心情記錄（近7天）</div><div class="mood-tl">${moodTL}</div></div>`;
+  document.getElementById('rc-mood').outerHTML=`<div class="chart-card"><div class="cc-title">${T.chartMoodHistory}</div><div class="mood-tl">${moodTL}</div></div>`;
 
   await defer(0);
-  const tfHTML=tops.length?tops.map(([n,i],idx)=>`<div class="tf-item"><div class="tf-rank ${idx===0?'g1':''}">${String(idx+1).padStart(2,'0')}</div><div class="tf-name">${n}</div><div class="tf-cnt">${i.cnt}次</div><div class="tf-cal">${Math.round(i.tc/i.cnt)} kcal</div></div>`).join(''):`<div style="color:var(--text3);font-size:.8rem;text-align:center;padding:16px;font-weight:600;">尚無資料</div>`;
-  document.getElementById('rc-top').outerHTML=`<div class="chart-card"><div class="cc-title">最常吃的食物</div><div class="tf-list">${tfHTML}</div></div>`;
+  const tfHTML=tops.length?tops.map(([n,i],idx)=>`<div class="tf-item"><div class="tf-rank ${idx===0?'g1':''}">${String(idx+1).padStart(2,'0')}</div><div class="tf-name">${n}</div><div class="tf-cnt">${i.cnt}${T.timesUnit}</div><div class="tf-cal">${Math.round(i.tc/i.cnt)} kcal</div></div>`).join(''):`<div style="color:var(--text3);font-size:.8rem;text-align:center;padding:16px;font-weight:600;">${T.noFoodData}</div>`;
+  document.getElementById('rc-top').outerHTML=`<div class="chart-card"><div class="cc-title">${T.chartTopFoods}</div><div class="tf-list">${tfHTML}</div></div>`;
 }
 
 // ── Backup ──
@@ -887,7 +1029,8 @@ function renderDataStats(){
   const userData=all[curUser]||{};
   const dates=Object.keys(userData);
   const total=Object.values(userData).reduce((s,v)=>s+v.length,0);
-  document.getElementById('dataStats').innerHTML=`目前用戶：${curUser==='default'?'我':curUser}<br>記錄天數：${dates.length} 天<br>總筆數：${total} 筆<br>最早紀錄：${dates.sort()[0]||'—'}`;
+  const uname=curUser==='default'?T.me:curUser;
+  document.getElementById('dataStats').innerHTML=`${T.curUser(uname)}<br>${T.recordDays(dates.length)}<br>${T.totalRecords(total)}<br>${T.earliest(dates.sort()[0]||'—')}`;
 }
 
 // ── Helpers ──
@@ -906,9 +1049,9 @@ function showToast(msg){
 // ── Goal ──
 function saveGoal(){
   const val=parseInt(document.getElementById('goalInput').value);
-  if(!val||val<=0){showToast('請輸入有效的目標熱量');return;}
+  if(!val||val<=0){showToast(T.toastNoGoal);return;}
   localStorage.setItem('chitji_goal',val);
-  showToast('✓ 目標熱量已儲存！');
+  showToast(T.toastGoalSaved);
   renderLog();
 }
 
@@ -935,10 +1078,10 @@ function getApiKey(){
 // ── AI Suggest Calories ──
 async function askAiCalories(){
   const name=document.getElementById('iName').value.trim();
-  if(!name){showToast('請先填入食物名稱 🍽');return;}
+  if(!name){showToast(T.toastAiNoName);return;}
   const portion=document.getElementById('iPortion').value.trim();
   const btn=document.getElementById('aiBtn');
-  btn.disabled=true; btn.textContent='查詢中...';
+  btn.disabled=true; btn.textContent=T.aiLoading;
   try{
     const res=await fetch('/api/calories',{
       method:'POST',
@@ -953,11 +1096,11 @@ async function askAiCalories(){
     const cal=data.calories;
     if(!cal||isNaN(cal)) throw new Error('無法解析回應');
     document.getElementById('iCal').value=cal;
-    showToast(`✨ AI 建議：${cal} kcal`);
+    showToast(T.toastAiSuggest(cal));
   }catch(e){
-    showToast(`❌ AI 建議失敗：${e.message}`);
+    showToast(T.toastAiError(e.message));
   }finally{
-    btn.disabled=false; btn.textContent='✨ AI建議';
+    btn.disabled=false; btn.textContent=T.aiBtn;
   }
 }
 
@@ -976,7 +1119,7 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeLightbox(); }
 const today=new Date();
 calViewYear=today.getFullYear(); calViewMonth=today.getMonth();
 if(!localStorage.getItem('chitji_members')) localStorage.setItem('chitji_members',JSON.stringify(['default']));
-renderLog();
+applyLang();
 </script>
 </body>
 </html>
