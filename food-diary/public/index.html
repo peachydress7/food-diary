@@ -1085,7 +1085,7 @@ async function askAiCalories(){
   try{
     const res=await fetch('/api/calories',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json','x-app-key':'fd_xK9mP2nQ8rT4vW6yJ5cL1hA3'},
       body:JSON.stringify({name,portion})
     });
     if(!res.ok){
