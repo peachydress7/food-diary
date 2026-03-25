@@ -210,6 +210,14 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
 .mtd-b{width:38px;height:38px;border-radius:999px;background:var(--surface2);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.15rem;}
 .mtd-l{font-size:.56rem;color:var(--text3);font-weight:600;}
 
+/* skeleton */
+.skel{background:linear-gradient(90deg,var(--surface2) 25%,var(--border) 50%,var(--surface2) 75%);background-size:200% 100%;animation:skel-shine 1.4s ease infinite;border-radius:8px;}
+@keyframes skel-shine{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 20px 12px;}
+.skel-tile{height:86px;border-radius:var(--radius-sm);}
+.skel-chart{height:130px;margin:0 20px 12px;border-radius:var(--radius);}
+.skel-chart.sm{height:90px;}
+
 /* settings */
 .set-section{padding:0 20px;margin-bottom:24px;}
 .set-label{font-size:.7rem;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;display:block;}
@@ -637,7 +645,19 @@ function pickMood(el){
 }
 function handlePhotos(e){
   Array.from(e.target.files).forEach(f=>{
-    const r=new FileReader(); r.onload=ev=>{pendingPhotos.push(ev.target.result);renderThumbs();}; r.readAsDataURL(f);
+    const url=URL.createObjectURL(f);
+    const img=new Image();
+    img.onload=()=>{
+      const MAX=800,Q=0.7;
+      let w=img.width,h=img.height;
+      if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
+      const c=document.createElement('canvas'); c.width=w; c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      pendingPhotos.push(c.toDataURL('image/jpeg',Q));
+      URL.revokeObjectURL(url);
+      renderThumbs();
+    };
+    img.src=url;
   });
 }
 function renderThumbs(){
@@ -760,22 +780,34 @@ async function renderLog(){
 }
 
 // ── Report ──
+let reportRange=7;
 function setRange(days,btn){
   document.querySelectorAll('.rbtn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active'); renderReport(days);
+  btn.classList.add('active');
+  reportRange=days;
+  renderReport(days);
+}
+function reportSkeleton(){
+  return `<div class="skel-row"><div class="skel skel-tile"></div><div class="skel skel-tile"></div></div>`+
+    `<div class="skel skel-chart"></div><div class="skel skel-chart sm"></div>`+
+    `<div class="skel skel-chart sm"></div><div class="skel skel-chart sm"></div>`;
 }
 async function renderReport(days){
-  document.getElementById('reportContent').innerHTML='<div class="loading"><span>📊</span><br>分析中…</div>';
+  const rc=document.getElementById('reportContent');
+  rc.innerHTML=reportSkeleton();
+
+  // 收集需要的日期
   const end=new Date(), start=new Date();
   start.setDate(start.getDate()-days+1);
-  const dayList=[];
+  const dates=[];
   const d=new Date(start);
-  while(d<=end){
-    const k=d.toISOString().split('T')[0];
-    if(!cachedEntries[k]) cachedEntries[k]=await apiGet(k,curUser);
-    dayList.push({date:k,entries:cachedEntries[k]||[]});
-    d.setDate(d.getDate()+1);
-  }
+  while(d<=end){ dates.push(d.toISOString().split('T')[0]); d.setDate(d.getDate()+1); }
+
+  // 只 fetch 尚未快取的日期（平行發出）
+  await Promise.all(dates.filter(k=>!cachedEntries[k]).map(async k=>{ cachedEntries[k]=await apiGet(k,curUser); }));
+  const dayList=dates.map(k=>({date:k,entries:cachedEntries[k]||[]}));
+
+  // 計算統計
   const allE=dayList.flatMap(d=>d.entries);
   const cal=e=>e.calories||e.cal||0;
   const totalCal=allE.reduce((s,e)=>s+cal(e),0);
@@ -791,17 +823,33 @@ async function renderReport(days){
   const fmap={};
   allE.forEach(e=>{if(!fmap[e.name])fmap[e.name]={cnt:0,tc:0};fmap[e.name].cnt++;fmap[e.name].tc+=cal(e);});
   const tops=Object.entries(fmap).sort((a,b)=>b[1].cnt-a[1].cnt).slice(0,5);
-  const bars=dayList.map(d=>{const c=d.entries.reduce((s,e)=>s+cal(e),0);const h=Math.round((c/maxDay)*100);return `<div class="bcw"><div class="bcval">${c>0?c:''}</div><div class="bcbar ${c>0?'hd':''}" style="height:${h}%;min-height:${c>0?3:0}px"></div><div class="bclbl">${d.date.slice(5)}</div></div>`;}).join('');
-  const moodTL=dayList.slice(-7).map(d=>{const last=d.entries.length?d.entries[d.entries.length-1].mood:'·';return `<div class="mtd"><div class="mtd-b">${last}</div><div class="mtd-l">${d.date.slice(5)}</div></div>`;}).join('');
   const mbColors={早餐:'var(--gold)',午餐:'var(--green)',晚餐:'var(--accent)',點心:'var(--blue)'};
+
+  // 非同步分段渲染，避免長時間阻塞主執行緒
+  const defer=ms=>new Promise(r=>setTimeout(r,ms));
+
+  // 第一段：統計卡
+  rc.innerHTML=`<div class="stat-row"><div class="stile"><div class="stlbl">📈 平均/天</div><div class="stnum">${avgCal.toLocaleString()}<span class="stunit"> kcal</span></div><div class="stsub">${allE.length} 筆紀錄</div></div><div class="stile"><div class="stlbl">😊 最常心情</div><div class="stnum" style="font-size:2rem">${topMood?topMood[0]:'—'}</div><div class="stsub">${topMood?`${topMood[1]} 次`:'尚無'}</div></div></div>`+
+    `<div id="rc-bars" class="skel skel-chart"></div>`+
+    `<div id="rc-meals" class="skel skel-chart sm"></div>`+
+    `<div id="rc-mood" class="skel skel-chart sm"></div>`+
+    `<div id="rc-top" class="skel skel-chart sm"></div>`;
+
+  await defer(0);
+  const bars=dayList.map(d=>{const c=d.entries.reduce((s,e)=>s+cal(e),0);const h=Math.round((c/maxDay)*100);return `<div class="bcw"><div class="bcval">${c>0?c:''}</div><div class="bcbar ${c>0?'hd':''}" style="height:${h}%;min-height:${c>0?3:0}px"></div><div class="bclbl">${d.date.slice(5)}</div></div>`;}).join('');
+  document.getElementById('rc-bars').outerHTML=`<div class="chart-card"><div class="cc-title">每日熱量趨勢</div><div class="bar-chart">${bars}</div></div>`;
+
+  await defer(0);
   const mbHTML=Object.entries(mCalMap).map(([m,c])=>{const pct=Math.round((c/totalM)*100);return `<div class="mb-item"><div class="mb-hdr"><div class="mb-name" style="color:${mbColors[m]}">${mealEmoji(m)} ${m}</div><div class="mb-cal">${c} kcal</div></div><div class="mb-track"><div class="mb-fill" style="width:${pct}%;background:${mbColors[m]}"></div></div></div>`;}).join('');
+  document.getElementById('rc-meals').outerHTML=`<div class="chart-card"><div class="cc-title">各餐熱量分佈</div><div class="mb-list">${mbHTML}</div></div>`;
+
+  await defer(0);
+  const moodTL=dayList.slice(-7).map(d=>{const last=d.entries.length?d.entries[d.entries.length-1].mood:'·';return `<div class="mtd"><div class="mtd-b">${last}</div><div class="mtd-l">${d.date.slice(5)}</div></div>`;}).join('');
+  document.getElementById('rc-mood').outerHTML=`<div class="chart-card"><div class="cc-title">心情記錄（近7天）</div><div class="mood-tl">${moodTL}</div></div>`;
+
+  await defer(0);
   const tfHTML=tops.length?tops.map(([n,i],idx)=>`<div class="tf-item"><div class="tf-rank ${idx===0?'g1':''}">${String(idx+1).padStart(2,'0')}</div><div class="tf-name">${n}</div><div class="tf-cnt">${i.cnt}次</div><div class="tf-cal">${Math.round(i.tc/i.cnt)} kcal</div></div>`).join(''):`<div style="color:var(--text3);font-size:.8rem;text-align:center;padding:16px;font-weight:600;">尚無資料</div>`;
-  document.getElementById('reportContent').innerHTML=`
-    <div class="stat-row"><div class="stile"><div class="stlbl">📈 平均/天</div><div class="stnum">${avgCal.toLocaleString()}<span class="stunit"> kcal</span></div><div class="stsub">${allE.length} 筆紀錄</div></div><div class="stile"><div class="stlbl">😊 最常心情</div><div class="stnum" style="font-size:2rem">${topMood?topMood[0]:'—'}</div><div class="stsub">${topMood?`${topMood[1]} 次`:'尚無'}</div></div></div>
-    <div class="chart-card"><div class="cc-title">每日熱量趨勢</div><div class="bar-chart">${bars}</div></div>
-    <div class="chart-card"><div class="cc-title">各餐熱量分佈</div><div class="mb-list">${mbHTML}</div></div>
-    <div class="chart-card"><div class="cc-title">心情記錄（近7天）</div><div class="mood-tl">${moodTL}</div></div>
-    <div class="chart-card"><div class="cc-title">最常吃的食物</div><div class="tf-list">${tfHTML}</div></div>`;
+  document.getElementById('rc-top').outerHTML=`<div class="chart-card"><div class="cc-title">最常吃的食物</div><div class="tf-list">${tfHTML}</div></div>`;
 }
 
 // ── Backup ──
