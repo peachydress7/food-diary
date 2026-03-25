@@ -110,7 +110,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 @keyframes slideUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 .food-ico{width:40px;height:40px;border-radius:11px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;border:1px solid var(--border);}
 .food-info{flex:1;min-width:0;}
-.food-name{font-size:.88rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.food-name{font-size:.88rem;font-weight:700;white-space:normal;word-break:break-word;}
 .food-meta{font-size:.68rem;color:var(--text2);margin-top:2px;display:flex;align-items:center;gap:5px;font-weight:500;}
 .food-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;}
 .food-cal{font-size:.95rem;font-weight:800;color:var(--accent);}
@@ -118,7 +118,12 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .del-btn{width:26px;height:26px;border-radius:999px;border:none;background:var(--pink-bg);color:var(--pink);font-size:.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
 .del-btn:active{transform:scale(.88);}
 .food-photos{display:flex;gap:4px;margin-top:7px;}
-.food-photos img{width:46px;height:46px;border-radius:9px;object-fit:cover;border:1.5px solid var(--border);}
+.food-photos img{width:46px;height:46px;border-radius:9px;object-fit:cover;border:1.5px solid var(--border);cursor:pointer;transition:transform .15s;}
+.food-photos img:active{transform:scale(.93);}
+/* lightbox */
+#lightbox{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;animation:bfin .2s ease;}
+#lightbox.open{display:flex;}
+#lightbox img{max-width:95vw;max-height:90dvh;border-radius:14px;object-fit:contain;box-shadow:0 8px 48px rgba(0,0,0,.5);}
 
 /* empty / loading */
 .empty{text-align:center;padding:52px 28px;color:var(--text3);}
@@ -421,6 +426,7 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
   </div>
 </div>
 <div id="toast"></div>
+<div id="lightbox" onclick="closeLightbox()"><img id="lightboxImg" src=""></div>
 
 <script>
 // ════════════════════════════════════════
@@ -696,7 +702,7 @@ async function renderLog(){
       html+=`<div class="meal-group"><div class="mg-hdr"><div class="mg-title" style="color:${colors[meal]}">${mealEmoji(meal)} ${meal}</div><div class="mg-cal">${mc} kcal</div></div>`;
       grouped[meal].forEach(e=>{
         const cal=e.calories||e.cal||0;
-        const photos=e.photos&&e.photos.length?`<div class="food-photos">${e.photos.map(p=>`<img src="${p}">`).join('')}</div>`:'';
+        const photos=e.photos&&e.photos.length?`<div class="food-photos">${e.photos.map(p=>`<img src="${p}" onclick="openLightbox(this.src)">`).join('')}</div>`:'';
         html+=`<div class="food-item">
           <div class="food-ico">${foodEmoji(e.name)}</div>
           <div class="food-info">
@@ -812,6 +818,17 @@ function showToast(msg){
   t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2300);
 }
+
+// ── Lightbox ──
+function openLightbox(src){
+  document.getElementById('lightboxImg').src=src;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('open');
+  document.getElementById('lightboxImg').src='';
+}
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeLightbox(); });
 
 // ── Init ──
 const today=new Date();
