@@ -888,36 +888,21 @@ function getApiKey(){
 async function askAiCalories(){
   const name=document.getElementById('iName').value.trim();
   if(!name){showToast('請先填入食物名稱 🍽');return;}
-  const key=getApiKey();
-  if(!key){showToast('未設定 API 金鑰');return;}
   const portion=document.getElementById('iPortion').value.trim();
-  const prompt=portion
-    ?`食物：${name}，份量：${portion}。請只回傳一個整數，代表這份食物最合理的估計熱量（kcal），不要任何其他文字。`
-    :`食物：${name}（一般份量）。請只回傳一個整數，代表這份食物最合理的估計熱量（kcal），不要任何其他文字。`;
   const btn=document.getElementById('aiBtn');
-  btn.disabled=true; btn.textContent='⏳ 詢問中…';
+  btn.disabled=true; btn.textContent='查詢中...';
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
+    const res=await fetch('/api/calories',{
       method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key':key,
-        'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-access':'true'
-      },
-      body:JSON.stringify({
-        model:'claude-haiku-4-5-20251001',
-        max_tokens:16,
-        messages:[{role:'user',content:prompt}]
-      })
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name,portion})
     });
     if(!res.ok){
       const err=await res.json().catch(()=>({}));
-      throw new Error(err.error?.message||`HTTP ${res.status}`);
+      throw new Error(err.error||`HTTP ${res.status}`);
     }
     const data=await res.json();
-    const text=(data.content?.[0]?.text||'').trim();
-    const cal=parseInt(text.replace(/[^0-9]/g,''));
+    const cal=data.calories;
     if(!cal||isNaN(cal)) throw new Error('無法解析回應');
     document.getElementById('iCal').value=cal;
     showToast(`✨ AI 建議：${cal} kcal`);
