@@ -2,15 +2,14 @@ import { createClient } from '@supabase/supabase-js';
 import { rateLimit } from './_rateLimit.js';
 import crypto from 'crypto';
 
+// Use service role key to bypass RLS — safe because this only runs server-side (Vercel function).
+// Falls back to anon key if service role key is not set (will fail if RLS is enabled).
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY
 );
 
 const ALLOWED_ORIGIN = 'https://food-diary-azure.vercel.app';
-
-// SHA256 of 'maxine2026' = 0907d024aaee25a7ce2da51da1910c727e2519f7bcaef3a6a02e84117db9cf43
-console.log('[auth] sha256(maxine2026)=', crypto.createHash('sha256').update('maxine2026').digest('hex'));
 
 function hashPassword(password) {
   return crypto.createHash('sha256').update(String(password)).digest('hex');
@@ -38,6 +37,21 @@ export default async function handler(req, res) {
   }
 
   try {
+    // ── Ping / diagnostics ──
+    // GET /api/auth?action=ping  → returns env var presence + DB connectivity
+    if (action === 'ping') {
+      const { error: dbErr } = await supabase.from('users').select('id').limit(1);
+      return res.status(200).json({
+        ok: !dbErr,
+        env: {
+          supabase_url: !!process.env.SUPABASE_URL,
+          service_role_key: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+          anon_key: !!process.env.SUPABASE_ANON_KEY,
+        },
+        db_error: dbErr ? { message: dbErr.message, code: dbErr.code, hint: dbErr.hint } : null,
+      });
+    }
+
     // ── Register ──
     if (action === 'register' && req.method === 'POST') {
       const { username, display_name, password } = body;
@@ -60,8 +74,12 @@ export default async function handler(req, res) {
         .limit(1);
 
       if (checkErr) {
-        console.error('[auth] register check error:', checkErr);
-        return res.status(500).json({ error: '資料庫查詢失敗：' + checkErr.message });
+        console.error('[auth] register check error:', JSON.stringify(checkErr));
+        return res.status(500).json({
+          error: '資料庫查詢失敗：' + checkErr.message,
+          code: checkErr.code,
+          hint: checkErr.hint,
+        });
       }
       if (existingRows && existingRows.length > 0) {
         return res.status(409).json({ error: '此用戶名已被使用，請換一個' });
@@ -73,17 +91,20 @@ export default async function handler(req, res) {
           username,
           display_name,
           password_hash: hashPassword(password),
-          is_admin: false
+          is_admin: false,
         })
         .select('username, display_name, is_admin')
         .single();
 
       if (error) {
-        console.error('[auth] register insert error:', error);
-        return res.status(500).json({ error: '註冊失敗：' + error.message });
+        console.error('[auth] register insert error:', JSON.stringify(error));
+        return res.status(500).json({
+          error: '註冊失敗：' + error.message,
+          code: error.code,
+          hint: error.hint,
+        });
       }
 
-      // Return token so frontend can auto-login immediately after register
       const token = `${username}-${Date.now()}`;
       return res.status(200).json({ ok: true, user: data, token });
     }
@@ -104,8 +125,8 @@ export default async function handler(req, res) {
         .maybeSingle();
 
       if (error) {
-        console.error('[auth] login query error:', error);
-        return res.status(500).json({ error: '登入查詢失敗：' + error.message });
+        console.error('[auth] login query error:', JSON.stringify(error));
+        return res.status(500).json({ error: '登入查詢失敗：' + error.message, code: error.code });
       }
       if (!data) {
         return res.status(401).json({ error: '用戶名不存在' });
@@ -118,7 +139,7 @@ export default async function handler(req, res) {
       return res.status(200).json({
         ok: true,
         user: { username: data.username, display_name: data.display_name, is_admin: data.is_admin },
-        token
+        token,
       });
     }
 
@@ -129,7 +150,7 @@ export default async function handler(req, res) {
         .select('username, display_name')
         .order('username');
       if (error) {
-        console.error('[auth] list error:', error);
+        console.error('[auth] list error:', JSON.stringify(error));
         return res.status(500).json({ error: error.message });
       }
       return res.status(200).json({ users: data });

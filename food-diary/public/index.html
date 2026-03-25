@@ -1416,11 +1416,15 @@ async function submitAuth(){
       body:JSON.stringify({username,password,display_name})
     });
     const data=await r.json();
-    if(!r.ok) throw new Error(data.error||'發生錯誤');
+    if(!r.ok){
+      console.error('[auth] API error response:',data);
+      throw new Error(data.error||(data.hint?data.hint:'發生錯誤 (HTTP '+r.status+')'));
+    }
     authUser={...data.user,token:data.token};
     localStorage.setItem('chitji_auth',JSON.stringify(authUser));
     enterApp();
   }catch(e){
+    console.error('[auth] submitAuth caught:',e);
     showAuthError(e.message);
     btn.disabled=false;
     btn.textContent=mode==='login'?'登入':'註冊';
