@@ -442,12 +442,18 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
     </div>
 
     <div class="w-input-card">
+      <div style="margin-bottom:14px;">
+        <div class="dpill" id="wDpill">
+          <input type="date" id="wDatePicker" onchange="onWeightDateChange(this.value)">
+          <span id="wDpillTxt"></span>
+        </div>
+      </div>
       <div class="f-row">
         <div><span class="f-lbl" id="lblWeightKg">體重 (kg)</span><input class="f-input" id="wInput" type="number" step="0.1" min="0" placeholder="65.0" inputmode="decimal"></div>
         <div><span class="f-lbl" id="lblWeightNote">備註</span><input class="f-input" id="wNote" type="text" placeholder="起床後、飯後…" autocomplete="off"></div>
       </div>
-      <button class="s-btn" id="wSaveBtn" onclick="saveWeight()" style="margin-top:12px;width:100%;">儲存今日體重 ✓</button>
     </div>
+    <button class="s-btn" id="wSaveBtn" onclick="saveWeight()">儲存體重 ✓</button>
 
     <div class="stat-row">
       <div class="stile"><div class="stlbl" id="lblWeekAvg">本週平均</div><div class="stnum" id="wAvgWeek">—</div></div>
@@ -598,7 +604,7 @@ const STRINGS = {
     goalWarning:(goal,cur)=>`⚠️ 已超過今日目標（目標 ${goal.toLocaleString()} kcal，目前 ${cur.toLocaleString()} kcal）`,
     tabWeight:'體重', weightTitle:'⚖️ 體重', weightSub:'追蹤你的體重變化',
     weightKgLabel:'體重 (kg)', weightNoteLabel:'備註', weightNotePh:'起床後、飯後…',
-    saveWeightBtn:'儲存今日體重 ✓', weekAvg:'本週平均', monthAvg:'本月平均',
+    saveWeightBtn:'儲存體重 ✓', weekAvg:'本週平均', monthAvg:'本月平均',
     maxWeight:'最高', minWeight:'最低', chartTrend:'30 天趨勢',
     noWeightData:'還沒有體重紀錄', noWeightSub:'輸入今天的體重開始追蹤',
     toastWeightSaved:'✓ 體重已儲存！', toastWeightFail:'❌ 儲存失敗', toastNoWeight:'請輸入體重',
@@ -645,7 +651,7 @@ const STRINGS = {
     goalWarning:(goal,cur)=>`⚠️ Daily goal exceeded (goal: ${goal.toLocaleString()} kcal, current: ${cur.toLocaleString()} kcal)`,
     tabWeight:'Weight', weightTitle:'⚖️ Weight', weightSub:'Track your weight changes',
     weightKgLabel:'Weight (kg)', weightNoteLabel:'Note', weightNotePh:'After waking up, after meal…',
-    saveWeightBtn:'Save Today\'s Weight ✓', weekAvg:'Week Avg', monthAvg:'Month Avg',
+    saveWeightBtn:'Save Weight ✓', weekAvg:'Week Avg', monthAvg:'Month Avg',
     maxWeight:'Highest', minWeight:'Lowest', chartTrend:'30-Day Trend',
     noWeightData:'No weight records yet', noWeightSub:'Enter today\'s weight to start tracking',
     toastWeightSaved:'✓ Weight saved!', toastWeightFail:'❌ Save failed', toastNoWeight:'Please enter weight',
@@ -748,6 +754,8 @@ let pendingPhotos = [], sheetOpen = false;
 let calViewYear, calViewMonth;
 let cachedEntries = {}; // { date: [entries] }
 let authUser = null;   // { username, is_admin, token }
+let wDate = todayStr();
+let weightRecords = [];
 let adminMode = false;
 function getGoal(){ return parseInt(localStorage.getItem('chitji_goal')||'2000'); }
 
@@ -1177,9 +1185,12 @@ async function saveWeight(){
   const btn=document.getElementById('wSaveBtn');
   btn.disabled=true; btn.textContent=T.saving;
   try{
+    // Delete existing record for this date first (upsert)
+    const existing=weightRecords.find(r=>r.log_date===wDate);
+    if(existing) await fetch(`${API_BASE}/api/weight?id=${existing.id}`,{method:'DELETE'});
     const r=await fetch(`${API_BASE}/api/weight`,{
       method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({user:curUser,date:cur,weight:w,note})
+      body:JSON.stringify({user:curUser,date:wDate,weight:w,note})
     });
     if(!r.ok) throw new Error('save failed');
     showToast(T.toastWeightSaved);
@@ -1197,12 +1208,27 @@ async function deleteWeight(id){
   }catch(e){}
   renderWeight();
 }
+function onWeightDateChange(val){
+  wDate=val;
+  const d=new Date(val+'T00:00:00'), today=todayStr(), isToday=val===today;
+  const locale=lang==='en'?'en-US':'zh-TW';
+  document.getElementById('wDpill').classList.toggle('today',isToday);
+  document.getElementById('wDpillTxt').textContent=isToday
+    ?T.today:d.toLocaleDateString(locale,{month:'numeric',day:'numeric',weekday:'short'});
+  const existing=weightRecords.find(r=>r.log_date===val);
+  document.getElementById('wInput').value=existing?existing.weight:'';
+  document.getElementById('wNote').value=existing?(existing.note||''):'';
+}
 async function renderWeight(){
   let records=[];
   try{
     const r=await fetch(`${API_BASE}/api/weight?user=${encodeURIComponent(curUser)}&days=30`);
     if(r.ok) records=await r.json();
   }catch(e){}
+  weightRecords=records;
+  // Init date picker to today (preserve selection if already set)
+  const picker=document.getElementById('wDatePicker');
+  if(!picker.value){ picker.value=wDate; onWeightDateChange(wDate); }
 
   // Stats
   const now=new Date();
