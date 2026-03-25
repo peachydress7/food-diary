@@ -228,6 +228,14 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
 .save-name-btn{margin-top:8px;padding:11px 24px;border-radius:var(--radius-sm);border:none;background:var(--accent);color:white;font-family:var(--font);font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s;}
 .save-name-btn:active{transform:scale(.97);}
 
+/* AI suggest button */
+.ai-btn{padding:10px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--accent);background:var(--accent-bg);color:var(--accent);font-family:var(--font);font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .2s;}
+.ai-btn:active{transform:scale(.95);}
+.ai-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+/* goal warning */
+.goal-warning{margin:0 20px 10px;background:#fde8e8;border:1.5px solid #f0b0b0;border-radius:var(--radius-sm);padding:10px 14px;font-size:.8rem;font-weight:700;color:#c0392b;display:none;text-align:center;}
+.goal-warning.show{display:block;}
+
 /* toast */
 #toast{position:fixed;bottom:calc(var(--tab-h) + var(--safe-b) + 76px);left:50%;transform:translateX(-50%) translateY(16px);background:var(--text);color:var(--bg);padding:10px 20px;border-radius:999px;font-size:.8rem;font-weight:700;opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);z-index:300;pointer-events:none;white-space:nowrap;box-shadow:0 4px 18px rgba(0,0,0,.2);}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -288,6 +296,7 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
       </div>
     </div>
 
+    <div id="goalWarning" class="goal-warning"></div>
     <div id="logList"></div>
     <div style="height:6px"></div>
   </div>
@@ -328,6 +337,24 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
           <div class="set-arrow">›</div>
         </div>
       </div>
+    </div>
+
+    <div class="set-section">
+      <span class="set-label">每日目標熱量</span>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input class="user-name-input" id="goalInput" type="number" min="0" inputmode="numeric" placeholder="2000" style="flex:1;">
+        <button class="save-name-btn" onclick="saveGoal()">儲存</button>
+      </div>
+      <div style="font-size:.72rem;color:var(--text3);margin-top:6px;font-weight:500;">超過目標時，熱量環形圖會變紅並顯示警告</div>
+    </div>
+
+    <div class="set-section">
+      <span class="set-label">Anthropic API 金鑰</span>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input class="user-name-input" id="apiKeyInput" type="password" placeholder="sk-ant-…" style="flex:1;">
+        <button class="save-name-btn" onclick="saveApiKey()">儲存</button>
+      </div>
+      <div style="font-size:.72rem;color:var(--text3);margin-top:6px;font-weight:500;">供 AI 自動建議熱量功能使用，儲存於本機</div>
     </div>
 
     <div class="set-section">
@@ -388,7 +415,10 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
       </div>
       <div class="f-sec">
         <span class="f-lbl">食物名稱</span>
-        <input class="f-input" id="iName" type="text" placeholder="例：滷肉飯、珍珠奶茶…" autocomplete="off">
+        <div style="display:flex;gap:8px;align-items:stretch;">
+          <input class="f-input" id="iName" type="text" placeholder="例：滷肉飯、珍珠奶茶…" autocomplete="off" style="flex:1;">
+          <button class="ai-btn" id="aiBtn" onclick="askAiCalories()" type="button">✨ AI建議</button>
+        </div>
       </div>
       <div class="f-sec">
         <div class="f-row">
@@ -442,7 +472,7 @@ let selMeal = '早餐', selMood = '😊';
 let pendingPhotos = [], sheetOpen = false;
 let calViewYear, calViewMonth;
 let cachedEntries = {}; // { date: [entries] }
-const GOAL = 2000;
+function getGoal(){ return parseInt(localStorage.getItem('chitji_goal')||'2000'); }
 
 function todayStr(){ return new Date().toISOString().split('T')[0]; }
 
@@ -479,7 +509,7 @@ function switchTab(name){
   });
   document.getElementById('fab').style.display = name==='log'?'flex':'none';
   if(name==='report') renderReport(7);
-  if(name==='settings'){ renderMembers(); renderDataStats(); document.getElementById('nameInput').value = curUser==='default'?'':curUser; }
+  if(name==='settings'){ renderMembers(); renderDataStats(); document.getElementById('nameInput').value = curUser==='default'?'':curUser; document.getElementById('goalInput').value=localStorage.getItem('chitji_goal')||''; document.getElementById('apiKeyInput').value=localStorage.getItem('chitji_api_key')||''; }
 }
 
 // ── Users ──
@@ -680,9 +710,15 @@ async function renderLog(){
 
   // calorie ring
   const totalCal=entries.reduce((s,e)=>s+(e.calories||e.cal||0),0);
+  const goal=getGoal();
   document.getElementById('calNum').textContent=totalCal.toLocaleString();
-  const pct=Math.min(totalCal/GOAL,1);
+  const pct=Math.min(totalCal/goal,1);
+  const exceeded=totalCal>goal;
   document.getElementById('ringFg').style.strokeDashoffset=219.9-(219.9*pct);
+  document.getElementById('ringFg').style.stroke=exceeded?'#e74c3c':'var(--accent)';
+  const gw=document.getElementById('goalWarning');
+  if(exceeded){gw.textContent=`⚠️ 已超過今日目標（目標 ${goal.toLocaleString()} kcal，目前 ${totalCal.toLocaleString()} kcal）`;gw.classList.add('show');}
+  else{gw.classList.remove('show');}
   const meals=['早餐','午餐','晚餐','點心'];
   meals.forEach((m,i)=>{
     document.getElementById('ms'+i).textContent=entries.filter(e=>e.meal===m).reduce((s,e)=>s+(e.calories||e.cal||0),0);
@@ -817,6 +853,79 @@ function showToast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2300);
+}
+
+// ── Goal ──
+function saveGoal(){
+  const val=parseInt(document.getElementById('goalInput').value);
+  if(!val||val<=0){showToast('請輸入有效的目標熱量');return;}
+  localStorage.setItem('chitji_goal',val);
+  showToast('✓ 目標熱量已儲存！');
+  renderLog();
+}
+
+// ── API Key ──
+function saveApiKey(){
+  const val=document.getElementById('apiKeyInput').value.trim();
+  if(!val){showToast('請輸入 API 金鑰');return;}
+  localStorage.setItem('chitji_api_key',val);
+  showToast('✓ API 金鑰已儲存！');
+}
+function getApiKey(){
+  let key=localStorage.getItem('chitji_api_key');
+  if(!key){
+    key=prompt('請輸入你的 Anthropic API 金鑰（sk-ant-…）\n（儲存於本機，不會上傳至伺服器）');
+    if(key&&key.trim()){
+      localStorage.setItem('chitji_api_key',key.trim());
+      return key.trim();
+    }
+    return null;
+  }
+  return key;
+}
+
+// ── AI Suggest Calories ──
+async function askAiCalories(){
+  const name=document.getElementById('iName').value.trim();
+  if(!name){showToast('請先填入食物名稱 🍽');return;}
+  const key=getApiKey();
+  if(!key){showToast('未設定 API 金鑰');return;}
+  const portion=document.getElementById('iPortion').value.trim();
+  const prompt=portion
+    ?`食物：${name}，份量：${portion}。請只回傳一個整數，代表這份食物最合理的估計熱量（kcal），不要任何其他文字。`
+    :`食物：${name}（一般份量）。請只回傳一個整數，代表這份食物最合理的估計熱量（kcal），不要任何其他文字。`;
+  const btn=document.getElementById('aiBtn');
+  btn.disabled=true; btn.textContent='⏳ 詢問中…';
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':key,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-haiku-4-5-20251001',
+        max_tokens:16,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    if(!res.ok){
+      const err=await res.json().catch(()=>({}));
+      throw new Error(err.error?.message||`HTTP ${res.status}`);
+    }
+    const data=await res.json();
+    const text=(data.content?.[0]?.text||'').trim();
+    const cal=parseInt(text.replace(/[^0-9]/g,''));
+    if(!cal||isNaN(cal)) throw new Error('無法解析回應');
+    document.getElementById('iCal').value=cal;
+    showToast(`✨ AI 建議：${cal} kcal`);
+  }catch(e){
+    showToast(`❌ AI 建議失敗：${e.message}`);
+  }finally{
+    btn.disabled=false; btn.textContent='✨ AI建議';
+  }
 }
 
 // ── Lightbox ──
