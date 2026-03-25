@@ -210,6 +210,13 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
 .mtd-b{width:38px;height:38px;border-radius:999px;background:var(--surface2);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.15rem;}
 .mtd-l{font-size:.56rem;color:var(--text3);font-weight:600;}
 
+/* weight page */
+.w-input-card{margin:0 20px 14px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:0 2px 12px var(--shadow);}
+.w-record{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px 15px;margin-bottom:6px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 4px var(--shadow);animation:slideUp .2s ease;}
+.w-rec-date{font-size:.72rem;color:var(--text2);font-weight:600;flex-shrink:0;min-width:58px;}
+.w-rec-val{font-size:1.05rem;font-weight:800;color:var(--accent);}
+.w-rec-note{font-size:.7rem;color:var(--text3);font-weight:500;flex:1;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
 /* skeleton */
 .skel{background:linear-gradient(90deg,var(--surface2) 25%,var(--border) 50%,var(--surface2) 75%);background-size:200% 100%;animation:skel-shine 1.4s ease infinite;border-radius:8px;}
 @keyframes skel-shine{0%{background-position:200% 0}100%{background-position:-200% 0}}
@@ -372,6 +379,40 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
     </div>
   </div>
 
+  <!-- ══ PAGE: WEIGHT ══ -->
+  <div id="p-weight" class="page">
+    <div class="page-header">
+      <div class="page-title" id="weightTitle">⚖️ 體重</div>
+      <div class="page-sub" id="weightSub">追蹤你的體重變化</div>
+    </div>
+
+    <div class="w-input-card">
+      <div class="f-row">
+        <div><span class="f-lbl" id="lblWeightKg">體重 (kg)</span><input class="f-input" id="wInput" type="number" step="0.1" min="0" placeholder="65.0" inputmode="decimal"></div>
+        <div><span class="f-lbl" id="lblWeightNote">備註</span><input class="f-input" id="wNote" type="text" placeholder="起床後、飯後…" autocomplete="off"></div>
+      </div>
+      <button class="s-btn" id="wSaveBtn" onclick="saveWeight()" style="margin-top:12px;width:100%;">儲存今日體重 ✓</button>
+    </div>
+
+    <div class="stat-row">
+      <div class="stile"><div class="stlbl" id="lblWeekAvg">本週平均</div><div class="stnum" id="wAvgWeek">—</div></div>
+      <div class="stile"><div class="stlbl" id="lblMonthAvg">本月平均</div><div class="stnum" id="wAvgMonth">—</div></div>
+    </div>
+    <div class="stat-row" style="margin-top:0;">
+      <div class="stile"><div class="stlbl" id="lblWMax">最高</div><div class="stnum" id="wMax">—</div></div>
+      <div class="stile"><div class="stlbl" id="lblWMin">最低</div><div class="stnum" id="wMin">—</div></div>
+    </div>
+
+    <div class="chart-card" style="margin:0 20px 12px;">
+      <div class="cc-title" id="lblWChart">30 天趨勢</div>
+      <div id="wChart"></div>
+    </div>
+
+    <div style="margin:0 20px 12px;">
+      <div id="wList"></div>
+    </div>
+  </div>
+
   <!-- tabbar -->
   <div class="tabbar">
     <div class="tab active" id="tab-log" onclick="switchTab('log')">
@@ -380,7 +421,10 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
     <div class="tab" id="tab-report" onclick="switchTab('report')">
       <div class="tab-pip"></div><div class="tab-icon">📊</div><div class="tab-label" id="tabLblReport">報告</div>
     </div>
-    <div style="flex:.4"></div>
+    <div class="tab" id="tab-weight" onclick="switchTab('weight')">
+      <div class="tab-pip"></div><div class="tab-icon">⚖️</div><div class="tab-label" id="tabLblWeight">體重</div>
+    </div>
+    <div style="flex:.3"></div>
     <div class="tab" id="tab-settings" onclick="switchTab('settings')">
       <div class="tab-pip"></div><div class="tab-icon">⚙️</div><div class="tab-label" id="tabLblSettings">設定</div>
     </div>
@@ -497,6 +541,13 @@ const STRINGS = {
     me:'我', removeConfirm:name=>`確定移除 ${name}？`,
     addMemberPrompt:'輸入新成員名字：', deleteConfirm:'確定刪除？',
     goalWarning:(goal,cur)=>`⚠️ 已超過今日目標（目標 ${goal.toLocaleString()} kcal，目前 ${cur.toLocaleString()} kcal）`,
+    tabWeight:'體重', weightTitle:'⚖️ 體重', weightSub:'追蹤你的體重變化',
+    weightKgLabel:'體重 (kg)', weightNoteLabel:'備註', weightNotePh:'起床後、飯後…',
+    saveWeightBtn:'儲存今日體重 ✓', weekAvg:'本週平均', monthAvg:'本月平均',
+    maxWeight:'最高', minWeight:'最低', chartTrend:'30 天趨勢',
+    noWeightData:'還沒有體重紀錄', noWeightSub:'輸入今天的體重開始追蹤',
+    toastWeightSaved:'✓ 體重已儲存！', toastWeightFail:'❌ 儲存失敗', toastNoWeight:'請輸入體重',
+    toastWeightDeleted:'已刪除',
   },
   en: {
     appTitle:'Food Diary 🍱', tabLog:'Today', tabReport:'Report', tabSettings:'Settings',
@@ -537,6 +588,13 @@ const STRINGS = {
     me:'Me', removeConfirm:name=>`Remove ${name}?`,
     addMemberPrompt:'Enter new member name:', deleteConfirm:'Delete this entry?',
     goalWarning:(goal,cur)=>`⚠️ Daily goal exceeded (goal: ${goal.toLocaleString()} kcal, current: ${cur.toLocaleString()} kcal)`,
+    tabWeight:'Weight', weightTitle:'⚖️ Weight', weightSub:'Track your weight changes',
+    weightKgLabel:'Weight (kg)', weightNoteLabel:'Note', weightNotePh:'After waking up, after meal…',
+    saveWeightBtn:'Save Today\'s Weight ✓', weekAvg:'Week Avg', monthAvg:'Month Avg',
+    maxWeight:'Highest', minWeight:'Lowest', chartTrend:'30-Day Trend',
+    noWeightData:'No weight records yet', noWeightSub:'Enter today\'s weight to start tracking',
+    toastWeightSaved:'✓ Weight saved!', toastWeightFail:'❌ Save failed', toastNoWeight:'Please enter weight',
+    toastWeightDeleted:'Deleted',
   }
 };
 let lang = localStorage.getItem('chitji_lang')||'zh';
@@ -606,9 +664,23 @@ function applyLang(){
   ).join('');
   // Language pills
   document.querySelectorAll('.lang-pill').forEach(p=>p.classList.toggle('active',p.dataset.lang===lang));
+  // Weight page
+  document.getElementById('tabLblWeight').textContent=T.tabWeight;
+  document.getElementById('weightTitle').textContent=T.weightTitle;
+  document.getElementById('weightSub').textContent=T.weightSub;
+  document.getElementById('lblWeightKg').textContent=T.weightKgLabel;
+  document.getElementById('lblWeightNote').textContent=T.weightNoteLabel;
+  document.getElementById('wNote').placeholder=T.weightNotePh;
+  document.getElementById('wSaveBtn').textContent=T.saveWeightBtn;
+  document.getElementById('lblWeekAvg').textContent=T.weekAvg;
+  document.getElementById('lblMonthAvg').textContent=T.monthAvg;
+  document.getElementById('lblWMax').textContent=T.maxWeight;
+  document.getElementById('lblWMin').textContent=T.minWeight;
+  document.getElementById('lblWChart').textContent=T.chartTrend;
   // Re-render dynamic content
   renderLog();
   if(document.getElementById('p-report').classList.contains('active')) renderReport(reportRange);
+  if(document.getElementById('p-weight').classList.contains('active')) renderWeight();
   if(document.getElementById('p-settings').classList.contains('active')){ renderMembers(); renderDataStats(); }
 }
 
@@ -651,12 +723,13 @@ async function apiDelete(id){
 
 // ── Tab ──
 function switchTab(name){
-  ['log','report','settings'].forEach(n=>{
+  ['log','report','weight','settings'].forEach(n=>{
     document.getElementById('p-'+n).classList.toggle('active',n===name);
     document.getElementById('tab-'+n).classList.toggle('active',n===name);
   });
   document.getElementById('fab').style.display = name==='log'?'flex':'none';
-  if(name==='report') renderReport(7);
+  if(name==='report') renderReport(reportRange);
+  if(name==='weight') renderWeight();
   if(name==='settings'){ renderMembers(); renderDataStats(); document.getElementById('nameInput').value=curUser==='default'?'':curUser; document.getElementById('goalInput').value=localStorage.getItem('chitji_goal')||''; }
 }
 
@@ -1044,6 +1117,127 @@ function showToast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2300);
+}
+
+// ── Weight ──
+async function saveWeight(){
+  const w=parseFloat(document.getElementById('wInput').value);
+  if(!w||isNaN(w)){showToast(T.toastNoWeight);return;}
+  const note=document.getElementById('wNote').value.trim();
+  const btn=document.getElementById('wSaveBtn');
+  btn.disabled=true; btn.textContent=T.saving;
+  try{
+    const r=await fetch(`${API_BASE}/api/weight`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({user:curUser,date:cur,weight:w,note})
+    });
+    if(!r.ok) throw new Error('save failed');
+    showToast(T.toastWeightSaved);
+    document.getElementById('wInput').value='';
+    document.getElementById('wNote').value='';
+    renderWeight();
+  }catch(e){ showToast(T.toastWeightFail); }
+  finally{ btn.disabled=false; btn.textContent=T.saveWeightBtn; }
+}
+async function deleteWeight(id){
+  if(!confirm(T.deleteConfirm)) return;
+  try{
+    await fetch(`${API_BASE}/api/weight?id=${id}`,{method:'DELETE'});
+    showToast(T.toastWeightDeleted);
+  }catch(e){}
+  renderWeight();
+}
+async function renderWeight(){
+  let records=[];
+  try{
+    const r=await fetch(`${API_BASE}/api/weight?user=${encodeURIComponent(curUser)}&days=30`);
+    if(r.ok) records=await r.json();
+  }catch(e){}
+
+  // Stats
+  const now=new Date();
+  const weekAgo=new Date(); weekAgo.setDate(now.getDate()-7);
+  const wkRecs=records.filter(r=>new Date(r.log_date+'T00:00:00')>=weekAgo);
+  const avg=arr=>arr.length?(arr.reduce((s,r)=>s+r.weight,0)/arr.length).toFixed(1):null;
+  const ws=records.map(r=>r.weight);
+  const fmt=v=>v!=null?`${v}<span class="stunit"> kg</span>`:'—';
+  document.getElementById('wAvgWeek').innerHTML=fmt(avg(wkRecs));
+  document.getElementById('wAvgMonth').innerHTML=fmt(avg(records));
+  document.getElementById('wMax').innerHTML=ws.length?fmt(Math.max(...ws).toFixed(1)):'—';
+  document.getElementById('wMin').innerHTML=ws.length?fmt(Math.min(...ws).toFixed(1)):'—';
+
+  // Chart
+  renderWeightChart(records);
+
+  // List (latest 10)
+  const recent=[...records].reverse().slice(0,10);
+  const listEl=document.getElementById('wList');
+  if(!recent.length){
+    listEl.innerHTML=`<div class="empty"><span class="empty-e">⚖️</span><div class="empty-t">${T.noWeightData}</div><div class="empty-s">${T.noWeightSub}</div></div>`;
+    return;
+  }
+  listEl.innerHTML=recent.map(r=>`
+    <div class="w-record">
+      <div class="w-rec-date">${r.log_date}</div>
+      <div class="w-rec-val">${parseFloat(r.weight).toFixed(1)} kg</div>
+      ${r.note?`<div class="w-rec-note">${r.note}</div>`:'<div style="flex:1"></div>'}
+      <button class="del-btn" onclick="deleteWeight(${r.id})">✕</button>
+    </div>`).join('');
+}
+function renderWeightChart(records){
+  const el=document.getElementById('wChart');
+  if(!records.length){
+    el.innerHTML=`<div style="text-align:center;padding:28px 0;color:var(--text3);font-size:.8rem;font-weight:600;">${T.noWeightData}</div>`;
+    return;
+  }
+  const W=340,H=140,pL=38,pR=10,pT=10,pB=26;
+  const cW=W-pL-pR, cH=H-pT-pB;
+  const ws=records.map(r=>parseFloat(r.weight));
+  const rawMin=Math.min(...ws), rawMax=Math.max(...ws);
+  const pad=(rawMax-rawMin)||2;
+  const yMin=rawMin-pad*0.15, yMax=rawMax+pad*0.15;
+  const yRange=yMax-yMin;
+  const n=records.length;
+  const pts=records.map((r,i)=>({
+    x:pL+(n===1?cW/2:i*cW/(n-1)),
+    y:pT+cH-((parseFloat(r.weight)-yMin)/yRange)*cH,
+    d:r.log_date,w:parseFloat(r.weight)
+  }));
+  const poly=pts.map(p=>`${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  const last=pts[n-1];
+  // area fill path
+  const area=`M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)} `+
+    pts.slice(1).map(p=>`L${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')+
+    ` L${last.x.toFixed(1)},${(pT+cH).toFixed(1)} L${pts[0].x.toFixed(1)},${(pT+cH).toFixed(1)} Z`;
+  // x-axis labels: first, mid, last (deduplicated)
+  const lblIdxSet=new Set([0,Math.floor((n-1)/2),n-1]);
+  const xLabels=[...lblIdxSet].map(i=>`<text x="${pts[i].x.toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="8.5" fill="var(--text3)">${records[i].log_date.slice(5)}</text>`).join('');
+  // y-axis labels: min, max
+  const yLabels=[
+    `<text x="${pL-5}" y="${(pT+cH).toFixed(1)}" text-anchor="end" dominant-baseline="middle" font-size="8.5" fill="var(--text3)">${rawMin.toFixed(1)}</text>`,
+    `<text x="${pL-5}" y="${pT}" text-anchor="end" dominant-baseline="middle" font-size="8.5" fill="var(--text3)">${rawMax.toFixed(1)}</text>`
+  ].join('');
+  // grid lines
+  const gridY=(pT+cH/2).toFixed(1);
+  const grid=`<line x1="${pL}" y1="${gridY}" x2="${W-pR}" y2="${gridY}" stroke="var(--border)" stroke-width="1"/>
+<line x1="${pL}" y1="${pT}" x2="${pL}" y2="${pT+cH}" stroke="var(--border)" stroke-width="1"/>`;
+  // dots
+  const dots=pts.map((p,i)=>{
+    const isLast=i===n-1;
+    return `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${isLast?4.5:3}" fill="${isLast?'var(--accent)':'var(--accent2)'}" stroke="white" stroke-width="1.5"/>`;
+  }).join('');
+  // last value label
+  const valLabel=`<text x="${Math.min(last.x+6,W-pR-2)}" y="${last.y.toFixed(1)}" dominant-baseline="middle" font-size="9" font-weight="700" fill="var(--accent)">${last.w.toFixed(1)}</text>`;
+  el.innerHTML=`<svg width="100%" viewBox="0 0 ${W} ${H}" style="display:block;overflow:visible;">
+  <defs><linearGradient id="wGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--accent)" stop-opacity=".3"/><stop offset="100%" stop-color="var(--accent)" stop-opacity=".02"/></linearGradient></defs>
+  ${grid}
+  <path d="${area}" fill="url(#wGrad)"/>
+  <polyline points="${poly}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  ${dots}
+  ${valLabel}
+  ${xLabels}
+  ${yLabels}
+</svg>`;
 }
 
 // ── Goal ──
