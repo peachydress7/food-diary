@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>吃記</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#fdf6ee;--bg2:#fff9f3;--surface:#ffffff;--surface2:#fef3e8;
+  --border:#f0e4d4;--border2:#e8d5c0;
+  --text:#3d2e1e;--text2:#8a7060;--text3:#bca898;
+  --accent:#e8825a;--accent2:#f0a882;--accent-bg:#fdeee7;
+  --green:#6dba8a;--green-bg:#e8f5ed;
+  --gold:#e8b84a;--gold-bg:#fdf4db;
+  --blue:#6aabdc;--blue-bg:#e4f1fa;
+  --pink:#e87aaa;--pink-bg:#fce8f2;
+  --shadow:rgba(180,120,80,.10);--shadow2:rgba(180,120,80,.18);
+  --radius:22px;--radius-sm:14px;
+  --tab-h:68px;--safe-b:env(safe-area-inset-bottom,16px);
+  --font:'Nunito','Noto Sans TC',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow:hidden;-webkit-font-smoothing:antialiased;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 10% 20%,rgba(232,130,90,.07) 0%,transparent 50%),radial-gradient(ellipse at 90% 80%,rgba(109,186,138,.06) 0%,transparent 50%);pointer-events:none;z-index:0;}
+#app{height:100dvh;display:flex;flex-direction:column;overflow:hidden;position:relative;}
+.page{display:none;flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;position:relative;z-index:1;padding-bottom:calc(var(--tab-h) + var(--safe-b) + 20px);scrollbar-width:none;}
+.page::-webkit-scrollbar{display:none;}
+.page.active{display:block;}
+
+/* tabbar */
+.tabbar{position:fixed;bottom:0;left:0;right:0;height:calc(var(--tab-h) + var(--safe-b));padding-bottom:var(--safe-b);background:rgba(253,246,238,.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1.5px solid var(--border);display:flex;align-items:flex-start;padding-top:8px;z-index:100;}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 4px;border-radius:12px;transition:all .2s;position:relative;}
+.tab-icon{font-size:1.4rem;transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+.tab-label{font-size:.58rem;font-weight:700;color:var(--text3);transition:color .2s;letter-spacing:.04em;}
+.tab.active .tab-icon{transform:scale(1.18) translateY(-2px);}
+.tab.active .tab-label{color:var(--accent);}
+.tab-pip{position:absolute;top:3px;width:18px;height:3px;background:var(--accent);border-radius:999px;opacity:0;transition:opacity .2s;}
+.tab.active .tab-pip{opacity:1;}
+
+/* FAB */
+.fab{position:fixed;bottom:calc(var(--tab-h) + var(--safe-b) + 14px);right:18px;width:54px;height:54px;border-radius:999px;background:linear-gradient(135deg,var(--accent),#d96840);border:none;color:white;font-size:1.7rem;font-family:var(--font);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(232,130,90,.4),0 2px 8px rgba(0,0,0,.1);z-index:99;transition:transform .3s cubic-bezier(.34,1.56,.64,1),box-shadow .2s;line-height:1;}
+.fab:active{transform:scale(.92);}
+.fab.rot{transform:rotate(45deg);}
+
+/* header */
+.page-header{padding:52px 20px 10px;position:sticky;top:0;z-index:10;background:linear-gradient(to bottom,var(--bg) 65%,transparent);}
+.page-title{font-size:1.9rem;font-weight:800;letter-spacing:-.01em;line-height:1.15;}
+.page-sub{font-size:.78rem;color:var(--text3);margin-top:3px;font-weight:500;}
+
+/* date nav */
+.date-nav{display:flex;align-items:center;gap:8px;margin:8px 20px 14px;}
+.darr{width:34px;height:34px;border-radius:999px;background:var(--surface);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;color:var(--text2);flex-shrink:0;transition:all .2s;box-shadow:0 1px 4px var(--shadow);}
+.darr:active{transform:scale(.9);}
+.dpill{flex:1;background:var(--surface);border:1.5px solid var(--border);border-radius:999px;padding:8px 14px;text-align:center;font-size:.83rem;font-weight:700;cursor:pointer;color:var(--text);position:relative;overflow:hidden;box-shadow:0 1px 4px var(--shadow);}
+.dpill input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;}
+.dpill.today{border-color:var(--accent);color:var(--accent);}
+
+/* user switcher */
+.user-bar{display:flex;gap:8px;margin:0 20px 14px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
+.user-bar::-webkit-scrollbar{display:none;}
+.upill{padding:7px 16px;border-radius:999px;border:1.5px solid var(--border);font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .2s;color:var(--text2);background:var(--surface);}
+.upill.active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent);}
+
+/* calorie ring */
+.cal-card{margin:0 20px 14px;background:linear-gradient(135deg,#fff5ee,#ffeedd);border:1.5px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:0 3px 16px var(--shadow);display:flex;align-items:center;gap:18px;}
+.cal-ring{width:84px;height:84px;flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center;}
+.cal-ring svg{position:absolute;inset:0;transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:#eddcc8;stroke-width:7;}
+.ring-fg{fill:none;stroke:var(--accent);stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset .7s cubic-bezier(.4,0,.2,1);}
+.cal-inner{text-align:center;z-index:1;}
+.cal-num{font-size:1.25rem;font-weight:800;color:var(--text);line-height:1;}
+.cal-unit{font-size:.52rem;color:var(--text2);font-weight:600;letter-spacing:.04em;}
+.meal-stats{flex:1;display:flex;flex-direction:column;gap:8px;}
+.ms-row{display:flex;align-items:center;gap:8px;}
+.ms-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.ms-name{font-size:.73rem;color:var(--text2);flex:1;font-weight:600;}
+.ms-val{font-size:.82rem;font-weight:800;}
+
+/* calendar */
+.cal-wrap{margin:0 20px 14px;}
+.cal-section{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:0 2px 12px var(--shadow);}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.cal-month{font-size:1rem;font-weight:800;}
+.cal-nav{display:flex;gap:6px;}
+.cal-nav button{width:30px;height:30px;border-radius:999px;border:1.5px solid var(--border);background:var(--bg2);font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:all .2s;font-family:var(--font);}
+.cal-nav button:active{transform:scale(.9);}
+.cal-dow{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:6px;}
+.cal-dow span{text-align:center;font-size:.62rem;font-weight:700;color:var(--text3);padding:4px 0;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-cell{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:10px;cursor:pointer;transition:all .2s;position:relative;gap:1px;}
+.cal-cell:active{transform:scale(.9);}
+.cal-cell .cnum{font-size:.78rem;font-weight:700;color:var(--text2);}
+.cal-cell.other .cnum{color:var(--text3);}
+.cal-cell.today{background:var(--accent-bg);}
+.cal-cell.today .cnum{color:var(--accent);}
+.cal-cell.selected{background:var(--accent);border-radius:12px;}
+.cal-cell.selected .cnum{color:#fff;}
+.cal-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);}
+.cal-cell.selected .cal-dot{background:rgba(255,255,255,.8);}
+
+/* food items */
+.meal-group{margin:0 20px 10px;}
+.mg-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding:0 2px;}
+.mg-title{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:5px;}
+.mg-cal{font-size:.7rem;color:var(--text3);font-weight:600;}
+.food-item{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:13px 15px;margin-bottom:6px;display:flex;align-items:center;gap:11px;box-shadow:0 1px 6px var(--shadow);animation:slideUp .25s ease;}
+@keyframes slideUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.food-ico{width:40px;height:40px;border-radius:11px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;border:1px solid var(--border);}
+.food-info{flex:1;min-width:0;}
+.food-name{font-size:.88rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.food-meta{font-size:.68rem;color:var(--text2);margin-top:2px;display:flex;align-items:center;gap:5px;font-weight:500;}
+.food-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;}
+.food-cal{font-size:.95rem;font-weight:800;color:var(--accent);}
+.food-cal-u{font-size:.55rem;color:var(--text3);font-weight:600;}
+.del-btn{width:26px;height:26px;border-radius:999px;border:none;background:var(--pink-bg);color:var(--pink);font-size:.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.del-btn:active{transform:scale(.88);}
+.food-photos{display:flex;gap:4px;margin-top:7px;}
+.food-photos img{width:46px;height:46px;border-radius:9px;object-fit:cover;border:1.5px solid var(--border);}
+
+/* empty / loading */
+.empty{text-align:center;padding:52px 28px;color:var(--text3);}
+.empty-e{font-size:3.2rem;display:block;margin-bottom:14px;}
+.empty-t{font-size:.95rem;font-weight:700;color:var(--text2);margin-bottom:6px;}
+.empty-s{font-size:.78rem;line-height:1.7;font-weight:500;}
+.loading{text-align:center;padding:40px;color:var(--text3);font-size:.85rem;font-weight:600;}
+.loading span{display:inline-block;animation:spin 1s linear infinite;font-size:1.4rem;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* add sheet */
+#addSheet{position:fixed;inset:0;z-index:200;display:none;flex-direction:column;}
+#addSheet.open{display:flex;}
+.s-backdrop{position:absolute;inset:0;background:rgba(60,40,20,.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:bfin .2s ease;}
+@keyframes bfin{from{opacity:0;}to{opacity:1;}}
+.s-body{position:absolute;bottom:0;left:0;right:0;background:var(--bg2);border-radius:28px 28px 0 0;border-top:2px solid var(--border);padding-bottom:calc(var(--safe-b)+16px);max-height:93dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;animation:sup .35s cubic-bezier(.32,.72,0,1);scrollbar-width:none;}
+.s-body::-webkit-scrollbar{display:none;}
+@keyframes sup{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.s-handle{width:34px;height:4px;background:var(--border2);border-radius:999px;margin:12px auto 6px;}
+.s-title{font-size:1.25rem;font-weight:800;text-align:center;padding:6px 20px 18px;}
+.f-sec{padding:0 20px;margin-bottom:18px;}
+.f-lbl{font-size:.65rem;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:9px;display:block;}
+.f-input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:13px 15px;font-family:var(--font);font-size:.92rem;font-weight:500;color:var(--text);outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none;}
+.f-input::placeholder{color:var(--text3);}
+.f-input:focus{border-color:var(--accent);}
+textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.mpills{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;}
+.mpills::-webkit-scrollbar{display:none;}
+.mpill{padding:9px 17px;border-radius:999px;border:1.5px solid var(--border);font-size:.8rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;color:var(--text2);background:var(--surface);flex-shrink:0;}
+.mpill.s-b{background:var(--gold-bg);border-color:var(--gold);color:var(--gold);}
+.mpill.s-l{background:var(--green-bg);border-color:var(--green);color:var(--green);}
+.mpill.s-d{background:var(--accent-bg);border-color:var(--accent);color:var(--accent);}
+.mpill.s-s{background:var(--blue-bg);border-color:var(--blue);color:var(--blue);}
+.mood-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;}
+.mbtn{aspect-ratio:1;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:1.35rem;transition:all .2s cubic-bezier(.34,1.56,.64,1);gap:2px;}
+.mbtn span{font-size:.48rem;color:var(--text3);font-weight:700;}
+.mbtn.active{border-color:var(--accent);background:var(--accent-bg);transform:scale(1.07);}
+.photo-zone{border:1.5px dashed var(--border2);border-radius:var(--radius-sm);padding:18px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;background:var(--surface);transition:all .2s;}
+.photo-zone:active{background:var(--surface2);border-color:var(--accent);}
+.photo-zone input{display:none;}
+.p-thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.p-thumbs img{width:60px;height:60px;border-radius:10px;object-fit:cover;border:1.5px solid var(--border);}
+.s-btn{margin:4px 20px 0;width:calc(100% - 40px);padding:15px;border-radius:var(--radius-sm);border:none;background:linear-gradient(135deg,var(--accent),#d96840);color:white;font-family:var(--font);font-size:.98rem;font-weight:800;cursor:pointer;box-shadow:0 4px 18px rgba(232,130,90,.35);transition:transform .2s;letter-spacing:.02em;}
+.s-btn:active{transform:scale(.97);}
+.s-btn:disabled{opacity:.6;transform:none;}
+
+/* report */
+.range-btns{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;scrollbar-width:none;padding:0 20px;}
+.range-btns::-webkit-scrollbar{display:none;}
+.rbtn{padding:8px 18px;border-radius:999px;border:1.5px solid var(--border);background:var(--surface);color:var(--text2);font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .2s;font-family:var(--font);}
+.rbtn.active{background:var(--accent);border-color:var(--accent);color:white;}
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 20px 12px;}
+.stile{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:15px;box-shadow:0 2px 10px var(--shadow);}
+.stlbl{font-size:.63rem;color:var(--text3);font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+.stnum{font-size:1.55rem;font-weight:800;line-height:1;}
+.stunit{font-size:.68rem;color:var(--text2);font-weight:500;}
+.stsub{font-size:.68rem;color:var(--text3);margin-top:4px;font-weight:500;}
+.chart-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px;margin:0 20px 12px;box-shadow:0 2px 10px var(--shadow);}
+.cc-title{font-size:.68rem;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;}
+.bar-chart{display:flex;align-items:flex-end;gap:4px;height:90px;}
+.bcw{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end;}
+.bcbar{width:100%;background:var(--surface2);border-radius:5px 5px 0 0;transition:height .5s cubic-bezier(.4,0,.2,1);min-height:2px;border:1px solid var(--border);}
+.bcbar.hd{background:linear-gradient(to top,var(--accent),var(--accent2));border:none;}
+.bcval{font-size:.52rem;color:var(--text3);font-weight:600;}
+.bclbl{font-size:.55rem;color:var(--text3);font-weight:600;}
+.mb-list{display:flex;flex-direction:column;gap:11px;}
+.mb-item{display:flex;flex-direction:column;gap:4px;}
+.mb-hdr{display:flex;justify-content:space-between;}
+.mb-name{font-size:.78rem;font-weight:700;display:flex;align-items:center;gap:5px;}
+.mb-cal{font-size:.72rem;color:var(--text2);font-weight:600;}
+.mb-track{height:7px;background:var(--surface2);border-radius:999px;overflow:hidden;border:1px solid var(--border);}
+.mb-fill{height:100%;border-radius:999px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+.tf-list{display:flex;flex-direction:column;gap:7px;}
+.tf-item{display:flex;align-items:center;gap:11px;padding:11px 13px;background:var(--surface2);border-radius:var(--radius-sm);border:1.5px solid var(--border);}
+.tf-rank{width:20px;font-size:.72rem;font-weight:800;color:var(--text3);text-align:center;flex-shrink:0;}
+.tf-rank.g1{color:var(--gold);}
+.tf-name{flex:1;font-size:.85rem;font-weight:700;}
+.tf-cnt{font-size:.68rem;color:var(--text2);font-weight:500;}
+.tf-cal{font-size:.8rem;font-weight:800;color:var(--accent);flex-shrink:0;}
+.mood-tl{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
+.mood-tl::-webkit-scrollbar{display:none;}
+.mtd{display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;}
+.mtd-b{width:38px;height:38px;border-radius:999px;background:var(--surface2);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.15rem;}
+.mtd-l{font-size:.56rem;color:var(--text3);font-weight:600;}
+
+/* settings */
+.set-section{padding:0 20px;margin-bottom:24px;}
+.set-label{font-size:.7rem;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;display:block;}
+.set-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;box-shadow:0 2px 10px var(--shadow);}
+.set-row{display:flex;align-items:center;gap:14px;padding:15px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;}
+.set-row:last-child{border-bottom:none;}
+.set-row:active{background:var(--surface2);}
+.set-row input{display:none;}
+.set-ico{font-size:1.3rem;flex-shrink:0;}
+.set-info{flex:1;}
+.set-title{font-size:.88rem;font-weight:700;}
+.set-sub{font-size:.72rem;color:var(--text2);margin-top:2px;font-weight:500;}
+.set-arrow{font-size:.9rem;color:var(--text3);}
+.user-name-input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:13px 15px;font-family:var(--font);font-size:.92rem;font-weight:600;color:var(--text);outline:none;transition:border-color .2s;}
+.user-name-input:focus{border-color:var(--accent);}
+.save-name-btn{margin-top:8px;padding:11px 24px;border-radius:var(--radius-sm);border:none;background:var(--accent);color:white;font-family:var(--font);font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s;}
+.save-name-btn:active{transform:scale(.97);}
+
+/* toast */
+#toast{position:fixed;bottom:calc(var(--tab-h) + var(--safe-b) + 76px);left:50%;transform:translateX(-50%) translateY(16px);background:var(--text);color:var(--bg);padding:10px 20px;border-radius:999px;font-size:.8rem;font-weight:700;opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);z-index:300;pointer-events:none;white-space:nowrap;box-shadow:0 4px 18px rgba(0,0,0,.2);}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══ PAGE: LOG ══ -->
+  <div id="p-log" class="page active">
+    <div class="page-header">
+      <div class="page-title">吃·記 🍱</div>
+      <div class="page-sub" id="hdrSub"></div>
+    </div>
+
+    <!-- User switcher -->
+    <div class="user-bar" id="userBar"></div>
+
+    <div class="date-nav">
+      <div class="darr" onclick="changeDay(-1)">‹</div>
+      <div class="dpill" id="dpill">
+        <input type="date" id="datePicker" onchange="selectDate(this.value)">
+        <span id="dpillTxt"></span>
+      </div>
+      <div class="darr" onclick="changeDay(1)">›</div>
+    </div>
+
+    <div class="cal-card">
+      <div class="cal-ring">
+        <svg viewBox="0 0 84 84" width="84" height="84">
+          <circle class="ring-bg" cx="42" cy="42" r="35"/>
+          <circle class="ring-fg" id="ringFg" cx="42" cy="42" r="35" stroke-dasharray="219.9" stroke-dashoffset="219.9"/>
+        </svg>
+        <div class="cal-inner">
+          <div class="cal-num" id="calNum">0</div>
+          <div class="cal-unit">kcal</div>
+        </div>
+      </div>
+      <div class="meal-stats">
+        <div class="ms-row"><div class="ms-dot" style="background:var(--gold)"></div><div class="ms-name">早餐</div><div class="ms-val" id="ms0" style="color:var(--gold)">0</div></div>
+        <div class="ms-row"><div class="ms-dot" style="background:var(--green)"></div><div class="ms-name">午餐</div><div class="ms-val" id="ms1" style="color:var(--green)">0</div></div>
+        <div class="ms-row"><div class="ms-dot" style="background:var(--accent)"></div><div class="ms-name">晚餐</div><div class="ms-val" id="ms2" style="color:var(--accent)">0</div></div>
+        <div class="ms-row"><div class="ms-dot" style="background:var(--blue)"></div><div class="ms-name">點心</div><div class="ms-val" id="ms3" style="color:var(--blue)">0</div></div>
+      </div>
+    </div>
+
+    <div class="cal-wrap">
+      <div class="cal-section">
+        <div class="cal-header">
+          <div class="cal-month" id="calMonth"></div>
+          <div class="cal-nav">
+            <button onclick="calNav(-1)">‹</button>
+            <button onclick="calNav(1)">›</button>
+          </div>
+        </div>
+        <div class="cal-dow"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+    </div>
+
+    <div id="logList"></div>
+    <div style="height:6px"></div>
+  </div>
+
+  <!-- ══ PAGE: REPORT ══ -->
+  <div id="p-report" class="page">
+    <div class="page-header">
+      <div class="page-title">報告 📊</div>
+      <div class="page-sub">分析你的飲食習慣</div>
+    </div>
+    <div class="range-btns">
+      <div class="rbtn active" onclick="setRange(7,this)">近7天</div>
+      <div class="rbtn" onclick="setRange(14,this)">近14天</div>
+      <div class="rbtn" onclick="setRange(30,this)">近30天</div>
+    </div>
+    <div id="reportContent"></div>
+  </div>
+
+  <!-- ══ PAGE: SETTINGS ══ -->
+  <div id="p-settings" class="page">
+    <div class="page-header">
+      <div class="page-title">設定 ⚙️</div>
+    </div>
+
+    <div class="set-section">
+      <span class="set-label">我的名字</span>
+      <input class="user-name-input" id="nameInput" placeholder="輸入你的名字（顯示在紀錄上）">
+      <button class="save-name-btn" onclick="saveName()">儲存</button>
+    </div>
+
+    <div class="set-section">
+      <span class="set-label">家人 / 朋友</span>
+      <div class="set-card">
+        <div id="memberList"></div>
+        <div class="set-row" onclick="addMember()">
+          <div class="set-ico">➕</div>
+          <div class="set-info"><div class="set-title">新增成員</div><div class="set-sub">最多5人共用</div></div>
+          <div class="set-arrow">›</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="set-section">
+      <span class="set-label">備份與還原</span>
+      <div class="set-card">
+        <div class="set-row" onclick="exportJSON()">
+          <div class="set-ico">📤</div>
+          <div class="set-info"><div class="set-title">下載備份</div><div class="set-sub">匯出 JSON 備份檔</div></div>
+          <div class="set-arrow">›</div>
+        </div>
+        <div class="set-row" onclick="document.getElementById('restoreInput').click()">
+          <input type="file" id="restoreInput" accept=".json" onchange="importJSON(event)">
+          <div class="set-ico">📥</div>
+          <div class="set-info"><div class="set-title">還原備份</div><div class="set-sub">從 JSON 檔案還原</div></div>
+          <div class="set-arrow">›</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="set-section">
+      <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:16px;box-shadow:0 2px 10px var(--shadow);">
+        <div style="font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:10px;">📊 資料統計</div>
+        <div id="dataStats" style="font-size:.78rem;color:var(--text2);line-height:2;font-weight:500;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- tabbar -->
+  <div class="tabbar">
+    <div class="tab active" id="tab-log" onclick="switchTab('log')">
+      <div class="tab-pip"></div><div class="tab-icon">🍱</div><div class="tab-label">今日</div>
+    </div>
+    <div class="tab" id="tab-report" onclick="switchTab('report')">
+      <div class="tab-pip"></div><div class="tab-icon">📊</div><div class="tab-label">報告</div>
+    </div>
+    <div style="flex:.4"></div>
+    <div class="tab" id="tab-settings" onclick="switchTab('settings')">
+      <div class="tab-pip"></div><div class="tab-icon">⚙️</div><div class="tab-label">設定</div>
+    </div>
+  </div>
+
+  <button class="fab" id="fab" onclick="toggleSheet()">＋</button>
+
+  <!-- ══ ADD SHEET ══ -->
+  <div id="addSheet">
+    <div class="s-backdrop" onclick="closeSheet()"></div>
+    <div class="s-body">
+      <div class="s-handle"></div>
+      <div class="s-title">新增飲食 ✨</div>
+      <div class="f-sec">
+        <span class="f-lbl">餐次</span>
+        <div class="mpills" id="mealPills">
+          <div class="mpill s-b" data-meal="早餐" onclick="pickMeal(this)">🌅 早餐</div>
+          <div class="mpill" data-meal="午餐" onclick="pickMeal(this)">☀️ 午餐</div>
+          <div class="mpill" data-meal="晚餐" onclick="pickMeal(this)">🌙 晚餐</div>
+          <div class="mpill" data-meal="點心" onclick="pickMeal(this)">🍪 點心</div>
+        </div>
+      </div>
+      <div class="f-sec">
+        <span class="f-lbl">食物名稱</span>
+        <input class="f-input" id="iName" type="text" placeholder="例：滷肉飯、珍珠奶茶…" autocomplete="off">
+      </div>
+      <div class="f-sec">
+        <div class="f-row">
+          <div><span class="f-lbl">熱量 (kcal)</span><input class="f-input" id="iCal" type="number" placeholder="0" min="0" inputmode="numeric"></div>
+          <div><span class="f-lbl">份量</span><input class="f-input" id="iPortion" type="text" placeholder="1碗、1份…" autocomplete="off"></div>
+        </div>
+      </div>
+      <div class="f-sec">
+        <span class="f-lbl">備註</span>
+        <textarea class="f-input" id="iNotes" placeholder="口感？健不健康？有什麼特別感受？"></textarea>
+      </div>
+      <div class="f-sec">
+        <span class="f-lbl">心情感受</span>
+        <div class="mood-grid" id="moodGrid">
+          <div class="mbtn active" data-mood="😊" onclick="pickMood(this)">😊<span>開心</span></div>
+          <div class="mbtn" data-mood="😋" onclick="pickMood(this)">😋<span>好吃</span></div>
+          <div class="mbtn" data-mood="😐" onclick="pickMood(this)">😐<span>普通</span></div>
+          <div class="mbtn" data-mood="😞" onclick="pickMood(this)">😞<span>不好</span></div>
+          <div class="mbtn" data-mood="😴" onclick="pickMood(this)">😴<span>好飽</span></div>
+          <div class="mbtn" data-mood="💪" onclick="pickMood(this)">💪<span>健康</span></div>
+        </div>
+      </div>
+      <div class="f-sec">
+        <span class="f-lbl">照片</span>
+        <div class="photo-zone" onclick="document.getElementById('iPhoto').click()">
+          <input type="file" id="iPhoto" accept="image/*" multiple onchange="handlePhotos(event)">
+          <div style="font-size:1.7rem">📷</div>
+          <div style="font-size:.75rem;color:var(--text2);font-weight:600;">點擊上傳照片（可多張）</div>
+        </div>
+        <div class="p-thumbs" id="pThumbs"></div>
+      </div>
+      <button class="s-btn" id="saveBtn" onclick="saveEntry()">儲存紀錄 ✓</button>
+      <div style="height:6px"></div>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+// ════════════════════════════════════════
+// CONFIG — 部署後填入你的 Supabase 資訊
+// ════════════════════════════════════════
+const API_BASE = ''; // 部署到 Vercel 後留空即可，會自動使用相對路徑
+
+// ── Local state ──
+let cur = todayStr();
+let curUser = localStorage.getItem('chitji_user') || 'default';
+let members = JSON.parse(localStorage.getItem('chitji_members') || '["default"]');
+let selMeal = '早餐', selMood = '😊';
+let pendingPhotos = [], sheetOpen = false;
+let calViewYear, calViewMonth;
+let cachedEntries = {}; // { date: [entries] }
+const GOAL = 2000;
+
+function todayStr(){ return new Date().toISOString().split('T')[0]; }
+
+// ── API calls ──
+async function apiGet(date, user){
+  try {
+    const r = await fetch(`${API_BASE}/api/entries?date=${date}&user=${encodeURIComponent(user)}`);
+    if(!r.ok) throw new Error('fetch failed');
+    return await r.json();
+  } catch(e) {
+    // fallback to localStorage if offline
+    const all = JSON.parse(localStorage.getItem('chitji_offline')||'{}');
+    return (all[user]?.[date]) || [];
+  }
+}
+async function apiPost(entry, user){
+  const r = await fetch(`${API_BASE}/api/entries`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({entry, user})
+  });
+  if(!r.ok) throw new Error('save failed');
+  return await r.json();
+}
+async function apiDelete(id){
+  const r = await fetch(`${API_BASE}/api/entries?id=${id}`, {method:'DELETE'});
+  if(!r.ok) throw new Error('delete failed');
+}
+
+// ── Tab ──
+function switchTab(name){
+  ['log','report','settings'].forEach(n=>{
+    document.getElementById('p-'+n).classList.toggle('active',n===name);
+    document.getElementById('tab-'+n).classList.toggle('active',n===name);
+  });
+  document.getElementById('fab').style.display = name==='log'?'flex':'none';
+  if(name==='report') renderReport(7);
+  if(name==='settings'){ renderMembers(); renderDataStats(); document.getElementById('nameInput').value = curUser==='default'?'':curUser; }
+}
+
+// ── Users ──
+function renderUserBar(){
+  const bar = document.getElementById('userBar');
+  if(members.length<=1 && members[0]==='default'){bar.innerHTML='';return;}
+  bar.innerHTML = members.map(m=>`
+    <div class="upill ${m===curUser?'active':''}" onclick="switchUser('${m}')">${m==='default'?'我':m}</div>
+  `).join('');
+}
+function switchUser(user){
+  curUser=user;
+  cachedEntries={};
+  renderUserBar();
+  renderLog();
+}
+function saveName(){
+  const val = document.getElementById('nameInput').value.trim();
+  if(!val){showToast('請輸入名字');return;}
+  const old = curUser;
+  // update members list
+  const idx = members.indexOf(old);
+  if(idx>=0) members[idx]=val; else members.push(val);
+  curUser=val;
+  localStorage.setItem('chitji_user',val);
+  localStorage.setItem('chitji_members',JSON.stringify(members));
+  renderMembers(); renderUserBar();
+  showToast('✓ 名字已儲存！');
+}
+function addMember(){
+  if(members.length>=5){showToast('最多5位成員');return;}
+  const name=prompt('輸入新成員名字：');
+  if(!name||!name.trim()) return;
+  members.push(name.trim());
+  localStorage.setItem('chitji_members',JSON.stringify(members));
+  renderMembers(); renderUserBar();
+  showToast(`✓ 已新增 ${name.trim()}！`);
+}
+function removeMember(name){
+  if(!confirm(`確定移除 ${name}？`)) return;
+  members=members.filter(m=>m!==name);
+  if(curUser===name){ curUser=members[0]||'default'; localStorage.setItem('chitji_user',curUser); }
+  localStorage.setItem('chitji_members',JSON.stringify(members));
+  renderMembers(); renderUserBar(); renderLog();
+}
+function renderMembers(){
+  const el=document.getElementById('memberList');
+  if(!el) return;
+  el.innerHTML = members.filter(m=>m!=='default').map(m=>`
+    <div class="set-row">
+      <div class="set-ico">👤</div>
+      <div class="set-info"><div class="set-title">${m}</div></div>
+      <div style="font-size:.8rem;color:var(--pink);font-weight:700;cursor:pointer;" onclick="removeMember('${m}')">移除</div>
+    </div>
+  `).join('');
+}
+
+// ── Date ──
+function changeDay(d){
+  const dt=new Date(cur+'T00:00:00'); dt.setDate(dt.getDate()+d);
+  cur=dt.toISOString().split('T')[0];
+  const dd=new Date(cur+'T00:00:00');
+  calViewYear=dd.getFullYear(); calViewMonth=dd.getMonth();
+  renderLog();
+}
+function selectDate(v){ cur=v; const d=new Date(v+'T00:00:00'); calViewYear=d.getFullYear(); calViewMonth=d.getMonth(); renderLog(); }
+
+// ── Calendar ──
+function calNav(d){
+  calViewMonth+=d;
+  if(calViewMonth>11){calViewMonth=0;calViewYear++;}
+  if(calViewMonth<0){calViewMonth=11;calViewYear--;}
+  renderCalendar();
+}
+function renderCalendar(){
+  const mn=['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+  const y=calViewYear, m=calViewMonth;
+  document.getElementById('calMonth').textContent=`${y}年 ${mn[m]}`;
+  const firstDay=new Date(y,m,1).getDay();
+  const daysInMonth=new Date(y,m+1,0).getDate();
+  const daysInPrev=new Date(y,m,0).getDate();
+  const today=todayStr();
+  let html='';
+  for(let i=firstDay-1;i>=0;i--) html+=`<div class="cal-cell other"><span class="cnum">${daysInPrev-i}</span></div>`;
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isT=ds===today, isS=ds===cur;
+    const hasD=(cachedEntries[ds]||[]).length>0;
+    let cls='cal-cell'+(isT&&!isS?' today':'')+(isS?' selected':'')+(hasD?' has-data':'');
+    html+=`<div class="${cls}" onclick="selectDate('${ds}')"><span class="cnum">${d}</span>${hasD?'<div class="cal-dot"></div>':''}</div>`;
+  }
+  const rem=(7-((firstDay+daysInMonth)%7))%7;
+  for(let i=1;i<=rem;i++) html+=`<div class="cal-cell other"><span class="cnum">${i}</span></div>`;
+  document.getElementById('calGrid').innerHTML=html;
+}
+
+// ── Sheet ──
+function toggleSheet(){ sheetOpen?closeSheet():openSheet(); }
+function openSheet(){
+  sheetOpen=true;
+  document.getElementById('addSheet').classList.add('open');
+  const fab=document.getElementById('fab'); fab.classList.add('rot'); fab.textContent='×';
+  const h=new Date().getHours();
+  selMeal=h<10?'早餐':h<14?'午餐':h<19?'晚餐':'點心';
+  document.querySelectorAll('.mpill').forEach(p=>{
+    p.className='mpill';
+    if(p.dataset.meal===selMeal){const mp={早餐:'s-b',午餐:'s-l',晚餐:'s-d',點心:'s-s'};p.classList.add(mp[selMeal]);}
+  });
+}
+function closeSheet(){
+  sheetOpen=false;
+  document.getElementById('addSheet').classList.remove('open');
+  const fab=document.getElementById('fab'); fab.classList.remove('rot'); fab.textContent='＋';
+}
+function pickMeal(el){
+  selMeal=el.dataset.meal;
+  document.querySelectorAll('.mpill').forEach(p=>p.className='mpill');
+  const mp={早餐:'s-b',午餐:'s-l',晚餐:'s-d',點心:'s-s'};
+  el.classList.add(mp[selMeal]||'s-b');
+}
+function pickMood(el){
+  selMood=el.dataset.mood;
+  document.querySelectorAll('.mbtn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+function handlePhotos(e){
+  Array.from(e.target.files).forEach(f=>{
+    const r=new FileReader(); r.onload=ev=>{pendingPhotos.push(ev.target.result);renderThumbs();}; r.readAsDataURL(f);
+  });
+}
+function renderThumbs(){
+  document.getElementById('pThumbs').innerHTML=pendingPhotos.map((s,i)=>`<img src="${s}" onclick="pendingPhotos.splice(${i},1);renderThumbs()">`).join('');
+}
+async function saveEntry(){
+  const name=document.getElementById('iName').value.trim();
+  if(!name){showToast('請填入食物名稱 🍽');return;}
+  const btn=document.getElementById('saveBtn');
+  btn.disabled=true; btn.textContent='儲存中…';
+  const entry={
+    meal:selMeal, name, date:cur,
+    cal:parseInt(document.getElementById('iCal').value)||0,
+    portion:document.getElementById('iPortion').value.trim(),
+    notes:document.getElementById('iNotes').value.trim(),
+    mood:selMood, photos:[...pendingPhotos],
+    time:new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})
+  };
+  try{
+    await apiPost(entry, curUser);
+    showToast('✓ 已儲存！');
+  }catch(e){
+    // offline fallback
+    const all=JSON.parse(localStorage.getItem('chitji_offline')||'{}');
+    if(!all[curUser]) all[curUser]={};
+    if(!all[curUser][cur]) all[curUser][cur]=[];
+    entry.id=Date.now();
+    all[curUser][cur].push(entry);
+    localStorage.setItem('chitji_offline',JSON.stringify(all));
+    showToast('✓ 已儲存（離線模式）');
+  }
+  // clear form
+  document.getElementById('iName').value='';document.getElementById('iCal').value='';
+  document.getElementById('iPortion').value='';document.getElementById('iNotes').value='';
+  document.getElementById('iPhoto').value='';
+  pendingPhotos=[];renderThumbs();selMood='😊';
+  document.querySelectorAll('.mbtn').forEach((b,i)=>b.classList.toggle('active',i===0));
+  btn.disabled=false; btn.textContent='儲存紀錄 ✓';
+  delete cachedEntries[cur];
+  closeSheet(); renderLog();
+}
+async function deleteEntry(id){
+  if(!confirm('確定刪除？')) return;
+  try{ await apiDelete(id); }catch(e){
+    const all=JSON.parse(localStorage.getItem('chitji_offline')||'{}');
+    if(all[curUser]?.[cur]) all[curUser][cur]=all[curUser][cur].filter(e=>e.id!==id);
+    localStorage.setItem('chitji_offline',JSON.stringify(all));
+  }
+  delete cachedEntries[cur];
+  renderLog(); showToast('已刪除');
+}
+
+// ── Render Log ──
+async function renderLog(){
+  const d=new Date(cur+'T00:00:00'), isToday=cur===todayStr();
+  const opts={month:'long',day:'numeric',weekday:'short'};
+  document.getElementById('hdrSub').textContent=isToday?'今天 · '+d.toLocaleDateString('zh-TW',{month:'numeric',day:'numeric'}):d.toLocaleDateString('zh-TW',opts);
+  document.getElementById('dpillTxt').textContent=isToday?'今天':d.toLocaleDateString('zh-TW',{month:'numeric',day:'numeric',weekday:'short'});
+  document.getElementById('dpill').classList.toggle('today',isToday);
+  document.getElementById('datePicker').value=cur;
+  renderUserBar();
+
+  document.getElementById('logList').innerHTML='<div class="loading"><span>🍽</span><br>載入中…</div>';
+
+  // fetch
+  if(!cachedEntries[cur]){
+    cachedEntries[cur] = await apiGet(cur, curUser);
+  }
+  const entries = cachedEntries[cur] || [];
+
+  // calorie ring
+  const totalCal=entries.reduce((s,e)=>s+(e.calories||e.cal||0),0);
+  document.getElementById('calNum').textContent=totalCal.toLocaleString();
+  const pct=Math.min(totalCal/GOAL,1);
+  document.getElementById('ringFg').style.strokeDashoffset=219.9-(219.9*pct);
+  const meals=['早餐','午餐','晚餐','點心'];
+  meals.forEach((m,i)=>{
+    document.getElementById('ms'+i).textContent=entries.filter(e=>e.meal===m).reduce((s,e)=>s+(e.calories||e.cal||0),0);
+  });
+
+  // list
+  const grouped={};
+  entries.forEach(e=>{if(!grouped[e.meal])grouped[e.meal]=[];grouped[e.meal].push(e);});
+  const colors={早餐:'var(--gold)',午餐:'var(--green)',晚餐:'var(--accent)',點心:'var(--blue)'};
+  let html='';
+  if(!entries.length){
+    html=`<div class="empty"><span class="empty-e">🌸</span><div class="empty-t">今天還沒有紀錄</div><div class="empty-s">點右下角 ＋ 開始記錄<br>今天吃了什麼吧！</div></div>`;
+  } else {
+    ['早餐','午餐','晚餐','點心'].forEach(meal=>{
+      if(!grouped[meal]) return;
+      const mc=grouped[meal].reduce((s,e)=>s+(e.calories||e.cal||0),0);
+      html+=`<div class="meal-group"><div class="mg-hdr"><div class="mg-title" style="color:${colors[meal]}">${mealEmoji(meal)} ${meal}</div><div class="mg-cal">${mc} kcal</div></div>`;
+      grouped[meal].forEach(e=>{
+        const cal=e.calories||e.cal||0;
+        const photos=e.photos&&e.photos.length?`<div class="food-photos">${e.photos.map(p=>`<img src="${p}">`).join('')}</div>`:'';
+        html+=`<div class="food-item">
+          <div class="food-ico">${foodEmoji(e.name)}</div>
+          <div class="food-info">
+            <div class="food-name">${e.name}</div>
+            <div class="food-meta">${e.entry_time||e.time?`<span>${e.entry_time||e.time}</span>`:''} ${e.portion?`<span>· ${e.portion}</span>`:''} <span>${e.mood}</span></div>
+            ${e.notes?`<div style="font-size:.7rem;color:var(--text3);margin-top:3px;font-weight:500;">${e.notes}</div>`:''}${photos}
+          </div>
+          <div class="food-right">
+            <div><span class="food-cal">${cal}</span><span class="food-cal-u"> kcal</span></div>
+            <button class="del-btn" onclick="deleteEntry(${e.id})">✕</button>
+          </div>
+        </div>`;
+      });
+      html+='</div>';
+    });
+  }
+  document.getElementById('logList').innerHTML=html;
+  renderCalendar();
+}
+
+// ── Report ──
+function setRange(days,btn){
+  document.querySelectorAll('.rbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); renderReport(days);
+}
+async function renderReport(days){
+  document.getElementById('reportContent').innerHTML='<div class="loading"><span>📊</span><br>分析中…</div>';
+  const end=new Date(), start=new Date();
+  start.setDate(start.getDate()-days+1);
+  const dayList=[];
+  const d=new Date(start);
+  while(d<=end){
+    const k=d.toISOString().split('T')[0];
+    if(!cachedEntries[k]) cachedEntries[k]=await apiGet(k,curUser);
+    dayList.push({date:k,entries:cachedEntries[k]||[]});
+    d.setDate(d.getDate()+1);
+  }
+  const allE=dayList.flatMap(d=>d.entries);
+  const cal=e=>e.calories||e.cal||0;
+  const totalCal=allE.reduce((s,e)=>s+cal(e),0);
+  const dwd=dayList.filter(d=>d.entries.length).length||1;
+  const avgCal=Math.round(totalCal/dwd);
+  const maxDay=Math.max(...dayList.map(d=>d.entries.reduce((s,e)=>s+cal(e),0)),1);
+  const moodCnt={};
+  allE.forEach(e=>{moodCnt[e.mood]=(moodCnt[e.mood]||0)+1;});
+  const topMood=Object.entries(moodCnt).sort((a,b)=>b[1]-a[1])[0];
+  const mCalMap={早餐:0,午餐:0,晚餐:0,點心:0};
+  allE.forEach(e=>{mCalMap[e.meal]=(mCalMap[e.meal]||0)+cal(e);});
+  const totalM=Object.values(mCalMap).reduce((s,v)=>s+v,0)||1;
+  const fmap={};
+  allE.forEach(e=>{if(!fmap[e.name])fmap[e.name]={cnt:0,tc:0};fmap[e.name].cnt++;fmap[e.name].tc+=cal(e);});
+  const tops=Object.entries(fmap).sort((a,b)=>b[1].cnt-a[1].cnt).slice(0,5);
+  const bars=dayList.map(d=>{const c=d.entries.reduce((s,e)=>s+cal(e),0);const h=Math.round((c/maxDay)*100);return `<div class="bcw"><div class="bcval">${c>0?c:''}</div><div class="bcbar ${c>0?'hd':''}" style="height:${h}%;min-height:${c>0?3:0}px"></div><div class="bclbl">${d.date.slice(5)}</div></div>`;}).join('');
+  const moodTL=dayList.slice(-7).map(d=>{const last=d.entries.length?d.entries[d.entries.length-1].mood:'·';return `<div class="mtd"><div class="mtd-b">${last}</div><div class="mtd-l">${d.date.slice(5)}</div></div>`;}).join('');
+  const mbColors={早餐:'var(--gold)',午餐:'var(--green)',晚餐:'var(--accent)',點心:'var(--blue)'};
+  const mbHTML=Object.entries(mCalMap).map(([m,c])=>{const pct=Math.round((c/totalM)*100);return `<div class="mb-item"><div class="mb-hdr"><div class="mb-name" style="color:${mbColors[m]}">${mealEmoji(m)} ${m}</div><div class="mb-cal">${c} kcal</div></div><div class="mb-track"><div class="mb-fill" style="width:${pct}%;background:${mbColors[m]}"></div></div></div>`;}).join('');
+  const tfHTML=tops.length?tops.map(([n,i],idx)=>`<div class="tf-item"><div class="tf-rank ${idx===0?'g1':''}">${String(idx+1).padStart(2,'0')}</div><div class="tf-name">${n}</div><div class="tf-cnt">${i.cnt}次</div><div class="tf-cal">${Math.round(i.tc/i.cnt)} kcal</div></div>`).join(''):`<div style="color:var(--text3);font-size:.8rem;text-align:center;padding:16px;font-weight:600;">尚無資料</div>`;
+  document.getElementById('reportContent').innerHTML=`
+    <div class="stat-row"><div class="stile"><div class="stlbl">📈 平均/天</div><div class="stnum">${avgCal.toLocaleString()}<span class="stunit"> kcal</span></div><div class="stsub">${allE.length} 筆紀錄</div></div><div class="stile"><div class="stlbl">😊 最常心情</div><div class="stnum" style="font-size:2rem">${topMood?topMood[0]:'—'}</div><div class="stsub">${topMood?`${topMood[1]} 次`:'尚無'}</div></div></div>
+    <div class="chart-card"><div class="cc-title">每日熱量趨勢</div><div class="bar-chart">${bars}</div></div>
+    <div class="chart-card"><div class="cc-title">各餐熱量分佈</div><div class="mb-list">${mbHTML}</div></div>
+    <div class="chart-card"><div class="cc-title">心情記錄（近7天）</div><div class="mood-tl">${moodTL}</div></div>
+    <div class="chart-card"><div class="cc-title">最常吃的食物</div><div class="tf-list">${tfHTML}</div></div>`;
+}
+
+// ── Backup ──
+async function exportJSON(){
+  showToast('準備備份中…');
+  // fetch all data for current user
+  const result={version:2,user:curUser,exported:new Date().toISOString(),entries:{}};
+  const all=JSON.parse(localStorage.getItem('chitji_offline')||'{}');
+  result.entries=all[curUser]||{};
+  const blob=new Blob([JSON.stringify(result,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url;
+  a.download=`吃記備份_${curUser}_${todayStr()}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  showToast('✓ 備份已下載！');
+}
+function importJSON(e){
+  const file=e.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const parsed=JSON.parse(ev.target.result);
+      if(!confirm(`確定還原備份？\n這會覆蓋目前的資料！`)) return;
+      const all=JSON.parse(localStorage.getItem('chitji_offline')||'{}');
+      all[curUser]=parsed.entries||parsed.data||{};
+      localStorage.setItem('chitji_offline',JSON.stringify(all));
+      cachedEntries={}; renderLog(); renderDataStats();
+      showToast('✓ 資料已還原！');
+    }catch(err){ showToast('❌ 備份檔案格式錯誤'); }
+  };
+  r.readAsText(file); e.target.value='';
+}
+function renderDataStats(){
+  const all=JSON.parse(localStorage.getItem('chitji_offline')||'{}');
+  const userData=all[curUser]||{};
+  const dates=Object.keys(userData);
+  const total=Object.values(userData).reduce((s,v)=>s+v.length,0);
+  document.getElementById('dataStats').innerHTML=`目前用戶：${curUser==='default'?'我':curUser}<br>記錄天數：${dates.length} 天<br>總筆數：${total} 筆<br>最早紀錄：${dates.sort()[0]||'—'}`;
+}
+
+// ── Helpers ──
+function mealEmoji(m){return{早餐:'🌅',午餐:'☀️',晚餐:'🌙',點心:'🍪'}[m]||'🍽';}
+function foodEmoji(name){
+  const map=[['咖啡','☕'],['奶茶','🧋'],['茶','🍵'],['水','💧'],['果汁','🧃'],['酒','🍺'],['飯','🍚'],['麵','🍜'],['粥','🥣'],['壽司','🍣'],['麵包','🍞'],['吐司','🍞'],['蛋','🥚'],['雞','🍗'],['豬','🥩'],['牛','🥩'],['魚','🐟'],['海鮮','🦐'],['沙拉','🥗'],['蔬菜','🥦'],['水果','🍎'],['蘋果','🍎'],['香蕉','🍌'],['番茄','🍅'],['漢堡','🍔'],['薯條','🍟'],['披薩','🍕'],['三明治','🥪'],['蛋糕','🎂'],['餅乾','🍪'],['冰淇淋','🍦'],['布丁','🍮'],['火鍋','🍲'],['便當','🍱'],['炒飯','🍳'],['湯','🥣'],['豆腐','🥢'],['泡麵','🍜']];
+  for(const [k,e] of map){if(name.includes(k))return e;}
+  return '🍽';
+}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2300);
+}
+
+// ── Init ──
+const today=new Date();
+calViewYear=today.getFullYear(); calViewMonth=today.getMonth();
+if(!localStorage.getItem('chitji_members')) localStorage.setItem('chitji_members',JSON.stringify(['default']));
+renderLog();
+</script>
+</body>
+</html>

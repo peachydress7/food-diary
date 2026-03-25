@@ -1,0 +1,8 @@
+{
+  "name": "chitji",
+  "version": "1.0.0",
+  "description": "吃記 - 飲食日記 App",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  }
+}
