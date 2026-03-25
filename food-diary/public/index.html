@@ -379,7 +379,7 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
       <button class="save-name-btn" id="btnSaveName" onclick="saveName()">儲存</button>
     </div>
 
-    <div class="set-section">
+    <div class="set-section" id="familySection" style="display:none;">
       <span class="set-label" id="lblFamily">家人 / 朋友</span>
       <div class="set-card">
         <div id="memberList"></div>
@@ -506,7 +506,7 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
         <span class="f-lbl" id="lblName">食物名稱</span>
         <div style="display:flex;gap:8px;align-items:stretch;">
           <input class="f-input" id="iName" type="text" placeholder="例：滷肉飯、珍珠奶茶…" autocomplete="off" style="flex:1;">
-          <button class="ai-btn" id="aiBtn" onclick="askAiCalories()" type="button">✨ AI建議</button>
+          <button class="ai-btn" id="aiBtn" onclick="askAiCalories()" type="button" style="display:none;">✨ AI建議</button>
         </div>
       </div>
       <div class="f-sec">
@@ -1380,6 +1380,8 @@ function enterApp(){
   members=[authUser.username];
   if(authUser.is_admin){
     document.getElementById('adminSection').style.display='block';
+    document.getElementById('familySection').style.display='block';
+    document.getElementById('aiBtn').style.display='';
   }
   applyLang();
 }
