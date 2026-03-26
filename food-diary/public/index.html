@@ -135,9 +135,13 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 /* cal photo strip */
 .cal-photo-strip{margin:8px 20px 6px;overflow-x:auto;scrollbar-width:none;display:flex;gap:8px;padding:2px 0;}
 .cal-photo-strip::-webkit-scrollbar{display:none;}
-.cal-ps-item{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
-.cal-ps-item img{width:72px;height:72px;border-radius:12px;object-fit:cover;border:1.5px solid var(--border);transition:transform .15s;animation:slideUp .2s ease;}
-.cal-ps-item img:active{transform:scale(.93);}
+.cal-ps-item{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.cal-ps-img-wrap{position:relative;flex-shrink:0;}
+.cal-ps-img-wrap img{display:block;width:72px;height:72px;border-radius:12px;object-fit:cover;border:1.5px solid var(--border);transition:transform .15s;animation:slideUp .2s ease;}
+.cal-ps-img-wrap img:active{transform:scale(.93);}
+.cal-ps-img-wrap.is-cover img{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent);}
+.cal-ps-cover-btn{position:absolute;bottom:4px;right:4px;width:20px;height:20px;border-radius:50%;border:1px solid rgba(255,255,255,.5);background:rgba(0,0,0,.4);color:rgba(255,255,255,.65);font-size:.55rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;transition:all .18s;}
+.cal-ps-cover-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
 .cal-ps-label{font-size:.58rem;color:var(--text2);font-weight:600;max-width:72px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;}
 
 /* food items */
@@ -832,6 +836,7 @@ let weightRecords = [];
 let weightCacheTime = 0;
 let adminMode = false;
 let calView = 'month';
+let calCovers = {}; // { date: photoUrl } — user-chosen cover photo per day
 let cachedMonths = new Set();
 function getGoal(){ return parseInt(localStorage.getItem('chitji_goal')||'2000'); }
 
@@ -895,6 +900,7 @@ function renderUserBar(){
 function switchUser(user){
   curUser=user;
   cachedEntries={};cachedMonths.clear();
+  calCovers=JSON.parse(localStorage.getItem('chitji_covers_'+curUser)||'{}');
   renderUserBar();
   renderLog();
 }
@@ -979,7 +985,7 @@ function renderCalendar(){
     const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const isT=ds===today,isS=ds===cur;
     const photos=(cachedEntries[ds]||[]).flatMap(e=>e.photos||[]);
-    const photo=photos[0]||'';
+    const photo=calCovers[ds]||photos[0]||'';
     const hasD=(cachedEntries[ds]||[]).length>0;
     let cls='cal-cell'+(photo?' has-photo':'')+(isT&&!isS?' today':'')+(isS?' selected':'');
     const bg=photo?`<div class="cpbg" style="background-image:url('${photo}')"></div>`:'';
@@ -1009,7 +1015,7 @@ function renderWeekCalendar(){
   dates.forEach((ds,i)=>{
     const isT=ds===today,isS=ds===cur;
     const photos=(cachedEntries[ds]||[]).flatMap(e=>e.photos||[]);
-    const photo=photos[0]||'';
+    const photo=calCovers[ds]||photos[0]||'';
     const hasD=(cachedEntries[ds]||[]).length>0;
     const d=new Date(ds+'T00:00:00').getDate();
     let cls='cal-week-cell'+(photo?' has-photo':' no-photo')+(isT?' today-w':'')+(isS?' selected-w':'');
@@ -1232,14 +1238,29 @@ function updateCalTotal(){
   else{hint.style.display='none';}
 }
 
+function setCalCover(date, url){
+  if(calCovers[date]===url) delete calCovers[date];
+  else calCovers[date]=url;
+  localStorage.setItem('chitji_covers_'+curUser, JSON.stringify(calCovers));
+  renderCalPhotoStrip();
+  renderCalendar();
+}
 function renderCalPhotoStrip(){
   const el=document.getElementById('calPhotoStrip');
   if(!el) return;
   const photos=(cachedEntries[cur]||[]).flatMap(e=>(e.photos||[]).map(p=>({url:p,name:e.name})));
   if(!photos.length){el.innerHTML='';return;}
-  el.innerHTML=photos.map(p=>
-    `<div class="cal-ps-item"><img src="${p.url}" loading="lazy" alt="" onclick="openLightbox(this.src)"><span class="cal-ps-label">${p.name}</span></div>`
-  ).join('');
+  const activeUrl=calCovers[cur]||photos[0].url;
+  el.innerHTML=photos.map(p=>{
+    const isCover=p.url===activeUrl;
+    return `<div class="cal-ps-item">
+      <div class="cal-ps-img-wrap${isCover?' is-cover':''}">
+        <img src="${p.url}" loading="lazy" alt="" onclick="openLightbox(this.src)">
+        <button class="cal-ps-cover-btn${isCover?' active':''}" onclick="setCalCover('${cur}','${p.url}');event.stopPropagation()" title="設為月曆封面">📌</button>
+      </div>
+      <span class="cal-ps-label">${p.name}</span>
+    </div>`;
+  }).join('');
 }
 
 // ── Report ──
@@ -1594,6 +1615,7 @@ function enterApp(){
   document.getElementById('app').style.display='flex';
   curUser=authUser.username;
   members=[authUser.username];
+  calCovers=JSON.parse(localStorage.getItem('chitji_covers_'+curUser)||'{}');
   if(authUser.is_admin){
     document.getElementById('adminSection').style.display='block';
     document.getElementById('familySection').style.display='block';
