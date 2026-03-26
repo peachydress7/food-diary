@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 72" width="280" height="72">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&amp;display=swap');
+    </style>
+    <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#b82e18"/>
+      <stop offset="35%"  stop-color="#E8674A"/>
+      <stop offset="70%"  stop-color="#f07535"/>
+      <stop offset="100%" stop-color="#F5C842"/>
+    </linearGradient>
+  </defs>
+
+  <!-- fork / chopstick decoration left -->
+  <g transform="translate(6, 10)" stroke="#E8674A" stroke-width="1.8" fill="none" stroke-linecap="round">
+    <line x1="7"  y1="2"  x2="7"  y2="50"/>
+    <line x1="4"  y1="2"  x2="4"  y2="18"/>
+    <line x1="10" y1="2"  x2="10" y2="18"/>
+    <path d="M4 18 Q7 24 10 18"/>
+  </g>
+
+  <!-- main brand text -->
+  <text
+    font-family="'Ma Shan Zheng', 'Noto Serif TC', serif"
+    font-size="52"
+    font-weight="400"
+    fill="url(#logoGrad)"
+    x="28"
+    y="57"
+    letter-spacing="3"
+  >先吃再說</text>
+
+  <!-- decorative underline squiggle -->
+  <path d="M28 63 Q90 68 152 63 Q214 58 252 63" stroke="#F5C842" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- small star / sparkle dots top-right -->
+  <g fill="#E8674A" opacity="0.6">
+    <circle cx="260" cy="8"  r="2.8"/>
+    <circle cx="270" cy="4"  r="1.8"/>
+    <circle cx="275" cy="13" r="2.2"/>
+    <circle cx="265" cy="18" r="1.4"/>
+  </g>
+  <!-- tiny heart -->
+  <path d="M253 22 Q253 18 257 18 Q261 18 261 22 Q261 26 253 30 Q245 26 245 22 Q245 18 249 18 Q253 18 253 22Z"
+    fill="#E8674A" opacity="0.45" transform="scale(0.6) translate(165, 14)"/>
+</svg>
