@@ -251,6 +251,13 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
 .save-name-btn{margin-top:8px;padding:11px 24px;border-radius:var(--radius-sm);border:none;background:var(--accent);color:white;font-family:var(--font);font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s;}
 .save-name-btn:active{transform:scale(.97);}
 
+/* qty stepper */
+.qty-wrap{display:flex;align-items:center;gap:5px;}
+.qty-btn{width:32px;flex-shrink:0;height:42px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:1.15rem;cursor:pointer;font-family:var(--font);transition:all .2s;display:flex;align-items:center;justify-content:center;padding:0;}
+.qty-btn:active{transform:scale(.9);background:var(--surface2);}
+#iQty{text-align:center;min-width:0;}
+.cal-total-hint{font-size:.75rem;color:var(--accent);font-weight:700;margin-top:6px;text-align:right;animation:slideUp .15s ease;}
+
 /* AI suggest button */
 .ai-btn{padding:10px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--accent);background:var(--accent-bg);color:var(--accent);font-family:var(--font);font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .2s;}
 .ai-btn:active{transform:scale(.95);}
@@ -527,8 +534,22 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
       </div>
       <div class="f-sec">
         <div class="f-row">
-          <div><span class="f-lbl" id="lblCal">熱量 (kcal)</span><input class="f-input" id="iCal" type="number" placeholder="0" min="0" inputmode="numeric"></div>
-          <div><span class="f-lbl" id="lblPortion">份量</span><input class="f-input" id="iPortion" type="text" placeholder="1碗、1份…" autocomplete="off"></div>
+          <div><span class="f-lbl" id="lblCal">單份熱量 (kcal)</span><input class="f-input" id="iCal" type="number" placeholder="0" min="0" inputmode="numeric" oninput="updateCalTotal()"></div>
+          <div>
+            <span class="f-lbl" id="lblQty">份數</span>
+            <div class="qty-wrap">
+              <button type="button" class="qty-btn" onclick="changeQty(-1)">−</button>
+              <input class="f-input" id="iQty" type="number" value="1" min="1" inputmode="numeric" oninput="updateCalTotal()">
+              <button type="button" class="qty-btn" onclick="changeQty(1)">＋</button>
+            </div>
+          </div>
+        </div>
+        <div id="calTotalHint" class="cal-total-hint" style="display:none;"></div>
+      </div>
+      <div class="f-sec">
+        <div class="f-row">
+          <div><span class="f-lbl" id="lblPortion">份量說明</span><input class="f-input" id="iPortion" type="text" placeholder="1碗、1份…" autocomplete="off"></div>
+          <div><span class="f-lbl" id="lblTime">用餐時間</span><input class="f-input" id="iTime" type="time"></div>
         </div>
       </div>
       <div class="f-sec">
@@ -586,8 +607,9 @@ const STRINGS = {
     dailyGoal:'每日目標熱量', goalSub:'超過目標時，熱量環形圖會變紅並顯示警告',
     language:'語言 / Language', dataStats:'📊 資料統計',
     addSheetTitle:'新增飲食 ✨', mealLabel:'餐次', nameLabel:'食物名稱',
-    namePlaceholder2:'例：滷肉飯、珍珠奶茶…', calLabel:'熱量 (kcal)',
-    portionLabel:'份量', portionPlaceholder:'1碗、1份…',
+    namePlaceholder2:'例：滷肉飯、珍珠奶茶…', calLabel:'單份熱量 (kcal)',
+    qtyLabel:'份數', timeLabel:'用餐時間',
+    portionLabel:'份量說明', portionPlaceholder:'1碗、1份…',
     notesLabel:'備註', notesPlaceholder:'口感？健不健康？有什麼特別感受？',
     moodLabel:'心情感受', moods:['開心','好吃','普通','不好','好飽','健康'],
     photoLabel:'照片', photoHint:'點擊上傳照片（可多張）',
@@ -633,7 +655,8 @@ const STRINGS = {
     dailyGoal:'Daily Calorie Goal', goalSub:'Ring turns red and shows warning when exceeded',
     language:'語言 / Language', dataStats:'📊 Data Stats',
     addSheetTitle:'Add Food ✨', mealLabel:'Meal', nameLabel:'Food Name',
-    namePlaceholder2:'e.g. Salad, Coffee…', calLabel:'Calories (kcal)',
+    namePlaceholder2:'e.g. Salad, Coffee…', calLabel:'Cal/serving (kcal)',
+    qtyLabel:'Qty', timeLabel:'Time',
     portionLabel:'Portion', portionPlaceholder:'1 bowl, 1 serving…',
     notesLabel:'Notes', notesPlaceholder:'Taste? Healthy? How do you feel?',
     moodLabel:'Mood', moods:['Happy','Yummy','Okay','Bad','Full','Healthy'],
@@ -712,6 +735,8 @@ function applyLang(){
   document.getElementById('lblName').textContent=T.nameLabel;
   document.getElementById('iName').placeholder=T.namePlaceholder2;
   document.getElementById('lblCal').textContent=T.calLabel;
+  document.getElementById('lblQty').textContent=T.qtyLabel;
+  document.getElementById('lblTime').textContent=T.timeLabel;
   document.getElementById('lblPortion').textContent=T.portionLabel;
   document.getElementById('iPortion').placeholder=T.portionPlaceholder;
   document.getElementById('lblNotes').textContent=T.notesLabel;
@@ -769,6 +794,7 @@ let wDate = todayStr();
 let weightRecords = [];
 let weightCacheTime = 0;
 let adminMode = false;
+let cachedMonths = new Set();
 function getGoal(){ return parseInt(localStorage.getItem('chitji_goal')||'2000'); }
 
 function todayStr(){ return new Date().toISOString().split('T')[0]; }
@@ -830,7 +856,7 @@ function renderUserBar(){
 }
 function switchUser(user){
   curUser=user;
-  cachedEntries={};
+  cachedEntries={};cachedMonths.clear();
   renderUserBar();
   renderLog();
 }
@@ -905,6 +931,23 @@ function renderCalendar(){
   const rem=(7-((firstDay+daysInMonth)%7))%7;
   for(let i=1;i<=rem;i++) html+=`<div class="cal-cell other"><span class="cnum">${i}</span></div>`;
   document.getElementById('calGrid').innerHTML=html;
+  // prefetch whole month in background so dots appear for all days
+  prefetchMonth(y, m);
+}
+async function prefetchMonth(y, m){
+  const key=`${y}-${String(m+1).padStart(2,'0')}:${curUser}`;
+  if(cachedMonths.has(key)) return;
+  cachedMonths.add(key);
+  const from=`${y}-${String(m+1).padStart(2,'0')}-01`;
+  const last=new Date(y,m+1,0).getDate();
+  const to=`${y}-${String(m+1).padStart(2,'0')}-${String(last).padStart(2,'0')}`;
+  const batch=await apiBatch(from,to,curUser);
+  let changed=false;
+  for(let d=1;d<=last;d++){
+    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    if(!cachedEntries[ds]){cachedEntries[ds]=batch[ds]||[];changed=true;}
+  }
+  if(changed) renderCalendar();
 }
 
 // ── Sheet ──
@@ -961,13 +1004,16 @@ async function saveEntry(){
   if(!name){showToast(T.toastNoFoodName);return;}
   const btn=document.getElementById('saveBtn');
   btn.disabled=true; btn.textContent=T.saving;
+  const baseCal=parseInt(document.getElementById('iCal').value)||0;
+  const qty=Math.max(1,parseInt(document.getElementById('iQty').value)||1);
+  const timeVal=document.getElementById('iTime').value;
   const entry={
     meal:selMeal, name, date:cur,
-    cal:parseInt(document.getElementById('iCal').value)||0,
+    cal:baseCal*qty,
     portion:document.getElementById('iPortion').value.trim(),
     notes:document.getElementById('iNotes').value.trim(),
     mood:selMood, photos:[...pendingPhotos],
-    time:new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})
+    time:timeVal||new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})
   };
   try{
     await apiPost(entry, curUser);
@@ -984,8 +1030,10 @@ async function saveEntry(){
   }
   // clear form
   document.getElementById('iName').value='';document.getElementById('iCal').value='';
+  document.getElementById('iQty').value='1';document.getElementById('iTime').value='';
   document.getElementById('iPortion').value='';document.getElementById('iNotes').value='';
   document.getElementById('iPhoto').value='';
+  document.getElementById('calTotalHint').style.display='none';
   pendingPhotos=[];renderThumbs();selMood='😊';
   document.querySelectorAll('.mbtn').forEach((b,i)=>b.classList.toggle('active',i===0));
   btn.disabled=false; btn.textContent=T.saveEntry;
@@ -1073,6 +1121,19 @@ async function renderLog(){
   document.getElementById('logList').innerHTML=html;
   renderCalendar();
   renderCalPhotoStrip();
+}
+
+function changeQty(d){
+  const el=document.getElementById('iQty');
+  el.value=Math.max(1,(parseInt(el.value)||1)+d);
+  updateCalTotal();
+}
+function updateCalTotal(){
+  const base=parseInt(document.getElementById('iCal').value)||0;
+  const qty=Math.max(1,parseInt(document.getElementById('iQty').value)||1);
+  const hint=document.getElementById('calTotalHint');
+  if(base>0&&qty>1){hint.textContent=`= 總計 ${(base*qty).toLocaleString()} kcal`;hint.style.display='block';}
+  else{hint.style.display='none';}
 }
 
 function renderCalPhotoStrip(){
@@ -1492,7 +1553,7 @@ function logout(){
   localStorage.removeItem('chitji_auth');
   authUser=null; adminMode=false;
   curUser='default'; members=['default'];
-  cachedEntries={};
+  cachedEntries={};cachedMonths.clear();
   document.getElementById('app').style.display='none';
   document.getElementById('authScreen').classList.remove('hidden');
   document.getElementById('authUser').value='';
@@ -1507,13 +1568,13 @@ async function toggleAdminMode(){
     try{
       const r=await fetch(`${API_BASE}/api/auth?action=list`);
       const data=await r.json();
-      members=(data.users||[]).map(u=>u.username);
+      members=(data.users||[]).filter(u=>!u.is_admin||u.username===authUser.username).map(u=>u.username);
     }catch(e){ adminMode=false; showToast('❌ 無法取得用戶列表'); return; }
   } else {
     members=[authUser.username];
     curUser=authUser.username;
   }
-  cachedEntries={};
+  cachedEntries={};cachedMonths.clear();
   document.getElementById('adminToggleTitle').textContent=adminMode?'✓ 管理員模式 ON':'管理員模式';
   document.getElementById('adminToggleArrow').textContent=adminMode?'✓':'›';
   renderUserBar();
