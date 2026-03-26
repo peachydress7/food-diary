@@ -1715,6 +1715,20 @@ function getApiKey(){
   return key;
 }
 
+// ── Nutrition feature notice ──
+function maybeShowNutritionNotice(){
+  const key='chitji_nutrition_notice_v1';
+  if(localStorage.getItem(key)) return;
+  // If AI notice is also new, delay this one so they don't stack
+  const aiKey='chitji_ai_notice_v1';
+  const delay=localStorage.getItem(aiKey)?700:4000;
+  setTimeout(()=>document.getElementById('nutritionNotice').classList.add('show'), delay);
+}
+function closeNutritionNotice(){
+  localStorage.setItem('chitji_nutrition_notice_v1','1');
+  document.getElementById('nutritionNotice').classList.remove('show');
+}
+
 // ── AI feature notice ──
 function maybeShowAiNotice(){
   const key='chitji_ai_notice_v1';
@@ -1833,6 +1847,7 @@ function enterApp(){
   }
   applyLang();
   maybeShowAiNotice();
+  maybeShowNutritionNotice();
 }
 
 function switchAuthTab(mode){
@@ -1915,6 +1930,22 @@ const today=new Date();
 calViewYear=today.getFullYear(); calViewMonth=today.getMonth();
 initAuth();
 </script>
+
+<!-- Nutrition feature notice -->
+<div id="nutritionNotice">
+  <div class="ai-notice-bg" onclick="closeNutritionNotice()"></div>
+  <div class="ai-notice-card">
+    <button class="ai-notice-x" onclick="closeNutritionNotice()">×</button>
+    <div class="ai-notice-badge">✦ 新功能上線</div>
+    <div class="ai-notice-icon">🥗</div>
+    <div class="ai-notice-title">現在可以看營養了！</div>
+    <div class="ai-notice-body">
+      記錄食物的時候按 <b>「✨ AI建議」</b>，除了熱量，AI 還會幫你估算<b>蛋白質、碳水、脂肪、纖維</b>，一鍵搞定！<br><br>
+      儲存後這裡就會出現今天的營養素小卡片，讓你知道吃得夠不夠均衡 💪
+    </div>
+    <button class="ai-notice-btn" onclick="closeNutritionNotice()">了解了，來試試！</button>
+  </div>
+</div>
 
 <!-- AI feature notice -->
 <div id="aiNotice">
