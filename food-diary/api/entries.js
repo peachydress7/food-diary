@@ -26,9 +26,14 @@ export default async function handler(req, res) {
   try {
     if (method === 'GET') {
       // GET /api/entries?date=2025-01-01&user=Max
-      const { date, user = 'default' } = query;
+      // GET /api/entries?dateFrom=2025-01-01&dateTo=2025-01-31&user=Max  (batch)
+      const { date, dateFrom, dateTo, user = 'default' } = query;
       let q = supabase.from('entries').select('*').eq('user_name', user).order('created_at').limit(MAX_RECORDS);
-      if (date) q = q.eq('entry_date', date);
+      if (date) {
+        q = q.eq('entry_date', date);
+      } else if (dateFrom && dateTo) {
+        q = q.gte('entry_date', dateFrom).lte('entry_date', dateTo);
+      }
       const { data, error } = await q;
       if (error) throw error;
       return res.status(200).json(data);
@@ -47,7 +52,11 @@ export default async function handler(req, res) {
         notes:      entry.notes || '',
         mood:       entry.mood || '😊',
         photos:     entry.photos || [],
-        entry_time: entry.time || ''
+        entry_time: entry.time || '',
+        protein:    entry.protein ?? null,
+        carbs:      entry.carbs   ?? null,
+        fat:        entry.fat     ?? null,
+        fiber:      entry.fiber   ?? null
       }).select().single();
       if (error) throw error;
       return res.status(200).json(data);

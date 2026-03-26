@@ -33,11 +33,19 @@ export default async function handler(req, res) {
     },
     body: JSON.stringify({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 50,
-      messages: [{ role: 'user', content: `這個食物的熱量是多少kcal？食物：${name}${portion ? '，份量：' + portion : ''}。只回傳數字，不要任何其他文字。` }]
+      max_tokens: 120,
+      messages: [{ role: 'user', content: `估算這個食物的營養成分。食物：${name}${portion ? '，份量：' + portion : ''}。只回傳 JSON，格式：{"calories":數字,"protein":數字,"carbs":數字,"fat":數字,"fiber":數字}，所有數字都是整數，不要任何其他文字。` }]
     })
   });
   const data = await r.json();
-  const calories = parseInt(data.content[0].text.trim());
-  return res.status(200).json({ calories });
+  const text = data.content[0].text.trim();
+  const match = text.match(/\{[\s\S]*\}/);
+  const json = JSON.parse(match ? match[0] : text);
+  return res.status(200).json({
+    calories: parseInt(json.calories) || 0,
+    protein:  parseInt(json.protein)  || 0,
+    carbs:    parseInt(json.carbs)    || 0,
+    fat:      parseInt(json.fat)      || 0,
+    fiber:    parseInt(json.fiber)    || 0,
+  });
 }

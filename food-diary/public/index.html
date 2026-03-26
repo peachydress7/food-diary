@@ -317,6 +317,31 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
 .save-name-btn{margin-top:8px;padding:11px 24px;border-radius:var(--radius-sm);border:none;background:var(--accent);color:white;font-family:var(--font);font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s;}
 .save-name-btn:active{transform:scale(.97);}
 
+/* macro inputs (add form) */
+.macro-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.macro-inp-wrap{position:relative;display:flex;align-items:center;}
+.macro-inp-wrap .f-input{padding-right:22px;text-align:right;}
+.macro-unit{position:absolute;right:10px;font-size:.68rem;color:var(--text3);font-weight:600;pointer-events:none;}
+.macro-icon-lbl{display:flex;align-items:center;gap:3px;}
+
+/* macro summary row (today page) */
+.macro-summary{margin:0 20px 12px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
+.macro-summary:empty{display:none;}
+.macro-summary::-webkit-scrollbar{display:none;}
+.macro-pill{flex-shrink:0;background:var(--surface);border:2px solid var(--border2);border-radius:var(--radius-sm);padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:76px;box-shadow:var(--shadow-sketch);}
+.mp-icon{font-size:1rem;line-height:1;}
+.mp-label{font-size:.58rem;color:var(--text3);font-weight:700;letter-spacing:.03em;}
+.mp-val{font-size:1rem;font-weight:400;color:var(--text);font-family:'Fredoka One',cursive;line-height:1;}
+.mp-unit{font-size:.55rem;color:var(--text3);font-weight:600;}
+
+/* macro card (report page) */
+.macro-card-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.macro-card-tile{background:var(--surface2);border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:center;gap:10px;}
+.mct-icon{font-size:1.4rem;flex-shrink:0;}
+.mct-info{}
+.mct-label{font-size:.62rem;color:var(--text3);font-weight:700;letter-spacing:.02em;}
+.mct-val{font-size:1.1rem;font-weight:400;font-family:'Fredoka One',cursive;color:var(--text);line-height:1.2;}
+
 /* qty stepper */
 .qty-wrap{display:flex;align-items:center;gap:5px;}
 .qty-btn{width:32px;flex-shrink:0;height:42px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:1.15rem;cursor:pointer;font-family:var(--font);transition:all .2s;display:flex;align-items:center;justify-content:center;padding:0;}
@@ -462,6 +487,8 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
         <div class="ms-row"><div class="ms-dot" style="background:var(--blue)"></div><div class="ms-name" id="msName3">點心</div><div class="ms-val" id="ms3" style="color:var(--blue)">0</div></div>
       </div>
     </div>
+
+    <div id="macroSummary" class="macro-summary"></div>
 
     <div class="cal-wrap">
       <div class="cal-section">
@@ -673,6 +700,27 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
           </div>
         </div>
         <div id="calTotalHint" class="cal-total-hint" style="display:none;"></div>
+      </div>
+      <div class="f-sec">
+        <span class="f-lbl">營養素（克）<span style="font-weight:500;color:var(--text3);"> — AI 建議時自動填入</span></span>
+        <div class="macro-grid">
+          <div>
+            <span class="f-lbl macro-icon-lbl">💪 蛋白質</span>
+            <div class="macro-inp-wrap"><input class="f-input" id="iProtein" type="number" placeholder="0" min="0" inputmode="numeric"><span class="macro-unit">g</span></div>
+          </div>
+          <div>
+            <span class="f-lbl macro-icon-lbl">🍞 碳水</span>
+            <div class="macro-inp-wrap"><input class="f-input" id="iCarbs" type="number" placeholder="0" min="0" inputmode="numeric"><span class="macro-unit">g</span></div>
+          </div>
+          <div>
+            <span class="f-lbl macro-icon-lbl">🫙 脂肪</span>
+            <div class="macro-inp-wrap"><input class="f-input" id="iFat" type="number" placeholder="0" min="0" inputmode="numeric"><span class="macro-unit">g</span></div>
+          </div>
+          <div>
+            <span class="f-lbl macro-icon-lbl">🌿 纖維</span>
+            <div class="macro-inp-wrap"><input class="f-input" id="iFiber" type="number" placeholder="0" min="0" inputmode="numeric"><span class="macro-unit">g</span></div>
+          </div>
+        </div>
       </div>
       <div class="f-sec">
         <div class="f-row">
@@ -1197,13 +1245,16 @@ async function saveEntry(){
   const baseCal=parseInt(document.getElementById('iCal').value)||0;
   const qty=Math.max(1,parseInt(document.getElementById('iQty').value)||1);
   const timeVal=document.getElementById('iTime').value;
+  const macroVal=id=>{const v=parseInt(document.getElementById(id).value); return isNaN(v)||v===0?null:v;};
   const entry={
     meal:selMeal, name, date:cur,
     cal:baseCal*qty,
     portion:document.getElementById('iPortion').value.trim(),
     notes:document.getElementById('iNotes').value.trim(),
     mood:selMood, photos:[...pendingPhotos],
-    time:timeVal||new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})
+    time:timeVal||new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'}),
+    protein:macroVal('iProtein'), carbs:macroVal('iCarbs'),
+    fat:macroVal('iFat'), fiber:macroVal('iFiber')
   };
   try{
     await apiPost(entry, curUser);
@@ -1222,6 +1273,7 @@ async function saveEntry(){
   document.getElementById('iName').value='';document.getElementById('iCal').value='';
   document.getElementById('iQty').value='1';document.getElementById('iTime').value='';
   document.getElementById('iPortion').value='';document.getElementById('iNotes').value='';
+  ['iProtein','iCarbs','iFat','iFiber'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('iPhoto').value='';
   document.getElementById('calTotalHint').style.display='none';
   pendingPhotos=[];renderThumbs();selMood='😊';
@@ -1275,6 +1327,19 @@ async function renderLog(){
   meals.forEach((m,i)=>{
     document.getElementById('ms'+i).textContent=entries.filter(e=>e.meal===m).reduce((s,e)=>s+(e.calories||e.cal||0),0);
   });
+
+  // macro summary
+  const sumP=entries.reduce((s,e)=>s+(e.protein||0),0);
+  const sumC=entries.reduce((s,e)=>s+(e.carbs||0),0);
+  const sumF=entries.reduce((s,e)=>s+(e.fat||0),0);
+  const sumFib=entries.reduce((s,e)=>s+(e.fiber||0),0);
+  const ms=document.getElementById('macroSummary');
+  if(ms) ms.innerHTML=(sumP||sumC||sumF||sumFib)?
+    `<div class="macro-pill"><div class="mp-icon">💪</div><div class="mp-label">蛋白質</div><div class="mp-val">${sumP}</div><div class="mp-unit">g</div></div>`+
+    `<div class="macro-pill"><div class="mp-icon">🍞</div><div class="mp-label">碳水化合物</div><div class="mp-val">${sumC}</div><div class="mp-unit">g</div></div>`+
+    `<div class="macro-pill"><div class="mp-icon">🫙</div><div class="mp-label">脂肪</div><div class="mp-val">${sumF}</div><div class="mp-unit">g</div></div>`+
+    `<div class="macro-pill"><div class="mp-icon">🌿</div><div class="mp-label">膳食纖維</div><div class="mp-val">${sumFib}</div><div class="mp-unit">g</div></div>`
+    :'';
 
   // list
   const grouped={};
@@ -1390,6 +1455,11 @@ async function renderReport(days){
   const dwd=dayList.filter(d=>d.entries.length).length||1;
   const avgCal=Math.round(totalCal/dwd);
   const maxDay=Math.max(...dayList.map(d=>d.entries.reduce((s,e)=>s+cal(e),0)),1);
+  const macroEntries=allE.filter(e=>e.protein||e.carbs||e.fat||e.fiber);
+  const avgP=macroEntries.length?Math.round(macroEntries.reduce((s,e)=>s+(e.protein||0),0)/dwd):null;
+  const avgC=macroEntries.length?Math.round(macroEntries.reduce((s,e)=>s+(e.carbs||0),0)/dwd):null;
+  const avgF=macroEntries.length?Math.round(macroEntries.reduce((s,e)=>s+(e.fat||0),0)/dwd):null;
+  const avgFib=macroEntries.length?Math.round(macroEntries.reduce((s,e)=>s+(e.fiber||0),0)/dwd):null;
   const moodCnt={};
   allE.forEach(e=>{moodCnt[e.mood]=(moodCnt[e.mood]||0)+1;});
   const topMood=Object.entries(moodCnt).sort((a,b)=>b[1]-a[1])[0];
@@ -1411,7 +1481,8 @@ async function renderReport(days){
     `<div class="chart-card"><div class="cc-title">${T.chartCalTrend}</div><div class="bar-chart">${bars}</div></div>`+
     `<div class="chart-card"><div class="cc-title">${T.chartMealDist}</div><div class="mb-list">${mbHTML}</div></div>`+
     `<div class="chart-card"><div class="cc-title">${T.chartMoodHistory}</div><div class="mood-tl">${moodTL}</div></div>`+
-    `<div class="chart-card"><div class="cc-title">${T.chartTopFoods}</div><div class="tf-list">${tfHTML}</div></div>`;
+    `<div class="chart-card"><div class="cc-title">${T.chartTopFoods}</div><div class="tf-list">${tfHTML}</div></div>`+
+    (avgP!=null?`<div class="chart-card"><div class="cc-title">平均每日營養素</div><div class="macro-card-grid"><div class="macro-card-tile"><div class="mct-icon">💪</div><div class="mct-info"><div class="mct-label">蛋白質</div><div class="mct-val">${avgP}g</div></div></div><div class="macro-card-tile"><div class="mct-icon">🍞</div><div class="mct-info"><div class="mct-label">碳水化合物</div><div class="mct-val">${avgC}g</div></div></div><div class="macro-card-tile"><div class="mct-icon">🫙</div><div class="mct-info"><div class="mct-label">脂肪</div><div class="mct-val">${avgF}g</div></div></div><div class="macro-card-tile"><div class="mct-icon">🌿</div><div class="mct-info"><div class="mct-label">膳食纖維</div><div class="mct-val">${avgFib}g</div></div></div></div></div>`:'');
 }
 
 // ── Backup ──
@@ -1710,6 +1781,11 @@ async function askAiCalories(){
     const cal=data.calories;
     if(!cal||isNaN(cal)) throw new Error('無法解析回應');
     document.getElementById('iCal').value=cal;
+    if(data.protein!=null) document.getElementById('iProtein').value=data.protein;
+    if(data.carbs!=null)   document.getElementById('iCarbs').value=data.carbs;
+    if(data.fat!=null)     document.getElementById('iFat').value=data.fat;
+    if(data.fiber!=null)   document.getElementById('iFiber').value=data.fiber;
+    updateCalTotal();
     showToast(T.toastAiSuggest(cal));
     if(!isMaxine) incAiUsage();
   }catch(e){
