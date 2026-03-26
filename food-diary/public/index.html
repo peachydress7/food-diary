@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<title>吃記</title>
+<title>先吃再說</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -24,7 +24,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow:hidden;-webkit-font-smoothing:antialiased;}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 10% 20%,rgba(232,130,90,.07) 0%,transparent 50%),radial-gradient(ellipse at 90% 80%,rgba(109,186,138,.06) 0%,transparent 50%);pointer-events:none;z-index:0;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 10% 15%,rgba(220,65,35,.08) 0%,transparent 50%),radial-gradient(ellipse at 92% 82%,rgba(109,186,138,.06) 0%,transparent 50%);pointer-events:none;z-index:0;}
 #app{height:100dvh;display:flex;flex-direction:column;overflow:hidden;position:relative;}
 .page{display:none;flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;position:relative;z-index:1;padding-bottom:calc(var(--tab-h) + var(--safe-b) + 20px);scrollbar-width:none;}
 .page::-webkit-scrollbar{display:none;}
@@ -302,11 +302,18 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
 .goal-warning.show{display:block;}
 
 /* auth screen */
-#authScreen{position:fixed;inset:0;z-index:2000;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px;}
+#authScreen{position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-end;overflow:hidden;}
 #authScreen.hidden{display:none;}
-.auth-card{width:100%;max-width:380px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:30px 24px;box-shadow:0 8px 40px var(--shadow2);}
-.auth-logo{text-align:center;font-size:2.2rem;font-weight:800;letter-spacing:-.01em;margin-bottom:4px;}
-.auth-sub{text-align:center;font-size:.78rem;color:var(--text3);font-weight:500;margin-bottom:24px;}
+#authScreen::before{content:'';position:absolute;inset:0;background:linear-gradient(165deg,#b82e18 0%,#d94025 25%,#ec6830 58%,#f59840 85%,#fcc870 100%);z-index:0;}
+#authScreen::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 25% 15%,rgba(255,255,255,.13) 0%,transparent 55%),radial-gradient(ellipse at 80% 85%,rgba(0,0,0,.12) 0%,transparent 50%);z-index:0;pointer-events:none;}
+.auth-brand{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:max(env(safe-area-inset-top),44px) 30px 32px;text-align:center;position:relative;z-index:1;animation:authBrandIn .55s cubic-bezier(.4,0,.2,1) both;}
+@keyframes authBrandIn{from{opacity:0;transform:translateY(-14px);}to{opacity:1;transform:translateY(0);}}
+.auth-brand-emoji{font-size:3rem;margin-bottom:16px;filter:drop-shadow(0 3px 10px rgba(0,0,0,.22));}
+.auth-brand-name{font-size:3.2rem;font-weight:800;color:#fff;letter-spacing:.14em;font-family:var(--font);line-height:1;text-shadow:0 2px 20px rgba(0,0,0,.18),0 1px 4px rgba(0,0,0,.12);}
+.auth-brand-tagline{font-size:.82rem;color:rgba(255,255,255,.76);font-weight:500;margin-top:13px;letter-spacing:.1em;}
+.auth-card{background:var(--surface);border-radius:28px 28px 0 0;padding:10px 24px calc(max(env(safe-area-inset-bottom),20px) + 10px);box-shadow:0 -6px 48px rgba(0,0,0,.18);position:relative;z-index:1;animation:authCardIn .5s cubic-bezier(.32,.72,0,1) .08s both;}
+@keyframes authCardIn{from{transform:translateY(70px);opacity:.5;}to{transform:translateY(0);opacity:1;}}
+.auth-handle{width:36px;height:4px;background:var(--border2);border-radius:999px;margin:0 auto 20px;}
 .auth-tabs{display:flex;background:var(--surface2);border-radius:var(--radius-sm);padding:3px;margin-bottom:20px;gap:3px;}
 .auth-tab{flex:1;padding:9px;border-radius:10px;text-align:center;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s;color:var(--text2);}
 .auth-tab.active{background:var(--surface);color:var(--accent);box-shadow:0 1px 6px var(--shadow);}
@@ -314,6 +321,8 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
 .auth-field .f-lbl{margin-bottom:7px;}
 .auth-error{background:#fde8e8;border:1.5px solid #f0b0b0;border-radius:var(--radius-sm);padding:9px 13px;font-size:.78rem;color:#c0392b;font-weight:600;margin-bottom:14px;display:none;}
 .auth-error.show{display:block;}
+/* brand title gradient on log header */
+#logTitle{background:linear-gradient(125deg,#b82e18 0%,#e04530 40%,#f07535 75%,#f5a040 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 
 /* toast */
 #toast{position:fixed;bottom:calc(var(--tab-h) + var(--safe-b) + 76px);left:50%;transform:translateX(-50%) translateY(16px);background:var(--text);color:var(--bg);padding:10px 20px;border-radius:999px;font-size:.8rem;font-weight:700;opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);z-index:300;pointer-events:none;white-space:nowrap;box-shadow:0 4px 18px rgba(0,0,0,.2);}
@@ -324,9 +333,13 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
 
 <!-- ══ AUTH SCREEN ══ -->
 <div id="authScreen">
+  <div class="auth-brand">
+    <div class="auth-brand-emoji">🍽️</div>
+    <div class="auth-brand-name">先吃再說</div>
+    <div class="auth-brand-tagline">想吃就吃，這裡幫你記</div>
+  </div>
   <div class="auth-card">
-    <div class="auth-logo">吃·記 🍱</div>
-    <div class="auth-sub">記錄每一口，掌握健康飲食</div>
+    <div class="auth-handle"></div>
     <div class="auth-tabs">
       <div class="auth-tab active" id="authTabLogin" onclick="switchAuthTab('login')">登入</div>
       <div class="auth-tab" id="authTabReg" onclick="switchAuthTab('register')">註冊</div>
@@ -349,7 +362,7 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
   <!-- ══ PAGE: LOG ══ -->
   <div id="p-log" class="page active">
     <div class="page-header">
-      <div class="page-title" id="logTitle">吃·記 🍱</div>
+      <div class="page-title" id="logTitle">先吃再說</div>
       <div class="page-sub" id="hdrSub"></div>
     </div>
 
@@ -636,7 +649,7 @@ const API_BASE = ''; // 部署到 Vercel 後留空即可，會自動使用相對
 // ════════════════════════════════════════
 const STRINGS = {
   zh: {
-    appTitle:'吃·記 🍱', tabLog:'今日', tabReport:'報告', tabSettings:'設定',
+    appTitle:'先吃再說', tabLog:'今日', tabReport:'報告', tabSettings:'設定',
     meals:['早餐','午餐','晚餐','點心'], mealEmojis:['🌅','☀️','🌙','🍪'],
     dow:['日','一','二','三','四','五','六'],
     months:['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'],
@@ -684,7 +697,7 @@ const STRINGS = {
     toastWeightDeleted:'已刪除',
   },
   en: {
-    appTitle:'Food Diary 🍱', tabLog:'Today', tabReport:'Report', tabSettings:'Settings',
+    appTitle:'先吃再說', tabLog:'Today', tabReport:'Report', tabSettings:'Settings',
     meals:['Breakfast','Lunch','Dinner','Snack'], mealEmojis:['🌅','☀️','🌙','🍪'],
     dow:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
     months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
@@ -742,7 +755,7 @@ function setLang(l){
 }
 function applyLang(){
   // Page titles & subs
-  document.getElementById('logTitle').textContent=T.appTitle;
+  document.getElementById('logTitle').textContent=T.appTitle; // gradient applied via #logTitle CSS
   document.getElementById('reportTitleEl').textContent=T.reportTitle;
   document.getElementById('reportSubEl').textContent=T.reportSub;
   document.getElementById('settingsTitleEl').textContent=T.settingsTitle;
@@ -1336,7 +1349,7 @@ async function exportJSON(){
   const blob=new Blob([JSON.stringify(result,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a'); a.href=url;
-  a.download=`吃記備份_${curUser}_${todayStr()}.json`;
+  a.download=`先吃再說_備份_${curUser}_${todayStr()}.json`;
   a.click(); URL.revokeObjectURL(url);
   showToast('✓ 備份已下載！');
 }
