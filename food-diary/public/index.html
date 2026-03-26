@@ -101,6 +101,14 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .cal-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);}
 .cal-cell.selected .cal-dot{background:rgba(255,255,255,.8);}
 
+/* cal photo strip */
+.cal-photo-strip{margin:8px 20px 6px;overflow-x:auto;scrollbar-width:none;display:flex;gap:8px;padding:2px 0;}
+.cal-photo-strip::-webkit-scrollbar{display:none;}
+.cal-ps-item{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
+.cal-ps-item img{width:72px;height:72px;border-radius:12px;object-fit:cover;border:1.5px solid var(--border);transition:transform .15s;animation:slideUp .2s ease;}
+.cal-ps-item img:active{transform:scale(.93);}
+.cal-ps-label{font-size:.58rem;color:var(--text2);font-weight:600;max-width:72px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;}
+
 /* food items */
 .meal-group{margin:0 20px 10px;}
 .mg-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding:0 2px;}
@@ -347,6 +355,7 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
         <div class="cal-grid" id="calGrid"></div>
       </div>
     </div>
+    <div id="calPhotoStrip" class="cal-photo-strip"></div>
 
     <div id="goalWarning" class="goal-warning"></div>
     <div id="logList"></div>
@@ -758,6 +767,7 @@ let cachedEntries = {}; // { date: [entries] }
 let authUser = null;   // { username, is_admin, token }
 let wDate = todayStr();
 let weightRecords = [];
+let weightCacheTime = 0;
 let adminMode = false;
 function getGoal(){ return parseInt(localStorage.getItem('chitji_goal')||'2000'); }
 
@@ -774,6 +784,16 @@ async function apiGet(date, user){
     const all = JSON.parse(localStorage.getItem('chitji_offline')||'{}');
     return (all[user]?.[date]) || [];
   }
+}
+async function apiBatch(dateFrom, dateTo, user){
+  try{
+    const r=await fetch(`${API_BASE}/api/entries?dateFrom=${dateFrom}&dateTo=${dateTo}&user=${encodeURIComponent(user)}`);
+    if(!r.ok) throw new Error('fetch failed');
+    const all=await r.json();
+    const grouped={};
+    all.forEach(e=>{ if(!grouped[e.entry_date]) grouped[e.entry_date]=[]; grouped[e.entry_date].push(e); });
+    return grouped;
+  }catch(e){ return {}; }
 }
 async function apiPost(entry, user){
   const r = await fetch(`${API_BASE}/api/entries`, {
@@ -1052,6 +1072,17 @@ async function renderLog(){
   }
   document.getElementById('logList').innerHTML=html;
   renderCalendar();
+  renderCalPhotoStrip();
+}
+
+function renderCalPhotoStrip(){
+  const el=document.getElementById('calPhotoStrip');
+  if(!el) return;
+  const photos=(cachedEntries[cur]||[]).flatMap(e=>(e.photos||[]).map(p=>({url:p,name:e.name})));
+  if(!photos.length){el.innerHTML='';return;}
+  el.innerHTML=photos.map(p=>
+    `<div class="cal-ps-item"><img src="${p.url}" loading="lazy" alt="" onclick="openLightbox(this.src)"><span class="cal-ps-label">${p.name}</span></div>`
+  ).join('');
 }
 
 // ── Report ──
@@ -1078,8 +1109,12 @@ async function renderReport(days){
   const d=new Date(start);
   while(d<=end){ dates.push(d.toISOString().split('T')[0]); d.setDate(d.getDate()+1); }
 
-  // 只 fetch 尚未快取的日期（平行發出）
-  await Promise.all(dates.filter(k=>!cachedEntries[k]).map(async k=>{ cachedEntries[k]=await apiGet(k,curUser); }));
+  // 批次 fetch 尚未快取的日期（單一請求）
+  const uncached=dates.filter(k=>!cachedEntries[k]);
+  if(uncached.length){
+    const batch=await apiBatch(uncached[0],uncached[uncached.length-1],curUser);
+    uncached.forEach(k=>{ cachedEntries[k]=batch[k]||[]; });
+  }
   const dayList=dates.map(k=>({date:k,entries:cachedEntries[k]||[]}));
 
   // 計算統計
@@ -1100,31 +1135,17 @@ async function renderReport(days){
   const tops=Object.entries(fmap).sort((a,b)=>b[1].cnt-a[1].cnt).slice(0,5);
   const mbColors={早餐:'var(--gold)',午餐:'var(--green)',晚餐:'var(--accent)',點心:'var(--blue)'};
 
-  // 非同步分段渲染，避免長時間阻塞主執行緒
-  const defer=ms=>new Promise(r=>setTimeout(r,ms));
-
-  // 第一段：統計卡
-  rc.innerHTML=`<div class="stat-row"><div class="stile"><div class="stlbl">${T.avgPerDay}</div><div class="stnum">${avgCal.toLocaleString()}<span class="stunit"> kcal</span></div><div class="stsub">${T.recordCount(allE.length)}</div></div><div class="stile"><div class="stlbl">${T.topMood}</div><div class="stnum" style="font-size:2rem">${topMood?topMood[0]:'—'}</div><div class="stsub">${topMood?T.timesStr(topMood[1]):T.noData}</div></div></div>`+
-    `<div id="rc-bars" class="skel skel-chart"></div>`+
-    `<div id="rc-meals" class="skel skel-chart sm"></div>`+
-    `<div id="rc-mood" class="skel skel-chart sm"></div>`+
-    `<div id="rc-top" class="skel skel-chart sm"></div>`;
-
-  await defer(0);
+  // Build all HTML at once → single DOM write, no reflow jank
   const bars=dayList.map(d=>{const c=d.entries.reduce((s,e)=>s+cal(e),0);const h=Math.round((c/maxDay)*100);return `<div class="bcw"><div class="bcval">${c>0?c:''}</div><div class="bcbar ${c>0?'hd':''}" style="height:${h}%;min-height:${c>0?3:0}px"></div><div class="bclbl">${d.date.slice(5)}</div></div>`;}).join('');
-  document.getElementById('rc-bars').outerHTML=`<div class="chart-card"><div class="cc-title">${T.chartCalTrend}</div><div class="bar-chart">${bars}</div></div>`;
-
-  await defer(0);
   const mbHTML=Object.entries(mCalMap).map(([m,c])=>{const pct=Math.round((c/totalM)*100);const mi=STRINGS.zh.meals.indexOf(m);const dn=mi>=0?T.meals[mi]:m;return `<div class="mb-item"><div class="mb-hdr"><div class="mb-name" style="color:${mbColors[m]}">${mealEmoji(m)} ${dn}</div><div class="mb-cal">${c} kcal</div></div><div class="mb-track"><div class="mb-fill" style="width:${pct}%;background:${mbColors[m]}"></div></div></div>`;}).join('');
-  document.getElementById('rc-meals').outerHTML=`<div class="chart-card"><div class="cc-title">${T.chartMealDist}</div><div class="mb-list">${mbHTML}</div></div>`;
-
-  await defer(0);
   const moodTL=dayList.slice(-7).map(d=>{const last=d.entries.length?d.entries[d.entries.length-1].mood:'·';return `<div class="mtd"><div class="mtd-b">${last}</div><div class="mtd-l">${d.date.slice(5)}</div></div>`;}).join('');
-  document.getElementById('rc-mood').outerHTML=`<div class="chart-card"><div class="cc-title">${T.chartMoodHistory}</div><div class="mood-tl">${moodTL}</div></div>`;
-
-  await defer(0);
   const tfHTML=tops.length?tops.map(([n,i],idx)=>`<div class="tf-item"><div class="tf-rank ${idx===0?'g1':''}">${String(idx+1).padStart(2,'0')}</div><div class="tf-name">${n}</div><div class="tf-cnt">${i.cnt}${T.timesUnit}</div><div class="tf-cal">${Math.round(i.tc/i.cnt)} kcal</div></div>`).join(''):`<div style="color:var(--text3);font-size:.8rem;text-align:center;padding:16px;font-weight:600;">${T.noFoodData}</div>`;
-  document.getElementById('rc-top').outerHTML=`<div class="chart-card"><div class="cc-title">${T.chartTopFoods}</div><div class="tf-list">${tfHTML}</div></div>`;
+  rc.innerHTML=
+    `<div class="stat-row"><div class="stile"><div class="stlbl">${T.avgPerDay}</div><div class="stnum">${avgCal.toLocaleString()}<span class="stunit"> kcal</span></div><div class="stsub">${T.recordCount(allE.length)}</div></div><div class="stile"><div class="stlbl">${T.topMood}</div><div class="stnum" style="font-size:2rem">${topMood?topMood[0]:'—'}</div><div class="stsub">${topMood?T.timesStr(topMood[1]):T.noData}</div></div></div>`+
+    `<div class="chart-card"><div class="cc-title">${T.chartCalTrend}</div><div class="bar-chart">${bars}</div></div>`+
+    `<div class="chart-card"><div class="cc-title">${T.chartMealDist}</div><div class="mb-list">${mbHTML}</div></div>`+
+    `<div class="chart-card"><div class="cc-title">${T.chartMoodHistory}</div><div class="mood-tl">${moodTL}</div></div>`+
+    `<div class="chart-card"><div class="cc-title">${T.chartTopFoods}</div><div class="tf-list">${tfHTML}</div></div>`;
 }
 
 // ── Backup ──
