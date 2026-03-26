@@ -829,7 +829,7 @@ function setLang(l){
 }
 function applyLang(){
   // Page titles & subs
-  document.getElementById('logTitle').textContent=T.appTitle; // gradient applied via #logTitle CSS
+  // logTitle uses logo1.svg img — do not overwrite
   document.getElementById('reportTitleEl').textContent=T.reportTitle;
   document.getElementById('reportSubEl').textContent=T.reportSub;
   document.getElementById('settingsTitleEl').textContent=T.settingsTitle;
