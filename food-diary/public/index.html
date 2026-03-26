@@ -6,59 +6,68 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>先吃再說</title>
-<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&family=Caveat:wght@500;700&family=Fredoka+One&family=Patrick+Hand&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=M+PLUS+Rounded+1c:wght@400;700;800&family=Fredoka+One&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:#FFF8F0;--bg2:#FFF3E6;--surface:#ffffff;--surface2:#FFF0E0;
-  --border:#F0DDD0;--border2:#E8CCBA;
-  --text:#3d2e1e;--text2:#8a7060;--text3:#bca898;
-  --accent:#E8674A;--accent2:#f08060;--accent-bg:#FDE8E0;
-  --green:#7BAF6F;--green-bg:#E8F5E0;
-  --gold:#F5C842;--gold-bg:#FDF5D0;
+  /* 背景 */
+  --bg:#FFF8F0;--bg2:#FFF2E5;--surface:#FFFFFF;--surface2:#FFF8F2;
+  /* 邊框 */
+  --border:#FFE0CC;--border2:#FFCCBC;
+  /* 文字 */
+  --text:#4A3728;--text2:#8D6E63;--text3:#BCAAA4;
+  /* 主色 */
+  --accent:#FF7043;--accent2:#FF8A65;--accent-bg:#FFF3EE;
+  /* 次要色 */
+  --green:#66BB6A;--green-bg:#E8F5E9;
+  --gold:#FFB74D;--gold-bg:#FFF8E1;
   --blue:#89C4D8;--blue-bg:#E0F3F8;
-  --pink:#e87aaa;--pink-bg:#fce8f2;
-  --shadow:rgba(180,100,70,.10);--shadow2:rgba(180,100,70,.18);
-  --radius:22px;--radius-sm:14px;
+  --pink:#F06292;--pink-bg:#FCE4EC;
+  /* 陰影 */
+  --shadow:rgba(255,112,67,.08);--shadow2:rgba(255,112,67,.15);
+  /* 圓角 */
+  --radius:24px;--radius-sm:18px;
   --tab-h:68px;--safe-b:env(safe-area-inset-bottom,16px);
-  --font:'Patrick Hand','Noto Sans TC',sans-serif;
+  /* 字型 */
+  --font:'Nunito','Noto Sans TC',sans-serif;
   --font-serif:'M PLUS Rounded 1c','Noto Sans TC',sans-serif;
-  --font-num:'Fredoka One','Caveat',cursive;
-  --font-hand:'Caveat','Patrick Hand',cursive;
+  --font-num:'Fredoka One','Nunito',cursive;
+  --font-hand:'Nunito',sans-serif;
 
   /* ── typography scale ── */
-  --fs-brand:2.05rem;     /* App 品牌標題 先吃再說 */
-  --fs-page:1.75rem;      /* 各頁 page-title：報告、設定、體重 */
-  --fs-section:.82rem;    /* 區塊標題：早餐、圖表標題 */
-  --fs-num-xl:1.7rem;     /* 大數字：統計卡片 */
-  --fs-num-lg:1.45rem;    /* 熱量環數字 */
-  --fs-num-md:1.1rem;     /* 食物熱量、體重值 */
-  --fs-num-sm:.88rem;     /* 月曆日期、週曆日期 */
-  --fs-body:.88rem;       /* 食物名稱、內文 */
-  --fs-meta:.72rem;       /* 副標、時間、份量 */
-  --fs-label:.68rem;      /* 欄位標籤 */
-  --fs-tiny:.6rem;        /* tab 標籤、badge */
+  --fs-brand:2.05rem;
+  --fs-page:1.75rem;
+  --fs-section:.82rem;
+  --fs-num-xl:1.7rem;
+  --fs-num-lg:1.45rem;
+  --fs-num-md:1.1rem;
+  --fs-num-sm:.88rem;
+  --fs-body:.88rem;
+  --fs-meta:.72rem;
+  --fs-label:.68rem;
+  --fs-tiny:.6rem;
 
-  --fw-brand:600;         /* 品牌標題用偏柔的 600 */
+  --fw-brand:700;
   --fw-title:700;
   --fw-num:700;
   --fw-body:500;
 
-  --ls-brand:.07em;       /* 品牌字距，呼吸感 */
-  --ls-section:.03em;     /* 區塊標題略微拉開 */
+  --ls-brand:.04em;
+  --ls-section:.02em;
   --ls-tight:-.01em;
 
-  --shadow-sketch:2px 3px 0 var(--border2);
-  --shadow-sketch-lg:3px 5px 0 var(--border2);
+  --shadow-sketch:0 4px 16px rgba(255,112,67,.12);
+  --shadow-sketch-lg:0 8px 32px rgba(255,112,67,.15);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;background:#FFF8F0;color:var(--text);font-family:var(--font);overflow:hidden;-webkit-font-smoothing:antialiased;}
+body{background-image:radial-gradient(circle at 20% 20%,rgba(255,183,77,.08) 0%,transparent 50%),radial-gradient(circle at 80% 80%,rgba(255,112,67,.06) 0%,transparent 50%);}
 #app{height:100dvh;display:flex;flex-direction:column;overflow:hidden;position:relative;}
 .page{display:none;flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;position:relative;z-index:1;padding-bottom:calc(var(--tab-h) + var(--safe-b) + 20px);scrollbar-width:none;}
 .page::-webkit-scrollbar{display:none;}
 .page.active{display:block;}
 
 /* tabbar */
-.tabbar{position:fixed;bottom:0;left:0;right:0;height:calc(var(--tab-h) + var(--safe-b));padding-bottom:var(--safe-b);background:rgba(253,246,238,.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1.5px solid var(--border);display:flex;align-items:flex-start;padding-top:8px;z-index:100;}
+.tabbar{position:fixed;bottom:0;left:0;right:0;height:calc(var(--tab-h) + var(--safe-b));padding-bottom:var(--safe-b);background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1.5px solid var(--border);display:flex;align-items:flex-start;padding-top:8px;z-index:100;}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 4px;border-radius:12px;transition:all .2s;position:relative;}
 .tab-icon{font-size:1.4rem;transition:transform .3s cubic-bezier(.34,1.56,.64,1);color:var(--text3);display:flex;align-items:center;justify-content:center;}
 .tab-icon svg{width:22px;height:22px;stroke:var(--text3);transition:stroke .2s;display:block;}
@@ -97,7 +106,7 @@ html,body{height:100%;background:#FFF8F0;color:var(--text);font-family:var(--fon
 .cal-card{margin:0 20px 14px;background:linear-gradient(135deg,#fff5ee,#ffeedd);border:2px solid var(--border2);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-sketch-lg);display:flex;align-items:center;gap:18px;}
 .cal-ring{width:84px;height:84px;flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center;}
 .cal-ring svg{position:absolute;inset:0;transform:rotate(-90deg);}
-.ring-bg{fill:none;stroke:#eddcc8;stroke-width:7;}
+.ring-bg{fill:none;stroke:#FFE0CC;stroke-width:7;}
 .ring-fg{fill:none;stroke:var(--accent);stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset .7s cubic-bezier(.4,0,.2,1);}
 .cal-inner{text-align:center;z-index:1;}
 .cal-num{font-size:1.6rem;font-weight:400;color:var(--text);line-height:1;font-family:'Fredoka One',cursive;}
