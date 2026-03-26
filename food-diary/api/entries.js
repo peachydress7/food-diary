@@ -42,7 +42,7 @@ export default async function handler(req, res) {
     if (method === 'POST') {
       // POST /api/entries  body: { entry }
       const { entry, user = 'default' } = body;
-      const { data, error } = await supabase.from('entries').insert({
+      const baseFields = {
         user_name:  user,
         entry_date: entry.date,
         meal:       entry.meal,
@@ -53,11 +53,18 @@ export default async function handler(req, res) {
         mood:       entry.mood || '😊',
         photos:     entry.photos || [],
         entry_time: entry.time || '',
-        protein:    entry.protein ?? null,
-        carbs:      entry.carbs   ?? null,
-        fat:        entry.fat     ?? null,
-        fiber:      entry.fiber   ?? null
-      }).select().single();
+      };
+      const macroFields = {
+        protein: entry.protein ?? null,
+        carbs:   entry.carbs   ?? null,
+        fat:     entry.fat     ?? null,
+        fiber:   entry.fiber   ?? null,
+      };
+      let { data, error } = await supabase.from('entries').insert({ ...baseFields, ...macroFields }).select().single();
+      // Fallback: if macro columns don't exist yet, retry without them
+      if (error && /column .*(protein|carbs|fat|fiber)/.test(error.message)) {
+        ({ data, error } = await supabase.from('entries').insert(baseFields).select().single());
+      }
       if (error) throw error;
       return res.status(200).json(data);
     }
