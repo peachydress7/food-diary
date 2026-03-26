@@ -146,7 +146,7 @@ export default async function handler(req, res) {
     if (action === 'list' && req.method === 'GET') {
       const { data, error } = await supabase
         .from('users')
-        .select('username')
+        .select('username, is_admin')
         .order('username');
       if (error) {
         console.error('[auth] list error:', JSON.stringify(error));
