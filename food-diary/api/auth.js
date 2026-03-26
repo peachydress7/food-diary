@@ -89,6 +89,7 @@ export default async function handler(req, res) {
         .from('users')
         .insert({
           username,
+          display_name: username,
           password_hash: hashPassword(password),
           is_admin: false,
         })
