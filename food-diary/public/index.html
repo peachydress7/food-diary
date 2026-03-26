@@ -290,6 +290,22 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
 .mtd-b{width:38px;height:38px;border-radius:999px;background:var(--surface2);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.15rem;}
 .mtd-l{font-size:.56rem;color:var(--text3);font-weight:600;}
 
+/* water card */
+.water-card{margin:0 20px 14px;background:linear-gradient(135deg,#EAF6FF,#D6EEFF);border:2px solid #B3D8F5;border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow-sketch);}
+.water-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.water-title{font-size:var(--fs-section);font-weight:var(--fw-title);font-family:var(--font-serif);color:#2A7DBF;display:flex;align-items:center;gap:5px;}
+.water-total{font-size:var(--fs-num-md);font-weight:var(--fw-num);font-family:var(--font-num);color:#2A7DBF;}
+.water-goal{font-size:var(--fs-meta);color:#6AAED6;font-weight:600;}
+.water-track{height:8px;background:rgba(255,255,255,.6);border-radius:999px;overflow:hidden;margin-bottom:12px;}
+.water-fill{height:100%;background:linear-gradient(90deg,#56B4F5,#2A7DBF);border-radius:999px;transition:width .5s cubic-bezier(.4,0,.2,1);}
+.water-btns{display:flex;gap:8px;}
+.water-btn{flex:1;padding:9px 4px;border-radius:999px;border:1.5px solid #56B4F5;background:rgba(255,255,255,.7);color:#2A7DBF;font-size:.78rem;font-weight:700;cursor:pointer;text-align:center;transition:all .2s;font-family:var(--font);}
+.water-btn:active{background:#2A7DBF;color:#fff;transform:scale(.95);}
+.water-log{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;}
+.water-entry{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.75);border:1px solid #B3D8F5;border-radius:999px;padding:4px 10px 4px 12px;font-size:.72rem;font-weight:700;color:#2A7DBF;}
+.water-entry-del{width:16px;height:16px;border-radius:50%;border:none;background:rgba(42,125,191,.15);color:#2A7DBF;font-size:.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;transition:all .15s;}
+.water-entry-del:active{background:#2A7DBF;color:#fff;}
+
 /* weight page */
 .w-input-card{margin:0 20px 14px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:0 2px 12px var(--shadow);}
 .w-record{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px 15px;margin-bottom:6px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 4px var(--shadow);animation:slideUp .2s ease;}
@@ -492,6 +508,20 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
         <div class="ms-row"><div class="ms-dot" style="background:var(--accent)"></div><div class="ms-name" id="msName2">晚餐</div><div class="ms-val" id="ms2" style="color:var(--accent)">0</div></div>
         <div class="ms-row"><div class="ms-dot" style="background:var(--blue)"></div><div class="ms-name" id="msName3">點心</div><div class="ms-val" id="ms3" style="color:var(--blue)">0</div></div>
       </div>
+    </div>
+
+    <div class="water-card" id="waterCard">
+      <div class="water-top">
+        <div class="water-title">💧 喝水</div>
+        <div><span class="water-total" id="waterTotal">0</span> <span class="water-goal">/ <span id="waterGoal">2000</span> ml</span></div>
+      </div>
+      <div class="water-track"><div class="water-fill" id="waterFill" style="width:0%"></div></div>
+      <div class="water-btns">
+        <button class="water-btn" onclick="addWater(150)">+150ml<br><span style="font-size:.6rem;opacity:.7">小杯</span></button>
+        <button class="water-btn" onclick="addWater(250)">+250ml<br><span style="font-size:.6rem;opacity:.7">水杯</span></button>
+        <button class="water-btn" onclick="addWater(500)">+500ml<br><span style="font-size:.6rem;opacity:.7">大瓶</span></button>
+      </div>
+      <div class="water-log" id="waterLog"></div>
     </div>
 
     <div id="macroSummary" class="macro-summary"></div>
@@ -1018,6 +1048,54 @@ async function apiDelete(id){
   if(!r.ok) throw new Error('delete failed');
 }
 
+// ── Water ──
+let waterLogs = [];
+const WATER_GOAL = 2000;
+
+async function loadWater(date, user){
+  try {
+    const r = await fetch(`${API_BASE}/api/water?date=${date}&user=${encodeURIComponent(user)}`);
+    waterLogs = r.ok ? await r.json() : [];
+  } catch { waterLogs = []; }
+  renderWater();
+}
+
+function renderWater(){
+  const total = waterLogs.reduce((s,w)=>s+(w.amount_ml||0), 0);
+  document.getElementById('waterTotal').textContent = total;
+  document.getElementById('waterGoal').textContent = WATER_GOAL;
+  const pct = Math.min(100, Math.round(total / WATER_GOAL * 100));
+  document.getElementById('waterFill').style.width = pct + '%';
+  const log = document.getElementById('waterLog');
+  log.innerHTML = waterLogs.map(w=>`
+    <div class="water-entry">
+      💧 ${w.amount_ml}ml
+      <button class="water-entry-del" onclick="deleteWater(${w.id})">×</button>
+    </div>`).join('');
+}
+
+async function addWater(ml){
+  try {
+    const r = await fetch(`${API_BASE}/api/water`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ user: curUser, date: cur, amount_ml: ml })
+    });
+    if(!r.ok) throw new Error();
+    const entry = await r.json();
+    waterLogs.push(entry);
+    renderWater();
+  } catch { showToast('新增失敗'); }
+}
+
+async function deleteWater(id){
+  try {
+    const r = await fetch(`${API_BASE}/api/water?id=${id}`, {method:'DELETE'});
+    if(!r.ok) throw new Error();
+    waterLogs = waterLogs.filter(w=>w.id!==id);
+    renderWater();
+  } catch { showToast('刪除失敗'); }
+}
+
 // ── Tab ──
 function switchTab(name){
   ['log','report','weight','settings'].forEach(n=>{
@@ -1317,6 +1395,9 @@ async function renderLog(){
     cachedEntries[cur] = await apiGet(cur, curUser);
   }
   const entries = cachedEntries[cur] || [];
+
+  // water
+  loadWater(cur, curUser);
 
   // calorie ring
   const totalCal=entries.reduce((s,e)=>s+(e.calories||e.cal||0),0);
