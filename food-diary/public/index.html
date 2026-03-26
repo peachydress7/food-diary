@@ -51,8 +51,9 @@
   --shadow-sketch-lg:3px 5px 0 var(--border2);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html,body{height:100%;background:#FFF8F0;color:var(--text);font-family:var(--font);overflow:hidden;-webkit-font-smoothing:antialiased;}
-#bgCanvas{position:fixed;inset:0;z-index:50;pointer-events:none;overflow:hidden;user-select:none;}
+html{height:100%;background:#FFF8F0;}
+body{height:100%;background:transparent;color:var(--text);font-family:var(--font);overflow:hidden;-webkit-font-smoothing:antialiased;}
+#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;user-select:none;}
 #bgCanvas span{position:absolute;line-height:1;}
 #app{height:100dvh;display:flex;flex-direction:column;overflow:hidden;position:relative;}
 .page{display:none;flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;position:relative;z-index:1;padding-bottom:calc(var(--tab-h) + var(--safe-b) + 20px);scrollbar-width:none;}
@@ -407,30 +408,30 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
 
 <!-- ══ BACKGROUND FOOD ICONS ══ -->
 <div id="bgCanvas" aria-hidden="true">
-  <span style="top:2%;left:6%;font-size:2.4rem;transform:rotate(-18deg);opacity:.13;">🍜</span>
-  <span style="top:5%;left:78%;font-size:1.8rem;transform:rotate(14deg);opacity:.12;">🍎</span>
-  <span style="top:11%;left:28%;font-size:2rem;transform:rotate(-6deg);opacity:.13;">🥐</span>
-  <span style="top:7%;left:52%;font-size:1.6rem;transform:rotate(22deg);opacity:.11;">🍩</span>
-  <span style="top:17%;left:90%;font-size:1.9rem;transform:rotate(-12deg);opacity:.12;">🧁</span>
-  <span style="top:20%;left:15%;font-size:1.7rem;transform:rotate(8deg);opacity:.11;">🍣</span>
-  <span style="top:26%;left:65%;font-size:2.2rem;transform:rotate(-20deg);opacity:.13;">🥗</span>
-  <span style="top:30%;left:42%;font-size:1.8rem;transform:rotate(16deg);opacity:.12;">🍕</span>
-  <span style="top:36%;left:82%;font-size:1.6rem;transform:rotate(-10deg);opacity:.11;">🫐</span>
-  <span style="top:33%;left:8%;font-size:1.5rem;transform:rotate(28deg);opacity:.12;">🍓</span>
-  <span style="top:42%;left:55%;font-size:2rem;transform:rotate(-8deg);opacity:.13;">🌮</span>
-  <span style="top:46%;left:22%;font-size:1.7rem;transform:rotate(12deg);opacity:.12;">🍔</span>
-  <span style="top:50%;left:92%;font-size:1.9rem;transform:rotate(-22deg);opacity:.11;">🥞</span>
-  <span style="top:54%;left:38%;font-size:1.8rem;transform:rotate(6deg);opacity:.13;">🍰</span>
-  <span style="top:59%;left:70%;font-size:1.7rem;transform:rotate(24deg);opacity:.11;">🍪</span>
-  <span style="top:61%;left:5%;font-size:2.4rem;transform:rotate(-15deg);opacity:.12;">🍱</span>
-  <span style="top:66%;left:48%;font-size:1.9rem;transform:rotate(-5deg);opacity:.13;">🥑</span>
-  <span style="top:71%;left:82%;font-size:1.7rem;transform:rotate(18deg);opacity:.12;">🧆</span>
-  <span style="top:74%;left:28%;font-size:2rem;transform:rotate(-14deg);opacity:.11;">🫕</span>
-  <span style="top:79%;left:62%;font-size:1.8rem;transform:rotate(10deg);opacity:.12;">🍜</span>
-  <span style="top:83%;left:14%;font-size:1.6rem;transform:rotate(-20deg);opacity:.11;">🍎</span>
-  <span style="top:87%;left:45%;font-size:2.2rem;transform:rotate(8deg);opacity:.13;">🥐</span>
-  <span style="top:91%;left:78%;font-size:1.9rem;transform:rotate(-12deg);opacity:.12;">🍩</span>
-  <span style="top:95%;left:32%;font-size:1.7rem;transform:rotate(18deg);opacity:.11;">🌮</span>
+  <span style="top:2%;left:6%;font-size:2.4rem;transform:rotate(-18deg);opacity:.2;">🍜</span>
+  <span style="top:5%;left:78%;font-size:1.8rem;transform:rotate(14deg);opacity:.18;">🍎</span>
+  <span style="top:11%;left:28%;font-size:2rem;transform:rotate(-6deg);opacity:.2;">🥐</span>
+  <span style="top:7%;left:52%;font-size:1.6rem;transform:rotate(22deg);opacity:.17;">🍩</span>
+  <span style="top:17%;left:90%;font-size:1.9rem;transform:rotate(-12deg);opacity:.19;">🧁</span>
+  <span style="top:20%;left:15%;font-size:1.7rem;transform:rotate(8deg);opacity:.18;">🍣</span>
+  <span style="top:26%;left:65%;font-size:2.2rem;transform:rotate(-20deg);opacity:.2;">🥗</span>
+  <span style="top:30%;left:42%;font-size:1.8rem;transform:rotate(16deg);opacity:.18;">🍕</span>
+  <span style="top:36%;left:82%;font-size:1.6rem;transform:rotate(-10deg);opacity:.17;">🫐</span>
+  <span style="top:33%;left:8%;font-size:1.5rem;transform:rotate(28deg);opacity:.19;">🍓</span>
+  <span style="top:42%;left:55%;font-size:2rem;transform:rotate(-8deg);opacity:.2;">🌮</span>
+  <span style="top:46%;left:22%;font-size:1.7rem;transform:rotate(12deg);opacity:.18;">🍔</span>
+  <span style="top:50%;left:92%;font-size:1.9rem;transform:rotate(-22deg);opacity:.17;">🥞</span>
+  <span style="top:54%;left:38%;font-size:1.8rem;transform:rotate(6deg);opacity:.2;">🍰</span>
+  <span style="top:59%;left:70%;font-size:1.7rem;transform:rotate(24deg);opacity:.18;">🍪</span>
+  <span style="top:61%;left:5%;font-size:2.4rem;transform:rotate(-15deg);opacity:.19;">🍱</span>
+  <span style="top:66%;left:48%;font-size:1.9rem;transform:rotate(-5deg);opacity:.2;">🥑</span>
+  <span style="top:71%;left:82%;font-size:1.7rem;transform:rotate(18deg);opacity:.18;">🧆</span>
+  <span style="top:74%;left:28%;font-size:2rem;transform:rotate(-14deg);opacity:.17;">🫕</span>
+  <span style="top:79%;left:62%;font-size:1.8rem;transform:rotate(10deg);opacity:.19;">🍜</span>
+  <span style="top:83%;left:14%;font-size:1.6rem;transform:rotate(-20deg);opacity:.18;">🍎</span>
+  <span style="top:87%;left:45%;font-size:2.2rem;transform:rotate(8deg);opacity:.2;">🥐</span>
+  <span style="top:91%;left:78%;font-size:1.9rem;transform:rotate(-12deg);opacity:.19;">🍩</span>
+  <span style="top:95%;left:32%;font-size:1.7rem;transform:rotate(18deg);opacity:.18;">🌮</span>
 </div>
 
 <!-- ══ AUTH SCREEN ══ -->
