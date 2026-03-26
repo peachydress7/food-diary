@@ -365,6 +365,23 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
 .auth-brand-name{font-family:'M PLUS Rounded 1c','Noto Sans TC',sans-serif!important;font-weight:800!important;letter-spacing:.06em!important;}
 .auth-brand-name::after{content:'';display:block;width:55%;height:2.5px;margin:10px auto 0;background:rgba(255,255,255,.45);border-radius:999px;transform:rotate(-1deg);}
 
+/* AI feature notice popup */
+#aiNotice{position:fixed;inset:0;z-index:1500;display:none;align-items:center;justify-content:center;padding:22px;}
+#aiNotice.show{display:flex;}
+.ai-notice-bg{position:absolute;inset:0;background:rgba(50,25,8,.42);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);animation:bfin .25s ease;}
+.ai-notice-card{position:relative;z-index:1;background:var(--surface);border-radius:28px;padding:28px 22px 22px;max-width:308px;width:100%;border:2px solid var(--border2);box-shadow:4px 6px 0 var(--border2),0 16px 48px rgba(0,0,0,.14);animation:noticeIn .4s cubic-bezier(.32,.72,0,1);}
+@keyframes noticeIn{from{transform:scale(.84) translateY(28px);opacity:0;}to{transform:scale(1) translateY(0);opacity:1;}}
+.ai-notice-x{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;border:1.5px solid var(--border);background:var(--surface2);color:var(--text3);font-size:1.1rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;transition:all .2s;}
+.ai-notice-x:active{transform:scale(.88);}
+.ai-notice-badge{display:inline-block;background:linear-gradient(135deg,var(--accent),#d96840);color:#fff;font-size:.62rem;font-weight:800;letter-spacing:.08em;padding:3px 10px;border-radius:999px;margin-bottom:14px;}
+.ai-notice-icon{font-size:2.6rem;margin-bottom:10px;line-height:1;text-align:center;}
+.ai-notice-title{font-size:1.18rem;font-weight:800;font-family:var(--font-serif);color:var(--text);margin-bottom:12px;line-height:1.35;}
+.ai-notice-body{font-size:.86rem;color:var(--text2);line-height:1.85;margin-bottom:20px;font-weight:500;}
+.ai-notice-body b{color:var(--text);font-weight:700;}
+.ai-notice-body .ai-limit-tag{display:inline-flex;align-items:center;gap:4px;background:var(--gold-bg);border:1.5px solid var(--gold);color:#7a5a00;border-radius:999px;font-size:.72rem;font-weight:700;padding:3px 10px;margin-top:10px;}
+.ai-notice-btn{width:100%;padding:14px;border-radius:var(--radius-sm);border:none;background:linear-gradient(135deg,var(--accent),#d96840);color:#fff;font-family:var(--font-serif);font-size:1rem;font-weight:800;cursor:pointer;box-shadow:0 4px 18px rgba(232,103,74,.35);transition:transform .2s;}
+.ai-notice-btn:active{transform:scale(.97);}
+
 /* toast */
 #toast{position:fixed;bottom:calc(var(--tab-h) + var(--safe-b) + 76px);left:50%;transform:translateX(-50%) translateY(16px);background:var(--text);color:var(--bg);padding:10px 20px;border-radius:999px;font-size:.8rem;font-weight:700;opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);z-index:300;pointer-events:none;white-space:nowrap;box-shadow:0 4px 18px rgba(0,0,0,.2);}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -1654,6 +1671,23 @@ function getApiKey(){
   return key;
 }
 
+// ── AI feature notice ──
+function maybeShowAiNotice(){
+  const key='chitji_ai_notice_v1';
+  if(localStorage.getItem(key)) return;
+  const isMaxine=authUser&&authUser.username==='maxine';
+  const limitLine=isMaxine
+    ?`<br><span class="ai-limit-tag">👑 你是管理員，可以無限使用喔！</span>`
+    :`<br><span class="ai-limit-tag">⏰ 每天可以用 5 次</span>`;
+  document.getElementById('aiNoticeBody').innerHTML=
+    `記錄食物的時候，輸入名稱之後，按旁邊的 <b>「✨ AI建議」</b> 按鍵，AI 就會自動幫你估算熱量，完全不用自己查！快又方便 🎉`+limitLine;
+  setTimeout(()=>document.getElementById('aiNotice').classList.add('show'), 700);
+}
+function closeAiNotice(){
+  localStorage.setItem('chitji_ai_notice_v1','1');
+  document.getElementById('aiNotice').classList.remove('show');
+}
+
 // ── AI usage helpers ──
 const AI_LIMIT=5;
 function getAiUsage(){
@@ -1749,6 +1783,7 @@ function enterApp(){
     document.getElementById('familySection').style.display='block';
   }
   applyLang();
+  maybeShowAiNotice();
 }
 
 function switchAuthTab(mode){
@@ -1831,5 +1866,18 @@ const today=new Date();
 calViewYear=today.getFullYear(); calViewMonth=today.getMonth();
 initAuth();
 </script>
+
+<!-- AI feature notice -->
+<div id="aiNotice">
+  <div class="ai-notice-bg" onclick="closeAiNotice()"></div>
+  <div class="ai-notice-card">
+    <button class="ai-notice-x" onclick="closeAiNotice()">×</button>
+    <div class="ai-notice-badge">✦ 新功能上線</div>
+    <div class="ai-notice-icon">🤖</div>
+    <div class="ai-notice-title">嘿！不用再自己查熱量啦 👋</div>
+    <div class="ai-notice-body" id="aiNoticeBody"></div>
+    <button class="ai-notice-btn" onclick="closeAiNotice()">好耶，馬上去試試！</button>
+  </div>
+</div>
 </body>
 </html>
