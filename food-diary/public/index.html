@@ -429,13 +429,13 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
     <div class="page-header">
       <div class="page-title" id="logTitle">
         <span class="title-icon"><svg width="34" height="32" viewBox="0 0 36 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M18 2 C18 2 34 28 34 30 Q34 34 30 34 L6 34 Q2 34 2 30 C2 28 18 2 18 2Z" fill="#FFF5E0" stroke="#E8CCBA" stroke-width="1.5" stroke-linejoin="round"/>
-          <path d="M2 24 L34 24 L34 30 Q34 34 30 34 L6 34 Q2 34 2 30 Z" fill="#2a3d22" opacity="0.9"/>
-          <circle cx="13" cy="17" r="1.7" fill="#3d2e1e"/>
-          <circle cx="23" cy="17" r="1.7" fill="#3d2e1e"/>
-          <path d="M14 21 Q18 24.5 22 21" stroke="#3d2e1e" stroke-width="1.4" stroke-linecap="round" fill="none"/>
-          <ellipse cx="10.5" cy="20" rx="2.2" ry="1.3" fill="#FFB3A0" opacity="0.65"/>
-          <ellipse cx="25.5" cy="20" rx="2.2" ry="1.3" fill="#FFB3A0" opacity="0.65"/>
+          <path d="M18 2 C18 2 34 28 34 30 Q34 34 30 34 L6 34 Q2 34 2 30 C2 28 18 2 18 2Z" fill="#FFE8B8" stroke="#E8674A" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M2 24 L34 24 L34 30 Q34 34 30 34 L6 34 Q2 34 2 30 Z" fill="#2a3d22"/>
+          <circle cx="13" cy="17" r="1.8" fill="#3d2e1e"/>
+          <circle cx="23" cy="17" r="1.8" fill="#3d2e1e"/>
+          <path d="M14 21 Q18 25 22 21" stroke="#3d2e1e" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <ellipse cx="10.5" cy="20.5" rx="2.3" ry="1.4" fill="#FFB3A0" opacity="0.7"/>
+          <ellipse cx="25.5" cy="20.5" rx="2.3" ry="1.4" fill="#FFB3A0" opacity="0.7"/>
         </svg></span>
         <span class="title-text">先吃再說</span>
       </div>
@@ -599,7 +599,7 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
         <div><span class="f-lbl" id="lblWeightNote">備註</span><input class="f-input" id="wNote" type="text" placeholder="起床後、飯後…" autocomplete="off"></div>
       </div>
     </div>
-    <button class="s-btn" id="wSaveBtn" onclick="saveWeight()">儲存體重 ✓</button>
+    <button class="s-btn" id="wSaveBtn" onclick="saveWeight()" style="margin-bottom:22px;">儲存體重 ✓</button>
 
     <div class="stat-row">
       <div class="stile"><div class="stlbl" id="lblWeekAvg">本週平均</div><div class="stnum" id="wAvgWeek">—</div></div>
@@ -1154,6 +1154,7 @@ function toggleSheet(){ sheetOpen?closeSheet():openSheet(); }
 function openSheet(){
   sheetOpen=true;
   document.getElementById('addSheet').classList.add('open');
+  updateAiBtnLabel();
   const fab=document.getElementById('fab'); fab.classList.add('rot'); fab.textContent='×';
   const h=new Date().getHours();
   selMeal=h<10?'早餐':h<14?'午餐':h<19?'晚餐':'點心';
@@ -1653,10 +1654,38 @@ function getApiKey(){
   return key;
 }
 
+// ── AI usage helpers ──
+const AI_LIMIT=5;
+function getAiUsage(){
+  if(!authUser) return {date:'',count:0};
+  const today=new Date().toISOString().split('T')[0];
+  const raw=localStorage.getItem('chitji_ai_'+authUser.username);
+  const u=raw?JSON.parse(raw):{date:'',count:0};
+  return u.date===today?u:{date:today,count:0};
+}
+function incAiUsage(){
+  const u=getAiUsage();
+  u.count++;
+  localStorage.setItem('chitji_ai_'+authUser.username,JSON.stringify(u));
+}
+function updateAiBtnLabel(){
+  const btn=document.getElementById('aiBtn');
+  if(!btn) return;
+  const isMaxine=authUser&&authUser.username==='maxine';
+  if(isMaxine){btn.textContent=T.aiBtn;btn.disabled=false;return;}
+  const remaining=AI_LIMIT-getAiUsage().count;
+  if(remaining<=0){btn.textContent='✨ AI建議（今日已達上限）';btn.disabled=true;}
+  else{btn.textContent=`${T.aiBtn} (${remaining}/5)`;btn.disabled=false;}
+}
+
 // ── AI Suggest Calories ──
 async function askAiCalories(){
   const name=document.getElementById('iName').value.trim();
   if(!name){showToast(T.toastAiNoName);return;}
+  const isMaxine=authUser&&authUser.username==='maxine';
+  if(!isMaxine&&getAiUsage().count>=AI_LIMIT){
+    showToast('今日 AI 建議次數已達上限（5 次）');return;
+  }
   const portion=document.getElementById('iPortion').value.trim();
   const btn=document.getElementById('aiBtn');
   btn.disabled=true; btn.textContent=T.aiLoading;
@@ -1675,10 +1704,11 @@ async function askAiCalories(){
     if(!cal||isNaN(cal)) throw new Error('無法解析回應');
     document.getElementById('iCal').value=cal;
     showToast(T.toastAiSuggest(cal));
+    if(!isMaxine) incAiUsage();
   }catch(e){
     showToast(T.toastAiError(e.message));
   }finally{
-    btn.disabled=false; btn.textContent=T.aiBtn;
+    updateAiBtnLabel();
   }
 }
 
@@ -1713,10 +1743,10 @@ function enterApp(){
   curUser=authUser.username;
   members=[authUser.username];
   calCovers=JSON.parse(localStorage.getItem('chitji_covers_'+curUser)||'{}');
+  document.getElementById('aiBtn').style.display='';
   if(authUser.is_admin){
     document.getElementById('adminSection').style.display='block';
     document.getElementById('familySection').style.display='block';
-    document.getElementById('aiBtn').style.display='';
   }
   applyLang();
 }
