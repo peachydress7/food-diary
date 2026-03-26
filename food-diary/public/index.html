@@ -298,9 +298,15 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
 .water-goal{font-size:var(--fs-meta);color:#6AAED6;font-weight:600;}
 .water-track{height:8px;background:rgba(255,255,255,.6);border-radius:999px;overflow:hidden;margin-bottom:12px;}
 .water-fill{height:100%;background:linear-gradient(90deg,#56B4F5,#2A7DBF);border-radius:999px;transition:width .5s cubic-bezier(.4,0,.2,1);}
-.water-btns{display:flex;gap:8px;}
-.water-btn{flex:1;padding:9px 4px;border-radius:999px;border:1.5px solid #56B4F5;background:rgba(255,255,255,.7);color:#2A7DBF;font-size:.78rem;font-weight:700;cursor:pointer;text-align:center;transition:all .2s;font-family:var(--font);}
+.water-btns{display:flex;gap:6px;align-items:center;}
+.water-btn{padding:7px 10px;border-radius:999px;border:1.5px solid #56B4F5;background:rgba(255,255,255,.7);color:#2A7DBF;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;font-family:var(--font);}
 .water-btn:active{background:#2A7DBF;color:#fff;transform:scale(.95);}
+.water-custom{display:flex;gap:6px;flex:1;}
+.water-custom input{flex:1;min-width:0;background:rgba(255,255,255,.7);border:1.5px solid #56B4F5;border-radius:999px;padding:7px 12px;font-size:.8rem;font-weight:700;color:#2A7DBF;outline:none;font-family:var(--font);}
+.water-custom input::placeholder{color:#9ACDE8;font-weight:500;}
+.water-custom input:focus{border-color:#2A7DBF;background:#fff;}
+.water-custom button{padding:7px 14px;border-radius:999px;border:none;background:#2A7DBF;color:#fff;font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;font-family:var(--font);}
+.water-custom button:active{transform:scale(.95);}
 .water-log{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;}
 .water-entry{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.75);border:1px solid #B3D8F5;border-radius:999px;padding:4px 10px 4px 12px;font-size:.72rem;font-weight:700;color:#2A7DBF;}
 .water-entry-del{width:16px;height:16px;border-radius:50%;border:none;background:rgba(42,125,191,.15);color:#2A7DBF;font-size:.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;transition:all .15s;}
@@ -517,9 +523,13 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
       </div>
       <div class="water-track"><div class="water-fill" id="waterFill" style="width:0%"></div></div>
       <div class="water-btns">
-        <button class="water-btn" onclick="addWater(150)">+150ml<br><span style="font-size:.6rem;opacity:.7">小杯</span></button>
-        <button class="water-btn" onclick="addWater(250)">+250ml<br><span style="font-size:.6rem;opacity:.7">水杯</span></button>
-        <button class="water-btn" onclick="addWater(500)">+500ml<br><span style="font-size:.6rem;opacity:.7">大瓶</span></button>
+        <button class="water-btn" onclick="addWater(150)">+150</button>
+        <button class="water-btn" onclick="addWater(250)">+250</button>
+        <button class="water-btn" onclick="addWater(500)">+500</button>
+        <div class="water-custom">
+          <input type="number" id="waterCustomInput" placeholder="自訂 ml" min="1" max="9999">
+          <button onclick="addWaterCustom()">+</button>
+        </div>
       </div>
       <div class="water-log" id="waterLog"></div>
     </div>
@@ -1072,6 +1082,14 @@ function renderWater(){
       💧 ${w.amount_ml}ml
       <button class="water-entry-del" onclick="deleteWater(${w.id})">×</button>
     </div>`).join('');
+}
+
+function addWaterCustom(){
+  const input = document.getElementById('waterCustomInput');
+  const ml = parseInt(input.value);
+  if(!ml || ml < 1) return;
+  input.value = '';
+  addWater(ml);
 }
 
 async function addWater(ml){
