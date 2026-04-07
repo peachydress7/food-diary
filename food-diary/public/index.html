@@ -319,6 +319,22 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
 .w-rec-val{font-size:var(--fs-num-md);font-weight:var(--fw-num);color:var(--accent);font-family:var(--font-num);}
 .w-rec-note{font-size:.7rem;color:var(--text3);font-weight:500;flex:1;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
+/* advice card */
+.advice-card{margin:12px 20px 16px;background:linear-gradient(135deg,#FFFBF0,#FFF5DC);border:2px solid #FFE08A;border-radius:var(--radius);padding:18px;box-shadow:var(--shadow-sketch);}
+.advice-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.advice-title{font-size:var(--fs-section);font-weight:var(--fw-title);font-family:var(--font-serif);color:#7A5500;display:flex;align-items:center;gap:5px;}
+.advice-refresh{width:30px;height:30px;border-radius:50%;border:1.5px solid #FFE08A;background:rgba(255,255,255,.7);color:#A07800;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.advice-refresh:active{transform:rotate(180deg);}
+.advice-refresh:disabled{opacity:.4;cursor:default;}
+.advice-trigger{width:100%;padding:13px;border-radius:var(--radius-sm);border:1.5px dashed #FFD060;background:rgba(255,255,255,.5);color:#A07800;font-size:.88rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;}
+.advice-trigger:active{background:rgba(255,208,96,.2);}
+.advice-body{display:flex;flex-direction:column;gap:12px;}
+.advice-section{background:rgba(255,255,255,.65);border-radius:var(--radius-sm);padding:12px 14px;}
+.advice-section-title{font-size:.68rem;font-weight:800;letter-spacing:.04em;margin-bottom:6px;}
+.advice-section-text{font-size:.84rem;font-weight:500;color:var(--text);line-height:1.65;}
+.advice-loading{text-align:center;padding:20px;color:#A07800;font-size:.85rem;font-weight:600;}
+.advice-loading span{display:inline-block;animation:spin 1s linear infinite;font-size:1.2rem;margin-right:6px;}
+
 /* skeleton */
 .skel{background:linear-gradient(90deg,var(--surface2) 25%,var(--border) 50%,var(--surface2) 75%);background-size:200% 100%;animation:skel-shine 1.4s ease infinite;border-radius:8px;}
 @keyframes skel-shine{0%{background-position:200% 0}100%{background-position:-200% 0}}
@@ -574,6 +590,16 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
       <div class="rbtn" id="rBtn30" onclick="setRange(30,this)">近30天</div>
     </div>
     <div id="reportContent"></div>
+
+    <div class="advice-card" id="adviceCard">
+      <div class="advice-hdr">
+        <div class="advice-title">✨ 飲食小建議</div>
+        <button class="advice-refresh" id="adviceRefresh" onclick="fetchAdvice()" title="重新分析" style="display:none;">↻</button>
+      </div>
+      <div id="adviceBody">
+        <button class="advice-trigger" onclick="fetchAdvice()">🤖 分析我最近的飲食</button>
+      </div>
+    </div>
   </div>
 
   <!-- ══ PAGE: SETTINGS ══ -->
@@ -1519,6 +1545,48 @@ function renderCalPhotoStrip(){
       <span class="cal-ps-label">${p.name}</span>
     </div>`;
   }).join('');
+}
+
+// ── Advice ──
+async function fetchAdvice(){
+  const body = document.getElementById('adviceBody');
+  const refresh = document.getElementById('adviceRefresh');
+  body.innerHTML = `<div class="advice-loading"><span>✨</span>正在分析你的飲食習慣…</div>`;
+  refresh.style.display = 'none';
+  try {
+    const r = await fetch(`${API_BASE}/api/advice`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','x-app-key':'fd_xK9mP2nQ8rT4vW6yJ5cL1hA3'},
+      body: JSON.stringify({ user: curUser, days: 7 }),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'failed');
+    if (data.reason === 'no_data') {
+      body.innerHTML = `<div class="advice-loading">還沒有足夠的飲食紀錄，先多記錄幾天再來看看吧 😊</div>`;
+      refresh.style.display = 'flex';
+      return;
+    }
+    const { praise, more, less } = data.advice;
+    body.innerHTML = `
+      <div class="advice-body">
+        <div class="advice-section">
+          <div class="advice-section-title" style="color:#2E7D32;">👏 做得不錯！</div>
+          <div class="advice-section-text">${praise}</div>
+        </div>
+        <div class="advice-section">
+          <div class="advice-section-title" style="color:#1565C0;">🌿 可以多補充</div>
+          <div class="advice-section-text">${more}</div>
+        </div>
+        <div class="advice-section">
+          <div class="advice-section-title" style="color:#E65100;">💡 稍微注意一下</div>
+          <div class="advice-section-text">${less}</div>
+        </div>
+      </div>`;
+    refresh.style.display = 'flex';
+  } catch(e) {
+    body.innerHTML = `<div class="advice-loading">分析失敗，請稍後再試 🙏</div>`;
+    refresh.style.display = 'flex';
+  }
 }
 
 // ── Report ──
