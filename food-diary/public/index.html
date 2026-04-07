@@ -319,21 +319,28 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
 .w-rec-val{font-size:var(--fs-num-md);font-weight:var(--fw-num);color:var(--accent);font-family:var(--font-num);}
 .w-rec-note{font-size:.7rem;color:var(--text3);font-weight:500;flex:1;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
-/* advice card */
-.advice-card{margin:12px 20px 16px;background:linear-gradient(135deg,#FFFBF0,#FFF5DC);border:2px solid #FFE08A;border-radius:var(--radius);padding:18px;box-shadow:var(--shadow-sketch);}
-.advice-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.advice-title{font-size:var(--fs-section);font-weight:var(--fw-title);font-family:var(--font-serif);color:#7A5500;display:flex;align-items:center;gap:5px;}
-.advice-refresh{width:30px;height:30px;border-radius:50%;border:1.5px solid #FFE08A;background:rgba(255,255,255,.7);color:#A07800;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
-.advice-refresh:active{transform:rotate(180deg);}
-.advice-refresh:disabled{opacity:.4;cursor:default;}
-.advice-trigger{width:100%;padding:13px;border-radius:var(--radius-sm);border:1.5px dashed #FFD060;background:rgba(255,255,255,.5);color:#A07800;font-size:.88rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;}
+/* advice fab */
+.advice-fab{position:fixed;bottom:calc(var(--tab-h) + var(--safe-b) + 14px);left:18px;width:54px;height:54px;border-radius:999px;background:linear-gradient(135deg,#FFD060,#FFA000);border:none;font-size:1.5rem;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(255,160,0,.35),0 2px 8px rgba(0,0,0,.1);z-index:99;transition:transform .3s cubic-bezier(.34,1.56,.64,1),box-shadow .2s;line-height:1;}
+.advice-fab:active{transform:scale(.92);}
+
+/* advice sheet */
+#adviceSheet{position:fixed;inset:0;z-index:200;display:none;flex-direction:column;}
+#adviceSheet.open{display:flex;}
+.advice-sheet-body{position:absolute;bottom:0;left:0;right:0;background:#FFFBF0;border-radius:28px 28px 0 0;border-top:2px solid #FFE08A;padding:0 0 calc(var(--safe-b)+20px);max-height:88dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;animation:sup .35s cubic-bezier(.32,.72,0,1);scrollbar-width:none;}
+.advice-sheet-body::-webkit-scrollbar{display:none;}
+.advice-sheet-hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 10px;}
+.advice-sheet-title{font-size:1.1rem;font-weight:800;font-family:var(--font-serif);color:#7A5500;display:flex;align-items:center;gap:6px;}
+.advice-refresh{width:32px;height:32px;border-radius:50%;border:1.5px solid #FFE08A;background:rgba(255,255,255,.8);color:#A07800;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.advice-refresh:active{transform:rotate(180deg) scale(.9);}
+.advice-inner{padding:0 20px 8px;}
+.advice-trigger{width:100%;padding:14px;border-radius:var(--radius-sm);border:1.5px dashed #FFD060;background:rgba(255,255,255,.6);color:#A07800;font-size:.92rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px;}
 .advice-trigger:active{background:rgba(255,208,96,.2);}
-.advice-body{display:flex;flex-direction:column;gap:12px;}
-.advice-section{background:rgba(255,255,255,.65);border-radius:var(--radius-sm);padding:12px 14px;}
+.advice-body{display:flex;flex-direction:column;gap:10px;}
+.advice-section{background:rgba(255,255,255,.7);border-radius:var(--radius-sm);padding:13px 15px;border:1.5px solid rgba(255,224,138,.6);}
 .advice-section-title{font-size:.68rem;font-weight:800;letter-spacing:.04em;margin-bottom:6px;}
-.advice-section-text{font-size:.84rem;font-weight:500;color:var(--text);line-height:1.65;}
-.advice-loading{text-align:center;padding:20px;color:#A07800;font-size:.85rem;font-weight:600;}
-.advice-loading span{display:inline-block;animation:spin 1s linear infinite;font-size:1.2rem;margin-right:6px;}
+.advice-section-text{font-size:.85rem;font-weight:500;color:var(--text);line-height:1.7;}
+.advice-loading{text-align:center;padding:28px 20px;color:#A07800;font-size:.88rem;font-weight:600;}
+.advice-loading span{display:inline-block;animation:spin 1s linear infinite;font-size:1.3rem;margin-right:6px;}
 
 /* skeleton */
 .skel{background:linear-gradient(90deg,var(--surface2) 25%,var(--border) 50%,var(--surface2) 75%);background-size:200% 100%;animation:skel-shine 1.4s ease infinite;border-radius:8px;}
@@ -426,8 +433,11 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
 .auth-brand-name{display:flex;align-items:center;justify-content:center;}
 
 /* AI feature notice popup */
-#aiNotice{position:fixed;inset:0;z-index:1500;display:none;align-items:center;justify-content:center;padding:22px;}
+#aiNotice,#adviceNotice{position:fixed;inset:0;z-index:1500;display:none;align-items:center;justify-content:center;padding:22px;}
+#aiNotice.show,#adviceNotice.show{display:flex;}
 #aiNotice.show{display:flex;}
+#nutritionNotice{position:fixed;inset:0;z-index:1500;display:none;align-items:center;justify-content:center;padding:22px;}
+#nutritionNotice.show{display:flex;}
 .ai-notice-bg{position:absolute;inset:0;background:rgba(50,25,8,.42);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);animation:bfin .25s ease;}
 .ai-notice-card{position:relative;z-index:1;background:var(--surface);border-radius:28px;padding:28px 22px 22px;max-width:308px;width:100%;border:2px solid var(--border2);box-shadow:4px 6px 0 var(--border2),0 16px 48px rgba(0,0,0,.14);animation:noticeIn .4s cubic-bezier(.32,.72,0,1);}
 @keyframes noticeIn{from{transform:scale(.84) translateY(28px);opacity:0;}to{transform:scale(1) translateY(0);opacity:1;}}
@@ -590,16 +600,6 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
       <div class="rbtn" id="rBtn30" onclick="setRange(30,this)">近30天</div>
     </div>
     <div id="reportContent"></div>
-
-    <div class="advice-card" id="adviceCard">
-      <div class="advice-hdr">
-        <div class="advice-title">✨ 飲食小建議</div>
-        <button class="advice-refresh" id="adviceRefresh" onclick="fetchAdvice()" title="重新分析" style="display:none;">↻</button>
-      </div>
-      <div id="adviceBody">
-        <button class="advice-trigger" onclick="fetchAdvice()">🤖 分析我最近的飲食</button>
-      </div>
-    </div>
   </div>
 
   <!-- ══ PAGE: SETTINGS ══ -->
@@ -736,6 +736,7 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
   </div>
 
   <button class="fab" id="fab" onclick="toggleSheet()">＋</button>
+  <button class="advice-fab" id="adviceFab" onclick="openAdviceSheet()">✨</button>
 
   <!-- ══ ADD SHEET ══ -->
   <div id="addSheet">
@@ -1147,6 +1148,7 @@ function switchTab(name){
     document.getElementById('tab-'+n).classList.toggle('active',n===name);
   });
   document.getElementById('fab').style.display = name==='log'?'flex':'none';
+  document.getElementById('adviceFab').style.display = name==='log'?'flex':'none';
   if(name==='report') renderReport(reportRange);
   if(name==='weight') renderWeight();
   if(name==='settings'){ renderMembers(); renderDataStats(); document.getElementById('nameInput').value=authUser?.username||''; document.getElementById('goalInput').value=localStorage.getItem('chitji_goal')||''; }
@@ -1548,6 +1550,12 @@ function renderCalPhotoStrip(){
 }
 
 // ── Advice ──
+function openAdviceSheet(){
+  document.getElementById('adviceSheet').classList.add('open');
+}
+function closeAdviceSheet(){
+  document.getElementById('adviceSheet').classList.remove('open');
+}
 async function fetchAdvice(){
   const body = document.getElementById('adviceBody');
   const refresh = document.getElementById('adviceRefresh');
@@ -1587,6 +1595,20 @@ async function fetchAdvice(){
     body.innerHTML = `<div class="advice-loading">分析失敗，請稍後再試 🙏</div>`;
     refresh.style.display = 'flex';
   }
+}
+
+// ── Advice notice ──
+function maybeShowAdviceNotice(){
+  if(localStorage.getItem('chitji_advice_notice_v1')) return;
+  const delay = [
+    localStorage.getItem('chitji_ai_notice_v1'),
+    localStorage.getItem('chitji_nutrition_notice_v1'),
+  ].filter(Boolean).length === 2 ? 800 : 5000;
+  setTimeout(()=>document.getElementById('adviceNotice').classList.add('show'), delay);
+}
+function closeAdviceNotice(){
+  localStorage.setItem('chitji_advice_notice_v1','1');
+  document.getElementById('adviceNotice').classList.remove('show');
 }
 
 // ── Report ──
@@ -2021,6 +2043,7 @@ function enterApp(){
   applyLang();
   maybeShowAiNotice();
   maybeShowNutritionNotice();
+  maybeShowAdviceNotice();
 }
 
 function switchAuthTab(mode){
@@ -2103,6 +2126,37 @@ const today=new Date();
 calViewYear=today.getFullYear(); calViewMonth=today.getMonth();
 initAuth();
 </script>
+
+<!-- Advice sheet -->
+<div id="adviceSheet">
+  <div class="s-backdrop" onclick="closeAdviceSheet()"></div>
+  <div class="advice-sheet-body">
+    <div class="s-handle"></div>
+    <div class="advice-sheet-hdr">
+      <div class="advice-sheet-title">✨ 飲食小建議</div>
+      <button class="advice-refresh" id="adviceRefresh" onclick="fetchAdvice()" title="重新分析" style="display:none;">↻</button>
+    </div>
+    <div class="advice-inner" id="adviceBody">
+      <button class="advice-trigger" onclick="fetchAdvice()">🤖 分析我最近 7 天的飲食</button>
+    </div>
+  </div>
+</div>
+
+<!-- Advice feature notice -->
+<div id="adviceNotice">
+  <div class="ai-notice-bg" onclick="closeAdviceNotice()"></div>
+  <div class="ai-notice-card">
+    <button class="ai-notice-x" onclick="closeAdviceNotice()">×</button>
+    <div class="ai-notice-badge">✦ 新功能上線</div>
+    <div class="ai-notice-icon">✨</div>
+    <div class="ai-notice-title">AI 幫你看飲食均衡！</div>
+    <div class="ai-notice-body">
+      左下角的 <b>✨ 按鈕</b>，按下去 AI 會分析你最近 7 天的飲食紀錄，告訴你<b>做得好的地方</b>、<b>可以多補充什麼</b>和<b>需要稍微注意的</b>。<br><br>
+      溫馨提醒，讓你吃得更健康 🥗
+    </div>
+    <button class="ai-notice-btn" onclick="closeAdviceNotice()" style="background:linear-gradient(135deg,#FFD060,#FFA000);box-shadow:0 4px 18px rgba(255,160,0,.35);">好耶，去看看！</button>
+  </div>
+</div>
 
 <!-- Nutrition feature notice -->
 <div id="nutritionNotice">
