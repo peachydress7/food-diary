@@ -5,6 +5,104 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="先吃再說">
+<link rel="apple-touch-icon" id="food-icon">
+<link rel="icon" id="food-favicon">
+<script>
+(function(){
+  var S = 512;
+  var cv = document.createElement('canvas');
+  cv.width = cv.height = S;
+  var c = cv.getContext('2d');
+
+  // ── rounded rect helper ──────────────────────────────────
+  function rr(x,y,w,h,r){
+    c.beginPath();
+    c.moveTo(x+r,y); c.lineTo(x+w-r,y);
+    c.quadraticCurveTo(x+w,y,x+w,y+r);
+    c.lineTo(x+w,y+h-r); c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    c.lineTo(x+r,y+h); c.quadraticCurveTo(x,y+h,x,y+h-r);
+    c.lineTo(x,y+r); c.quadraticCurveTo(x,y,x+r,y);
+    c.closePath();
+  }
+
+  // ── background: warm peach-coral gradient ────────────────
+  var bg = c.createLinearGradient(0,0,S,S);
+  bg.addColorStop(0,'#FFCBA4'); bg.addColorStop(1,'#FF8A65');
+  rr(0,0,S,S,112); c.fillStyle=bg; c.fill();
+
+  // ── soft inner glow (top-left) ───────────────────────────
+  var gl = c.createRadialGradient(160,140,0,160,140,280);
+  gl.addColorStop(0,'rgba(255,255,255,.22)'); gl.addColorStop(1,'rgba(255,255,255,0)');
+  rr(0,0,S,S,112); c.fillStyle=gl; c.fill();
+
+  // ── steam wisps ─────────────────────────────────────────
+  c.strokeStyle='rgba(255,255,255,.82)'; c.lineWidth=10; c.lineCap='round'; c.lineJoin='round';
+  // left warp
+  c.beginPath(); c.moveTo(188,192); c.bezierCurveTo(174,168,202,150,188,126); c.stroke();
+  // center warp
+  c.beginPath(); c.moveTo(256,182); c.bezierCurveTo(238,154,270,134,252,106); c.stroke();
+  // right warp
+  c.beginPath(); c.moveTo(324,192); c.bezierCurveTo(310,168,338,150,324,126); c.stroke();
+
+  // ── bowl body ────────────────────────────────────────────
+  c.save();
+  // bowl shape: top ellipse opening + curved bottom
+  c.beginPath();
+  // outer arc (bowl sides + bottom)
+  c.arc(256,310,158,0.18*Math.PI,0.82*Math.PI); // bottom curve
+  c.closePath();
+  c.fillStyle='rgba(255,255,255,.22)'; c.fill();
+  c.strokeStyle='rgba(255,255,255,.95)'; c.lineWidth=12; c.stroke();
+  c.restore();
+
+  // ── bowl rim (ellipse top) ────────────────────────────────
+  c.save();
+  c.beginPath();
+  c.ellipse(256,230,155,32,0,0,Math.PI*2);
+  c.fillStyle='rgba(255,255,255,.18)'; c.fill();
+  c.strokeStyle='rgba(255,255,255,.95)'; c.lineWidth=12; c.stroke();
+  c.restore();
+
+  // ── cute food items inside bowl ───────────────────────────
+  // noodle squiggle
+  c.save();
+  c.strokeStyle='rgba(255,255,255,.75)'; c.lineWidth=7; c.lineCap='round';
+  c.beginPath(); c.moveTo(200,268); c.bezierCurveTo(218,255,240,282,256,268); c.bezierCurveTo(272,255,294,282,312,268); c.stroke();
+  // small dot toppings
+  [[230,290,'rgba(255,230,200,.9)'],[256,282,'rgba(255,200,180,.9)'],[282,290,'rgba(255,230,200,.9)']].forEach(function(d){
+    c.beginPath(); c.arc(d[0],d[1],9,0,Math.PI*2); c.fillStyle=d[2]; c.fill();
+  });
+  c.restore();
+
+  // ── chopsticks (right side, diagonal) ────────────────────
+  c.save();
+  c.strokeStyle='rgba(255,255,255,.88)'; c.lineWidth=9; c.lineCap='round';
+  c.beginPath(); c.moveTo(348,150); c.lineTo(390,360); c.stroke();
+  c.beginPath(); c.moveTo(368,145); c.lineTo(408,355); c.stroke();
+  c.restore();
+
+  // ── small star sparkles ───────────────────────────────────
+  function star(cx,cy,r){
+    c.save(); c.translate(cx,cy);
+    c.fillStyle='rgba(255,255,255,.7)';
+    for(var i=0;i<4;i++){
+      c.save(); c.rotate(i*Math.PI/2);
+      c.beginPath(); c.ellipse(0,-r,r*.18,r*.52,0,0,Math.PI*2);
+      c.fill(); c.restore();
+    }
+    c.restore();
+  }
+  star(96,108,14); star(422,88,11); star(78,380,10);
+
+  // ── set as icon ──────────────────────────────────────────
+  var url = cv.toDataURL('image/png');
+  var el = document.getElementById('food-icon');
+  var fv = document.getElementById('food-favicon');
+  if(el) el.href = url;
+  if(fv) fv.href = url;
+})();
+</script>
 <title>先吃再說</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=M+PLUS+Rounded+1c:wght@400;700;800&family=Fredoka+One&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
