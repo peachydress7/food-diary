@@ -6,76 +6,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="先吃再說">
-<link rel="apple-touch-icon" id="food-icon">
-<link rel="icon" id="food-favicon">
-<script>
-(function(){
-  var S = 512;
-  var cv = document.createElement('canvas');
-  cv.width = cv.height = S;
-  var c = cv.getContext('2d');
-
-  function rr(r){
-    c.beginPath();
-    c.moveTo(r,0); c.lineTo(S-r,0);
-    c.quadraticCurveTo(S,0,S,r);
-    c.lineTo(S,S-r); c.quadraticCurveTo(S,S,S-r,S);
-    c.lineTo(r,S); c.quadraticCurveTo(0,S,0,S-r);
-    c.lineTo(0,r); c.quadraticCurveTo(0,0,r,0);
-    c.closePath();
-  }
-
-  // gradient background: rose pink to warm amber
-  var bg = c.createLinearGradient(0,0,S,S);
-  bg.addColorStop(0,'#FF9A9E');
-  bg.addColorStop(0.5,'#FFAC81');
-  bg.addColorStop(1,'#FF8A65');
-  rr(114); c.fillStyle=bg; c.fill();
-
-  // inner shimmer top-left
-  var gl = c.createRadialGradient(150,130,0,150,130,300);
-  gl.addColorStop(0,'rgba(255,255,255,.28)');
-  gl.addColorStop(1,'rgba(255,255,255,0)');
-  rr(114); c.fillStyle=gl; c.fill();
-
-  // small sparkle helper
-  function star(cx,cy,r){
-    c.save(); c.translate(cx,cy); c.fillStyle='rgba(255,255,255,.65)';
-    for(var i=0;i<4;i++){
-      c.save(); c.rotate(i*Math.PI/2);
-      c.beginPath(); c.ellipse(0,-r,r*.2,r*.55,0,0,Math.PI*2);
-      c.fill(); c.restore();
-    }
-    c.restore();
-  }
-  star(80,100,13); star(430,82,10); star(72,400,9); star(448,400,11);
-
-  // "吃" character shadow
-  c.save();
-  c.shadowColor='rgba(180,60,40,.35)';
-  c.shadowBlur=18; c.shadowOffsetX=4; c.shadowOffsetY=6;
-  c.font='bold 300px "PingFang TC","Noto Sans TC","Heiti TC",sans-serif';
-  c.textAlign='center'; c.textBaseline='middle';
-  c.fillStyle='#FFFFFF';
-  c.fillText('\u5403',256,264);
-  c.restore();
-
-  // kawaii blush dots
-  [[148,348],[364,348]].forEach(function(p){
-    var r=c.createRadialGradient(p[0],p[1],0,p[0],p[1],28);
-    r.addColorStop(0,'rgba(255,150,130,.55)');
-    r.addColorStop(1,'rgba(255,150,130,0)');
-    c.beginPath(); c.arc(p[0],p[1],28,0,Math.PI*2);
-    c.fillStyle=r; c.fill();
-  });
-
-  var url = cv.toDataURL('image/png');
-  var el = document.getElementById('food-icon');
-  var fv = document.getElementById('food-favicon');
-  if(el) el.href = url;
-  if(fv) fv.href = url;
-})();
-</script>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="/apple-touch-icon.png" type="image/png">
 <title>先吃再說</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=M+PLUS+Rounded+1c:wght@400;700;800&family=Fredoka+One&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
