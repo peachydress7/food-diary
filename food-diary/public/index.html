@@ -15,87 +15,60 @@
   cv.width = cv.height = S;
   var c = cv.getContext('2d');
 
-  // ── rounded rect helper ──────────────────────────────────
-  function rr(x,y,w,h,r){
+  function rr(r){
     c.beginPath();
-    c.moveTo(x+r,y); c.lineTo(x+w-r,y);
-    c.quadraticCurveTo(x+w,y,x+w,y+r);
-    c.lineTo(x+w,y+h-r); c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
-    c.lineTo(x+r,y+h); c.quadraticCurveTo(x,y+h,x,y+h-r);
-    c.lineTo(x,y+r); c.quadraticCurveTo(x,y,x+r,y);
+    c.moveTo(r,0); c.lineTo(S-r,0);
+    c.quadraticCurveTo(S,0,S,r);
+    c.lineTo(S,S-r); c.quadraticCurveTo(S,S,S-r,S);
+    c.lineTo(r,S); c.quadraticCurveTo(0,S,0,S-r);
+    c.lineTo(0,r); c.quadraticCurveTo(0,0,r,0);
     c.closePath();
   }
 
-  // ── background: warm peach-coral gradient ────────────────
+  // gradient background: rose pink to warm amber
   var bg = c.createLinearGradient(0,0,S,S);
-  bg.addColorStop(0,'#FFCBA4'); bg.addColorStop(1,'#FF8A65');
-  rr(0,0,S,S,112); c.fillStyle=bg; c.fill();
+  bg.addColorStop(0,'#FF9A9E');
+  bg.addColorStop(0.5,'#FFAC81');
+  bg.addColorStop(1,'#FF8A65');
+  rr(114); c.fillStyle=bg; c.fill();
 
-  // ── soft inner glow (top-left) ───────────────────────────
-  var gl = c.createRadialGradient(160,140,0,160,140,280);
-  gl.addColorStop(0,'rgba(255,255,255,.22)'); gl.addColorStop(1,'rgba(255,255,255,0)');
-  rr(0,0,S,S,112); c.fillStyle=gl; c.fill();
+  // inner shimmer top-left
+  var gl = c.createRadialGradient(150,130,0,150,130,300);
+  gl.addColorStop(0,'rgba(255,255,255,.28)');
+  gl.addColorStop(1,'rgba(255,255,255,0)');
+  rr(114); c.fillStyle=gl; c.fill();
 
-  // ── steam wisps ─────────────────────────────────────────
-  c.strokeStyle='rgba(255,255,255,.82)'; c.lineWidth=10; c.lineCap='round'; c.lineJoin='round';
-  // left warp
-  c.beginPath(); c.moveTo(188,192); c.bezierCurveTo(174,168,202,150,188,126); c.stroke();
-  // center warp
-  c.beginPath(); c.moveTo(256,182); c.bezierCurveTo(238,154,270,134,252,106); c.stroke();
-  // right warp
-  c.beginPath(); c.moveTo(324,192); c.bezierCurveTo(310,168,338,150,324,126); c.stroke();
-
-  // ── bowl body ────────────────────────────────────────────
-  c.save();
-  // bowl shape: top ellipse opening + curved bottom
-  c.beginPath();
-  // outer arc (bowl sides + bottom)
-  c.arc(256,310,158,0.18*Math.PI,0.82*Math.PI); // bottom curve
-  c.closePath();
-  c.fillStyle='rgba(255,255,255,.22)'; c.fill();
-  c.strokeStyle='rgba(255,255,255,.95)'; c.lineWidth=12; c.stroke();
-  c.restore();
-
-  // ── bowl rim (ellipse top) ────────────────────────────────
-  c.save();
-  c.beginPath();
-  c.ellipse(256,230,155,32,0,0,Math.PI*2);
-  c.fillStyle='rgba(255,255,255,.18)'; c.fill();
-  c.strokeStyle='rgba(255,255,255,.95)'; c.lineWidth=12; c.stroke();
-  c.restore();
-
-  // ── cute food items inside bowl ───────────────────────────
-  // noodle squiggle
-  c.save();
-  c.strokeStyle='rgba(255,255,255,.75)'; c.lineWidth=7; c.lineCap='round';
-  c.beginPath(); c.moveTo(200,268); c.bezierCurveTo(218,255,240,282,256,268); c.bezierCurveTo(272,255,294,282,312,268); c.stroke();
-  // small dot toppings
-  [[230,290,'rgba(255,230,200,.9)'],[256,282,'rgba(255,200,180,.9)'],[282,290,'rgba(255,230,200,.9)']].forEach(function(d){
-    c.beginPath(); c.arc(d[0],d[1],9,0,Math.PI*2); c.fillStyle=d[2]; c.fill();
-  });
-  c.restore();
-
-  // ── chopsticks (right side, diagonal) ────────────────────
-  c.save();
-  c.strokeStyle='rgba(255,255,255,.88)'; c.lineWidth=9; c.lineCap='round';
-  c.beginPath(); c.moveTo(348,150); c.lineTo(390,360); c.stroke();
-  c.beginPath(); c.moveTo(368,145); c.lineTo(408,355); c.stroke();
-  c.restore();
-
-  // ── small star sparkles ───────────────────────────────────
+  // small sparkle helper
   function star(cx,cy,r){
-    c.save(); c.translate(cx,cy);
-    c.fillStyle='rgba(255,255,255,.7)';
+    c.save(); c.translate(cx,cy); c.fillStyle='rgba(255,255,255,.65)';
     for(var i=0;i<4;i++){
       c.save(); c.rotate(i*Math.PI/2);
-      c.beginPath(); c.ellipse(0,-r,r*.18,r*.52,0,0,Math.PI*2);
+      c.beginPath(); c.ellipse(0,-r,r*.2,r*.55,0,0,Math.PI*2);
       c.fill(); c.restore();
     }
     c.restore();
   }
-  star(96,108,14); star(422,88,11); star(78,380,10);
+  star(80,100,13); star(430,82,10); star(72,400,9); star(448,400,11);
 
-  // ── set as icon ──────────────────────────────────────────
+  // "吃" character shadow
+  c.save();
+  c.shadowColor='rgba(180,60,40,.35)';
+  c.shadowBlur=18; c.shadowOffsetX=4; c.shadowOffsetY=6;
+  c.font='bold 300px "PingFang TC","Noto Sans TC","Heiti TC",sans-serif';
+  c.textAlign='center'; c.textBaseline='middle';
+  c.fillStyle='#FFFFFF';
+  c.fillText('\u5403',256,264);
+  c.restore();
+
+  // kawaii blush dots
+  [[148,348],[364,348]].forEach(function(p){
+    var r=c.createRadialGradient(p[0],p[1],0,p[0],p[1],28);
+    r.addColorStop(0,'rgba(255,150,130,.55)');
+    r.addColorStop(1,'rgba(255,150,130,0)');
+    c.beginPath(); c.arc(p[0],p[1],28,0,Math.PI*2);
+    c.fillStyle=r; c.fill();
+  });
+
   var url = cv.toDataURL('image/png');
   var el = document.getElementById('food-icon');
   var fv = document.getElementById('food-favicon');
