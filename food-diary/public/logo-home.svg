@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 250" role="img" aria-labelledby="title desc">
+  <title id="title">先吃再說首頁品牌標誌</title>
+  <desc id="desc">以口與吃構成的主標誌，下方搭配先吃再說與英文標語。</desc>
+  <defs>
+    <style>
+      .ink { fill: #1f1f1f; }
+      .line { fill: none; stroke: #1f1f1f; stroke-linecap: round; stroke-linejoin: round; }
+      .accent { stroke: #e6cdaa; stroke-linecap: round; }
+      .zh { fill: #1f1f1f; font-family: "Noto Sans TC", "PingFang TC", sans-serif; font-size: 30px; font-weight: 700; letter-spacing: 0.34em; }
+      .en { fill: #b79063; font-family: "Nunito", "Avenir Next", sans-serif; font-size: 14px; font-weight: 800; letter-spacing: 0.36em; }
+    </style>
+  </defs>
+
+  <g transform="translate(78 28)">
+    <rect x="0" y="18" width="88" height="128" rx="18" class="line" stroke-width="18"/>
+
+    <path
+      d="M161 11
+         c0 -10 7 -17 17 -17
+         s17 7 17 17
+         v22
+         c0 9 5 15 12 21
+         c9 8 13 16 13 29
+         c0 16 -7 25 -18 34
+         l-17 14
+         h84
+         c12 0 20 8 20 20
+         s-8 20 -20 20
+         h-136
+         c-11 0 -19 -7 -20 -18
+         c-1 -9 3 -16 10 -22
+         l47 -39
+         c10 -8 14 -14 14 -23
+         c0 -6 -3 -11 -8 -16
+         c-11 -10 -19 -22 -19 -40
+         z"
+      class="ink"/>
+
+    <path d="M257 34 l10 -19" class="accent" stroke-width="10"/>
+    <path d="M286 52 l18 -16" class="accent" stroke-width="10"/>
+    <path d="M246 3 v-21" class="accent" stroke-width="10"/>
+  </g>
+
+  <text x="392" y="190" text-anchor="middle" class="zh">先吃再說</text>
+  <text x="392" y="221" text-anchor="middle" class="en">EAT FIRST, TALK LATER.</text>
+</svg>
