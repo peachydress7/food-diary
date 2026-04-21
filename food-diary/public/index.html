@@ -458,6 +458,372 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
 /* toast */
 #toast{position:fixed;bottom:calc(var(--tab-h) + var(--safe-b) + 76px);left:50%;transform:translateX(-50%) translateY(16px);background:var(--text);color:var(--bg);padding:10px 20px;border-radius:999px;font-size:.8rem;font-weight:700;opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);z-index:300;pointer-events:none;white-space:nowrap;box-shadow:0 4px 18px rgba(0,0,0,.2);}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* Brand refresh — keep structure intact, update visuals to match "先吃再說" */
+:root{
+  --bg:#F5F1EA;
+  --bg2:#EFE6D7;
+  --surface:#FFFCF7;
+  --surface2:#F4EBDD;
+  --border:#E8DAC5;
+  --border2:#D9C09A;
+  --text:#1F1F1F;
+  --text2:#665948;
+  --text3:#B29A7A;
+  --accent:#1F1F1F;
+  --accent2:#E6CDAA;
+  --accent-bg:#F2E5D2;
+  --green:#B78B54;
+  --green-bg:#F5E9D8;
+  --gold:#C9A066;
+  --gold-bg:#F7EEDC;
+  --blue:#8C7760;
+  --blue-bg:#EFE5D8;
+  --pink:#8F615B;
+  --pink-bg:#F5E7E3;
+  --shadow:rgba(31,31,31,.06);
+  --shadow2:rgba(31,31,31,.12);
+  --shadow-sketch:0 3px 12px rgba(31,31,31,.05),0 1px 0 rgba(255,255,255,.9) inset;
+  --shadow-sketch-lg:0 12px 36px rgba(31,31,31,.08),0 1px 0 rgba(255,255,255,.92) inset;
+}
+html,body{background:linear-gradient(180deg,#FAF7F1 0%,#F5F1EA 48%,#F1E9DD 100%);color:var(--text);}
+#app{background:transparent;isolation:isolate;}
+#app::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 12% 18%,rgba(255,255,255,.86) 0%,transparent 24%),
+    radial-gradient(circle at 86% 12%,rgba(230,205,170,.18) 0%,transparent 22%),
+    radial-gradient(circle at 78% 84%,rgba(31,31,31,.035) 0%,transparent 26%);
+  pointer-events:none;
+  z-index:0;
+}
+.page{
+  background:transparent;
+  position:relative;
+}
+.page > *{position:relative;z-index:1;}
+.page-header{
+  padding:48px 20px 14px;
+  background:linear-gradient(to bottom,rgba(245,241,234,.96) 0%,rgba(245,241,234,.92) 68%,transparent 100%);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.page-kicker{
+  font-size:.6rem;
+  font-weight:800;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  color:var(--text3);
+  margin-bottom:12px;
+}
+#logTitle img{height:52px !important;filter:drop-shadow(0 1px 0 rgba(255,255,255,.9));}
+.page-title{
+  font-size:1.52rem;
+  color:var(--text);
+  letter-spacing:.02em;
+}
+.page-sub{
+  margin-top:8px;
+  color:var(--text2);
+  max-width:240px;
+  line-height:1.55;
+}
+.tabbar{
+  background:rgba(255,252,247,.9);
+  border-top:1px solid rgba(217,192,154,.7);
+  box-shadow:0 -12px 32px rgba(31,31,31,.08);
+}
+.tab{
+  gap:5px;
+  padding-top:8px;
+}
+.tab.active{
+  background:rgba(230,205,170,.14);
+}
+.tab-icon svg{
+  width:23px;
+  height:23px;
+  stroke:var(--text3);
+}
+.tab.active .tab-icon{
+  transform:translateY(-1px);
+}
+.tab.active .tab-icon svg,
+.tab.active .tab-label{
+  stroke:var(--text);
+  color:var(--text);
+}
+.tab-label{
+  font-size:.56rem;
+  letter-spacing:.12em;
+}
+.tab-pip{
+  top:4px;
+  width:22px;
+  height:12px;
+  border-radius:0;
+  background:
+    linear-gradient(62deg,transparent 38%,var(--accent2) 38% 62%,transparent 62%) 0 1px/6px 12px no-repeat,
+    linear-gradient(62deg,transparent 38%,var(--accent2) 38% 62%,transparent 62%) 8px 0/6px 12px no-repeat,
+    linear-gradient(62deg,transparent 38%,var(--accent2) 38% 62%,transparent 62%) 16px 2px/6px 10px no-repeat;
+}
+.fab,.advice-fab{
+  position:fixed;
+  border:2px solid var(--text);
+  color:var(--text);
+  box-shadow:0 10px 28px rgba(31,31,31,.12);
+  overflow:hidden;
+}
+.fab{
+  background:var(--surface);
+}
+.advice-fab{
+  background:var(--accent2);
+}
+.fab::after,.advice-fab::after{
+  content:'';
+  position:absolute;
+  top:9px;
+  right:8px;
+  width:16px;
+  height:12px;
+  background:
+    linear-gradient(62deg,transparent 38%,rgba(230,205,170,.95) 38% 62%,transparent 62%) 0 2px/5px 10px no-repeat,
+    linear-gradient(62deg,transparent 38%,rgba(230,205,170,.95) 38% 62%,transparent 62%) 5px 0/5px 11px no-repeat,
+    linear-gradient(62deg,transparent 38%,rgba(230,205,170,.95) 38% 62%,transparent 62%) 11px 2px/5px 9px no-repeat;
+  opacity:.95;
+  pointer-events:none;
+}
+.advice-fab::after{
+  background:
+    linear-gradient(62deg,transparent 38%,rgba(255,252,247,.9) 38% 62%,transparent 62%) 0 2px/5px 10px no-repeat,
+    linear-gradient(62deg,transparent 38%,rgba(255,252,247,.9) 38% 62%,transparent 62%) 5px 0/5px 11px no-repeat,
+    linear-gradient(62deg,transparent 38%,rgba(255,252,247,.9) 38% 62%,transparent 62%) 11px 2px/5px 9px no-repeat;
+}
+.fab:active,.advice-fab:active{transform:scale(.94);}
+.darr,.dpill,.upill,.cal-vtbtn,.rbtn,.water-btn,.qty-btn,.ai-btn,.auth-tab,.set-row,.ai-notice-x,.advice-refresh{
+  transition:all .2s ease;
+}
+.darr,.dpill,.upill,.cal-vtbtn,.rbtn,.water-btn,.qty-btn,.f-input,.user-name-input,.photo-zone,.set-card,.set-row:active,.w-input-card,.w-record,.food-item,.chart-card,.stile,.macro-pill,.set-card,.cal-section,.cal-card,.water-card,.chart-card,.auth-card,.ai-notice-card,.advice-sheet-body,.s-body{
+  border-color:var(--border2);
+}
+.darr,.dpill,.upill,.cal-vtbtn,.rbtn,.water-btn,.qty-btn,.f-input,.user-name-input,.photo-zone,.set-card,.w-input-card,.w-record,.food-item,.chart-card,.stile,.macro-pill,.cal-section,.cal-card,.water-card{
+  background:rgba(255,252,247,.92);
+}
+.dpill,.darr,.upill,.food-item,.chart-card,.stile,.macro-pill,.set-card,.w-input-card,.w-record,.cal-section,.cal-card,.water-card{
+  box-shadow:var(--shadow-sketch);
+}
+.upill.active,
+.cal-vtbtn.active,
+.rbtn.active,
+.lang-pill.active,
+.mbtn.active,
+.auth-tab.active{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:var(--surface);
+  box-shadow:none;
+}
+.lang-pill.active,.auth-tab.active{color:var(--surface);}
+.f-input:focus,.user-name-input:focus,.photo-zone:active,.dpill.today,.upill.active{
+  border-color:var(--text);
+}
+.cal-card,.water-card,.chart-card,.w-input-card,.auth-card,.ai-notice-card,.s-body,.advice-sheet-body{
+  position:relative;
+  overflow:hidden;
+}
+.cal-card::before,.water-card::before,.s-body::before,.advice-sheet-body::before,.auth-card::before{
+  content:'';
+  position:absolute;
+  top:16px;
+  right:16px;
+  width:20px;
+  height:14px;
+  background:
+    linear-gradient(62deg,transparent 38%,var(--accent2) 38% 62%,transparent 62%) 0 2px/6px 11px no-repeat,
+    linear-gradient(62deg,transparent 38%,var(--accent2) 38% 62%,transparent 62%) 7px 0/6px 12px no-repeat,
+    linear-gradient(62deg,transparent 38%,var(--accent2) 38% 62%,transparent 62%) 14px 3px/6px 9px no-repeat;
+  opacity:.92;
+}
+.cal-card{
+  background:linear-gradient(180deg,rgba(255,252,247,.96) 0%,rgba(244,235,221,.98) 100%);
+  padding:22px 20px;
+}
+.ring-bg{stroke:rgba(230,205,170,.42);}
+.ring-fg{stroke:var(--text);}
+.cal-num,.food-cal,.stnum,.w-rec-val,.water-total,.mp-val,.mct-val{color:var(--text);}
+.meal-stats{gap:10px;}
+.ms-name,.mg-cal,.food-meta,.stlbl,.stsub,.set-sub,.water-goal,.page-sub,.empty-s,.cal-ps-label,.goalSubText{color:var(--text2);}
+.water-card{
+  background:linear-gradient(180deg,rgba(255,252,247,.96) 0%,rgba(242,229,210,.94) 100%);
+}
+.water-title,.water-total{color:var(--text);}
+.water-track{background:rgba(230,205,170,.28);}
+.water-fill{
+  background:linear-gradient(90deg,var(--accent2) 0%,var(--text) 100%);
+}
+.water-btn,
+.water-custom input{
+  border-color:var(--border2);
+  background:rgba(255,252,247,.92);
+  color:var(--text);
+}
+.water-custom input::placeholder{color:var(--text3);}
+.water-btn:active,
+.water-custom button{
+  background:var(--text);
+  color:var(--surface);
+}
+.water-entry{
+  background:rgba(255,252,247,.88);
+  border-color:var(--border2);
+  color:var(--text2);
+}
+.water-entry-del{
+  background:rgba(31,31,31,.08);
+  color:var(--text2);
+}
+.meal-group{margin-bottom:14px;}
+.mg-title{
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.food-item{
+  border-radius:22px;
+  padding:14px 15px;
+}
+.food-ico{
+  background:linear-gradient(180deg,#FFFDF9 0%,#F3E9D9 100%);
+  border-color:var(--border2);
+}
+.del-btn{
+  background:var(--pink-bg);
+  color:var(--text);
+}
+.empty{
+  margin:8px 20px 18px;
+  padding:34px 24px;
+  background:rgba(255,252,247,.92);
+  border:2px dashed var(--border2);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-sketch);
+}
+.empty-e{
+  width:76px;
+  height:76px;
+  margin:0 auto 14px;
+  border-radius:24px;
+  background:linear-gradient(180deg,#FFFDF8 0%,#F2E6D1 100%);
+  border:1.5px solid var(--border2);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:2.1rem;
+}
+.empty-t{color:var(--text);}
+.s-backdrop,.ai-notice-bg{background:rgba(31,31,31,.32);}
+.s-body,.advice-sheet-body{
+  background:linear-gradient(180deg,#FCF8F2 0%,#F3E9DC 100%);
+  border-top:2px solid var(--border2);
+}
+.s-handle,.auth-handle{background:var(--border2);}
+.s-title,.cc-title,.water-title,.cal-month,.mg-title{
+  font-family:var(--font-serif);
+}
+.s-btn,.save-name-btn,.water-custom button,.ai-notice-btn{
+  background:var(--text);
+  color:var(--surface);
+  box-shadow:0 10px 22px rgba(31,31,31,.12);
+}
+.s-btn,#wSaveBtn,.save-name-btn,.ai-notice-btn{
+  letter-spacing:.08em;
+}
+.ai-btn{
+  border-color:var(--text);
+  background:var(--accent2);
+  color:var(--text);
+}
+.photo-zone{
+  border-style:dashed;
+  background:rgba(255,252,247,.86);
+}
+.chart-card,.stile,.macro-pill,.w-input-card,.w-record,.set-card{
+  background:rgba(255,252,247,.94);
+}
+.bcbar{background:rgba(242,229,210,.75);}
+.bcbar.hd{
+  background:linear-gradient(to top,var(--text),var(--accent2));
+}
+.mb-track{background:rgba(242,229,210,.72);}
+.tf-item,.macro-card-tile,.mtd-b{
+  background:rgba(244,235,221,.9);
+  border-color:var(--border2);
+}
+.goal-warning{
+  background:#F7E6E1;
+  border-color:#D39A90;
+  color:#73433C;
+}
+.auth-brand{
+  justify-content:flex-end;
+  padding-bottom:22px;
+}
+.auth-brand-emoji{display:none;}
+.auth-brand-name img{
+  filter:drop-shadow(0 10px 24px rgba(31,31,31,.08)) !important;
+}
+#authScreen::before{
+  background:linear-gradient(180deg,#F8F3EC 0%,#F0E4D1 62%,#E7D1AE 100%);
+}
+#authScreen::after{
+  background:
+    radial-gradient(circle at 18% 18%,rgba(255,255,255,.85) 0%,transparent 28%),
+    radial-gradient(circle at 84% 14%,rgba(31,31,31,.05) 0%,transparent 24%);
+}
+.auth-brand-tagline{
+  color:var(--text2);
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  font-family:var(--font);
+  font-size:.76rem;
+  font-weight:800;
+}
+.auth-card{
+  background:rgba(255,252,247,.96);
+  border:2px solid var(--border2);
+  box-shadow:0 -8px 38px rgba(31,31,31,.08);
+}
+.auth-tabs{
+  background:rgba(244,235,221,.86);
+  border:1px solid var(--border);
+}
+.auth-error{
+  background:#F7E6E1;
+  border-color:#D39A90;
+  color:#73433C;
+}
+.advice-fab{font-size:1.35rem;}
+.advice-sheet-title,.ai-notice-title{color:var(--text);}
+.advice-trigger{
+  border-color:var(--border2);
+  background:rgba(255,252,247,.82);
+  color:var(--text);
+}
+.advice-section{
+  background:rgba(255,252,247,.82);
+  border-color:rgba(217,192,154,.72);
+}
+.advice-loading{color:var(--text2);}
+#toast{
+  background:var(--text);
+  color:var(--surface);
+}
+@media (max-width:420px){
+  .page-title{font-size:1.4rem;}
+  .page-kicker{letter-spacing:.2em;}
+}
 </style>
 </head>
 <body>
@@ -482,7 +848,7 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
     <div class="auth-brand-name">
       <img src="logo1.svg" alt="先吃再說" style="height:72px;width:auto;display:block;filter:drop-shadow(0 2px 12px rgba(0,0,0,.22));">
     </div>
-    <div class="auth-brand-tagline">想吃就吃，這裡幫你記</div>
+    <div class="auth-brand-tagline">EAT FIRST, TALK LATER.</div>
   </div>
   <div class="auth-card">
     <div class="auth-handle"></div>
@@ -508,6 +874,7 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
   <!-- ══ PAGE: LOG ══ -->
   <div id="p-log" class="page active">
     <div class="page-header">
+      <div class="page-kicker">EAT FIRST, TALK LATER.</div>
       <div id="logTitle">
         <img src="logo1.svg" alt="先吃再說" style="height:48px;width:auto;display:block;">
       </div>
@@ -594,7 +961,8 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
   <!-- ══ PAGE: REPORT ══ -->
   <div id="p-report" class="page">
     <div class="page-header">
-      <div class="page-title" id="reportTitleEl">報告 📊</div>
+      <div class="page-kicker">LOOK BACK, EAT BETTER.</div>
+      <div class="page-title" id="reportTitleEl">報告</div>
       <div class="page-sub" id="reportSubEl">分析你的飲食習慣</div>
     </div>
     <div class="range-btns">
@@ -608,7 +976,8 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
   <!-- ══ PAGE: SETTINGS ══ -->
   <div id="p-settings" class="page">
     <div class="page-header">
-      <div class="page-title" id="settingsTitleEl">設定 ⚙️</div>
+      <div class="page-kicker">MAKE IT YOURS.</div>
+      <div class="page-title" id="settingsTitleEl">設定</div>
     </div>
 
     <div class="set-section">
@@ -675,7 +1044,8 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
   <!-- ══ PAGE: WEIGHT ══ -->
   <div id="p-weight" class="page">
     <div class="page-header">
-      <div class="page-title" id="weightTitle">⚖️ 體重</div>
+      <div class="page-kicker">TRACK THE LITTLE SHIFTS.</div>
+      <div class="page-title" id="weightTitle">體重</div>
       <div class="page-sub" id="weightSub">追蹤你的體重變化</div>
     </div>
 
@@ -851,9 +1221,9 @@ const STRINGS = {
     meals:['早餐','午餐','晚餐','點心'], mealEmojis:['🌅','☀️','🌙','🍪'],
     dow:['日','一','二','三','四','五','六'],
     months:['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'],
-    reportTitle:'報告 📊', reportSub:'分析你的飲食習慣',
+    reportTitle:'報告', reportSub:'分析你的飲食習慣',
     rangeBtn:['近7天','近14天','近30天'],
-    settingsTitle:'設定 ⚙️', myName:'我的名字', save:'儲存',
+    settingsTitle:'設定', myName:'我的名字', save:'儲存',
     namePlaceholder:'輸入你的名字（顯示在紀錄上）',
     family:'家人 / 朋友', addMember:'新增成員', addMemberSub:'最多5人共用',
     dailyGoal:'每日目標熱量', goalSub:'超過目標時，熱量環形圖會變紅並顯示警告',
@@ -886,7 +1256,7 @@ const STRINGS = {
     me:'我', removeConfirm:name=>`確定移除 ${name}？`,
     addMemberPrompt:'輸入新成員名字：', deleteConfirm:'確定刪除？',
     goalWarning:(goal,cur)=>`⚠️ 已超過今日目標（目標 ${goal.toLocaleString()} kcal，目前 ${cur.toLocaleString()} kcal）`,
-    tabWeight:'體重', weightTitle:'⚖️ 體重', weightSub:'追蹤你的體重變化',
+    tabWeight:'體重', weightTitle:'體重', weightSub:'追蹤你的體重變化',
     weightKgLabel:'體重 (kg)', weightNoteLabel:'備註', weightNotePh:'起床後、飯後…',
     saveWeightBtn:'儲存體重 ✓', updateWeightBtn:'更新體重 ✓', weekAvg:'本週平均', monthAvg:'本月平均',
     maxWeight:'最高', minWeight:'最低', chartTrend:'30 天趨勢', recentRecords:'近期紀錄',
@@ -899,9 +1269,9 @@ const STRINGS = {
     meals:['Breakfast','Lunch','Dinner','Snack'], mealEmojis:['🌅','☀️','🌙','🍪'],
     dow:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
     months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-    reportTitle:'Report 📊', reportSub:'Analyze your eating habits',
+    reportTitle:'Report', reportSub:'Analyze your eating habits',
     rangeBtn:['Last 7d','Last 14d','Last 30d'],
-    settingsTitle:'Settings ⚙️', myName:'My Name', save:'Save',
+    settingsTitle:'Settings', myName:'My Name', save:'Save',
     namePlaceholder:'Enter your name (shown on records)',
     family:'Family / Friends', addMember:'Add Member', addMemberSub:'Up to 5 members',
     dailyGoal:'Daily Calorie Goal', goalSub:'Ring turns red and shows warning when exceeded',
@@ -934,7 +1304,7 @@ const STRINGS = {
     me:'Me', removeConfirm:name=>`Remove ${name}?`,
     addMemberPrompt:'Enter new member name:', deleteConfirm:'Delete this entry?',
     goalWarning:(goal,cur)=>`⚠️ Daily goal exceeded (goal: ${goal.toLocaleString()} kcal, current: ${cur.toLocaleString()} kcal)`,
-    tabWeight:'Weight', weightTitle:'⚖️ Weight', weightSub:'Track your weight changes',
+    tabWeight:'Weight', weightTitle:'Weight', weightSub:'Track your weight changes',
     weightKgLabel:'Weight (kg)', weightNoteLabel:'Note', weightNotePh:'After waking up, after meal…',
     saveWeightBtn:'Save Weight ✓', updateWeightBtn:'Update Weight ✓', weekAvg:'Week Avg', monthAvg:'Month Avg',
     maxWeight:'Highest', minWeight:'Lowest', chartTrend:'30-Day Trend', recentRecords:'Recent Records',
