@@ -630,9 +630,14 @@ html,body{background:linear-gradient(180deg,#FAF7F1 0%,#F5F1EA 48%,#F1E9DD 100%)
 .f-input:focus,.user-name-input:focus,.photo-zone:active,.dpill.today,.upill.active{
   border-color:var(--text);
 }
-.cal-card,.water-card,.chart-card,.w-input-card,.auth-card,.ai-notice-card,.s-body,.advice-sheet-body{
+.cal-card,.water-card,.chart-card,.w-input-card,.auth-card,.ai-notice-card{
   position:relative;
   overflow:hidden;
+}
+.s-body,.advice-sheet-body{
+  position:relative;
+  overflow-x:hidden;
+  overflow-y:auto;
 }
 .cal-card::before,.water-card::before,.s-body::before,.advice-sheet-body::before,.auth-card::before{
   content:'';
