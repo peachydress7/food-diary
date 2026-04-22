@@ -52,9 +52,23 @@ export default async function handler(req, res) {
       });
     }
 
+    // ── Get password hint ──
+    if (action === 'get-hint' && req.method === 'POST') {
+      const { username } = body;
+      if (!username) return res.status(400).json({ error: '請填寫用戶名' });
+      const { data, error } = await supabase
+        .from('users')
+        .select('password_hint')
+        .eq('username', username)
+        .maybeSingle();
+      if (error) return res.status(500).json({ error: error.message });
+      if (!data) return res.status(404).json({ error: '找不到此用戶' });
+      return res.status(200).json({ hint: data.password_hint || '（未設定提示）' });
+    }
+
     // ── Register ──
     if (action === 'register' && req.method === 'POST') {
-      const { username, password } = body;
+      const { username, password, password_hint } = body;
 
       if (!username || !password) {
         return res.status(400).json({ error: '請填寫用戶名和密碼' });
@@ -92,6 +106,7 @@ export default async function handler(req, res) {
           display_name: username,
           password_hash: hashPassword(password),
           is_admin: false,
+          ...(password_hint ? { password_hint } : {}),
         })
         .select('username, is_admin')
         .single();

@@ -1,6 +1,11 @@
 {
+  "functions": {
+    "api/analyze-meal.js": { "maxDuration": 30 },
+    "api/ai-stats.js":     { "maxDuration": 15 }
+  },
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/(.*)", "destination": "/public/index.html" }
+    { "source": "/api/(.*)",    "destination": "/api/$1" },
+    { "source": "/admin/(.*)", "destination": "/public/admin.html" },
+    { "source": "/(.*)",        "destination": "/public/index.html" }
   ]
 }

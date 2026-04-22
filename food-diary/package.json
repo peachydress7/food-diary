@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "吃記 - 飲食日記 App",
   "dependencies": {
-    "@supabase/supabase-js": "^2.39.0"
+    "@google/generative-ai": "^0.24.1",
+    "@supabase/supabase-js": "^2.39.0",
+    "sharp": "^0.34.5"
   }
 }
