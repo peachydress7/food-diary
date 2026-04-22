@@ -200,6 +200,8 @@ html,body{height:100%;background:#FFF8F0;color:var(--text);font-family:var(--fon
 .food-cal-u{font-size:.55rem;color:var(--text3);font-weight:600;}
 .del-btn{width:26px;height:26px;border-radius:999px;border:none;background:var(--pink-bg);color:var(--pink);font-size:.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
 .del-btn:active{transform:scale(.88);}
+.edit-btn{width:26px;height:26px;border-radius:999px;border:none;background:var(--surface2);color:var(--text2);font-size:.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;margin-bottom:4px;}
+.edit-btn:active{transform:scale(.88);}
 .food-photos{display:flex;gap:4px;margin-top:7px;}
 .food-photos img{width:46px;height:46px;border-radius:9px;object-fit:cover;border:1.5px solid var(--border);cursor:pointer;transition:transform .15s;}
 .food-photos img:active{transform:scale(.93);}
@@ -707,6 +709,10 @@ html,body{background:linear-gradient(180deg,#FAF7F1 0%,#F5F1EA 48%,#F1E9DD 100%)
   background:var(--pink-bg);
   color:var(--text);
 }
+.edit-btn{
+  background:var(--surface2);
+  color:var(--text2);
+}
 .empty{
   margin:8px 20px 18px;
   padding:34px 24px;
@@ -869,6 +875,13 @@ html,body{background:linear-gradient(180deg,#FAF7F1 0%,#F5F1EA 48%,#F1E9DD 100%)
     <div class="auth-field" style="margin-bottom:20px;">
       <span class="f-lbl">密碼</span>
       <input class="f-input" id="authPass" type="password" placeholder="請輸入密碼" autocomplete="current-password">
+    </div>
+    <div class="auth-field" id="authHintField" style="display:none;margin-bottom:20px;">
+      <span class="f-lbl">密碼提示 <span style="font-weight:400;opacity:.6;">（選填，忘記密碼時可查看）</span></span>
+      <input class="f-input" id="authHint" type="text" placeholder="例如：我的生日" autocomplete="off">
+    </div>
+    <div id="authForgotWrap" style="text-align:right;margin-top:-10px;margin-bottom:16px;">
+      <span style="font-size:.82rem;color:var(--accent);cursor:pointer;font-weight:600;" onclick="showPasswordHint()">忘記密碼？</span>
     </div>
     <button class="s-btn" id="authSubmitBtn" onclick="submitAuth()">登入</button>
   </div>
@@ -1413,6 +1426,7 @@ let cur = todayStr();
 let curUser = 'default';
 let members = ['default'];
 let selMeal = '早餐', selMood = '😊';
+let editingEntryId = null;
 let pendingPhotos = [], sheetOpen = false;
 let calViewYear, calViewMonth;
 let cachedEntries = {}; // { date: [entries] }
@@ -1461,6 +1475,14 @@ async function apiPost(entry, user){
 async function apiDelete(id){
   const r = await fetch(`${API_BASE}/api/entries?id=${id}`, {method:'DELETE'});
   if(!r.ok) throw new Error('delete failed');
+}
+async function apiPatch(id, entry){
+  const r = await fetch(`${API_BASE}/api/entries?id=${id}`, {
+    method:'PATCH', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({entry})
+  });
+  if(!r.ok) throw new Error('update failed');
+  return await r.json();
 }
 
 // ── Water ──
@@ -1711,8 +1733,45 @@ function openSheet(){
 }
 function closeSheet(){
   sheetOpen=false;
+  editingEntryId=null;
   document.getElementById('addSheet').classList.remove('open');
   const fab=document.getElementById('fab'); fab.classList.remove('rot'); fab.textContent='＋';
+  document.getElementById('saveBtn').textContent=T.saveEntry;
+}
+
+function editEntry(id){
+  const entries=cachedEntries[cur]||[];
+  const e=entries.find(x=>x.id===id);
+  if(!e) return;
+  editingEntryId=id;
+  // pre-fill form
+  document.getElementById('iName').value=e.name||'';
+  const cal=e.calories||e.cal||0;
+  document.getElementById('iCal').value=cal;
+  document.getElementById('iQty').value='1';
+  document.getElementById('iTime').value=e.entry_time||e.time||'';
+  document.getElementById('iPortion').value=e.portion||'';
+  document.getElementById('iNotes').value=e.notes||'';
+  document.getElementById('iProtein').value=e.protein!=null?e.protein:'';
+  document.getElementById('iCarbs').value=e.carbs!=null?e.carbs:'';
+  document.getElementById('iFat').value=e.fat!=null?e.fat:'';
+  document.getElementById('iFiber').value=e.fiber!=null?e.fiber:'';
+  pendingPhotos=e.photos?[...e.photos]:[];
+  renderThumbs();
+  // set meal
+  selMeal=e.meal||'早餐';
+  const mp={早餐:'s-b',午餐:'s-l',晚餐:'s-d',點心:'s-s'};
+  document.querySelectorAll('.mpill').forEach(p=>{p.className='mpill';if(p.dataset.meal===selMeal)p.classList.add(mp[selMeal]);});
+  // set mood
+  selMood=e.mood||'😊';
+  document.querySelectorAll('.mbtn').forEach(b=>{b.classList.toggle('active',b.dataset.mood===selMood);});
+  updateCalTotal();
+  // open sheet
+  sheetOpen=true;
+  document.getElementById('addSheet').classList.add('open');
+  updateAiBtnLabel();
+  const fab=document.getElementById('fab'); fab.classList.add('rot'); fab.textContent='×';
+  document.getElementById('saveBtn').textContent='儲存修改';
 }
 function pickMeal(el){
   selMeal=el.dataset.meal;
@@ -1765,18 +1824,28 @@ async function saveEntry(){
     fat:macroVal('iFat'), fiber:macroVal('iFiber')
   };
   try{
-    await apiPost(entry, curUser);
-    showToast(T.toastSaved);
+    if(editingEntryId){
+      await apiPatch(editingEntryId, entry);
+      showToast('已更新 ✓');
+    } else {
+      await apiPost(entry, curUser);
+      showToast(T.toastSaved);
+    }
   }catch(e){
-    // offline fallback
-    const all=JSON.parse(localStorage.getItem('chitji_offline')||'{}');
-    if(!all[curUser]) all[curUser]={};
-    if(!all[curUser][cur]) all[curUser][cur]=[];
-    entry.id=Date.now();
-    all[curUser][cur].push(entry);
-    localStorage.setItem('chitji_offline',JSON.stringify(all));
-    showToast(T.toastSavedOffline);
+    if(!editingEntryId){
+      // offline fallback only for new entries
+      const all=JSON.parse(localStorage.getItem('chitji_offline')||'{}');
+      if(!all[curUser]) all[curUser]={};
+      if(!all[curUser][cur]) all[curUser][cur]=[];
+      entry.id=Date.now();
+      all[curUser][cur].push(entry);
+      localStorage.setItem('chitji_offline',JSON.stringify(all));
+      showToast(T.toastSavedOffline);
+    } else {
+      showToast('更新失敗，請重試'); btn.disabled=false; btn.textContent='儲存修改'; return;
+    }
   }
+  editingEntryId=null;
   // clear form
   document.getElementById('iName').value='';document.getElementById('iCal').value='';
   document.getElementById('iQty').value='1';document.getElementById('iTime').value='';
@@ -1877,6 +1946,7 @@ async function renderLog(){
           </div>
           <div class="food-right">
             <div><span class="food-cal">${cal}</span><span class="food-cal-u"> kcal</span></div>
+            <button class="edit-btn" onclick="editEntry(${e.id})">✎</button>
             <button class="del-btn" onclick="deleteEntry(${e.id})">✕</button>
           </div>
         </div>`;
@@ -2430,6 +2500,8 @@ function switchAuthTab(mode){
   document.getElementById('authSubmitBtn').textContent=mode==='login'?'登入':'註冊';
   document.getElementById('authError').classList.remove('show');
   document.getElementById('authUser').dataset.mode=mode;
+  document.getElementById('authHintField').style.display=mode==='register'?'':'none';
+  document.getElementById('authForgotWrap').style.display=mode==='login'?'':'none';
 }
 
 async function submitAuth(){
@@ -2443,7 +2515,7 @@ async function submitAuth(){
     const r=await fetch(`${API_BASE}/api/auth?action=${mode}`,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({username,password})
+      body:JSON.stringify({username,password,...(mode==='register'?{password_hint:document.getElementById('authHint').value.trim()||undefined}:{})})
     });
     const data=await r.json();
     if(!r.ok){
@@ -2464,6 +2536,23 @@ async function submitAuth(){
 function showAuthError(msg){
   const el=document.getElementById('authError');
   el.textContent=msg; el.classList.add('show');
+}
+
+async function showPasswordHint(){
+  const username=document.getElementById('authUser').value.trim().toLowerCase();
+  if(!username){showAuthError('請先填寫用戶名');return;}
+  try{
+    const r=await fetch(`${API_BASE}/api/auth?action=get-hint`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({username})
+    });
+    const data=await r.json();
+    if(!r.ok) throw new Error(data.error||'查詢失敗');
+    alert(`${username} 的密碼提示：\n\n${data.hint}`);
+  }catch(e){
+    showAuthError(e.message);
+  }
 }
 
 function logout(){
