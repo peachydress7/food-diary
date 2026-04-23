@@ -1202,7 +1202,9 @@ html,body{background:linear-gradient(180deg,#FAF7F1 0%,#F5F1EA 48%,#F1E9DD 100%)
         <div class="pab-quota" id="photoAiQuotaLabel">…</div>
       </button>
       <div class="photo-ai-quota-msg" id="photoAiQuotaMsg" style="display:none;"></div>
-      <input type="file" id="photoAiInput" accept="image/*" style="display:none" onchange="handlePhotoAiInput(event)">
+      <!-- Two separate inputs for Android reliability: one camera, one gallery -->
+      <input type="file" id="photoAiInputCamera" accept="image/*" capture="environment" style="position:fixed;opacity:0;pointer-events:none;width:1px;height:1px;top:-9999px" onchange="handlePhotoAiInput(event)">
+      <input type="file" id="photoAiInputGallery" accept="image/*" style="position:fixed;opacity:0;pointer-events:none;width:1px;height:1px;top:-9999px" onchange="handlePhotoAiInput(event)">
       <div class="f-sec">
         <span class="f-lbl" id="lblMeal">餐次</span>
         <div class="mpills" id="mealPills">
@@ -1291,6 +1293,19 @@ html,body{background:linear-gradient(180deg,#FAF7F1 0%,#F5F1EA 48%,#F1E9DD 100%)
 </div>
 <div id="toast"></div>
 <div id="lightbox" onclick="closeLightbox()"><img id="lightboxImg" src=""></div>
+
+<!-- Photo source picker (Android camera vs gallery) -->
+<div id="photoPickOverlay" onclick="closePhotoPicker()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1100;"></div>
+<div id="photoPickSheet" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:1101;background:var(--surface);border-radius:18px 18px 0 0;padding:16px 20px 32px;box-shadow:0 -4px 24px rgba(0,0,0,.18);">
+  <div style="width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px;"></div>
+  <div style="font-size:.85rem;font-weight:700;color:var(--text3);text-align:center;margin-bottom:14px;">選擇圖片來源</div>
+  <button onclick="triggerPhotoSource('camera')" style="width:100%;padding:15px;margin-bottom:10px;background:var(--surface2);border:2px solid var(--border2);border-radius:14px;font-size:1rem;font-weight:700;color:var(--text);cursor:pointer;display:flex;align-items:center;gap:12px;">
+    <span style="font-size:1.5rem;">📷</span><span>立即拍照</span>
+  </button>
+  <button onclick="triggerPhotoSource('gallery')" style="width:100%;padding:15px;background:var(--surface2);border:2px solid var(--border2);border-radius:14px;font-size:1rem;font-weight:700;color:var(--text);cursor:pointer;display:flex;align-items:center;gap:12px;">
+    <span style="font-size:1.5rem;">🖼️</span><span>從相簿選擇</span>
+  </button>
+</div>
 
 <div id="reviewSheet">
   <div class="review-hdr">
@@ -2598,13 +2613,28 @@ function renderPhotoAiBtn(){
 
 function startPhotoRecognition(){
   if(aiPhotoQuota&&aiPhotoQuota.remaining===0&&!aiPhotoQuota.unlimited){showToast('今日 AI 辨識額度已用完');return;}
-  document.getElementById('photoAiInput').click();
+  // Show picker so Android users can reliably choose camera vs gallery
+  document.getElementById('photoPickOverlay').style.display='block';
+  document.getElementById('photoPickSheet').style.display='block';
+}
+function closePhotoPicker(){
+  document.getElementById('photoPickOverlay').style.display='none';
+  document.getElementById('photoPickSheet').style.display='none';
+}
+function triggerPhotoSource(src){
+  closePhotoPicker();
+  // Small delay lets the sheet close animation finish before opening system picker
+  setTimeout(()=>{
+    const input=document.getElementById(src==='camera'?'photoAiInputCamera':'photoAiInputGallery');
+    input.value='';
+    input.click();
+  },80);
 }
 
 function handlePhotoAiInput(e){
   const file=e.target.files[0];
   if(!file) return;
-  e.target.value='';
+  try{e.target.value='';}catch(_){}
   const url=URL.createObjectURL(file);
   const img=new Image();
   img.onload=()=>{
