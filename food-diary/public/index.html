@@ -205,6 +205,8 @@ html,body{height:100%;background:#FFF8F0;color:var(--text);font-family:var(--fon
 .food-photos{display:flex;gap:4px;margin-top:7px;}
 .food-photos img{width:46px;height:46px;border-radius:9px;object-fit:cover;border:1.5px solid var(--border);cursor:pointer;transition:transform .15s;}
 .food-photos img:active{transform:scale(.93);}
+.mg-ai-photos{margin:0 2px 8px;margin-top:0;}
+.mg-ai-photos img{width:64px;height:64px;border-radius:10px;}
 /* lightbox */
 #lightbox{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;animation:bfin .2s ease;}
 #lightbox.open{display:flex;}
@@ -2004,10 +2006,10 @@ async function renderLog(){
   });
 
   // macro summary
-  const sumP=entries.reduce((s,e)=>s+(e.protein||0),0);
-  const sumC=entries.reduce((s,e)=>s+(e.carbs||0),0);
-  const sumF=entries.reduce((s,e)=>s+(e.fat||0),0);
-  const sumFib=entries.reduce((s,e)=>s+(e.fiber||0),0);
+  const sumP=Math.round(entries.reduce((s,e)=>s+(e.protein||0),0));
+  const sumC=Math.round(entries.reduce((s,e)=>s+(e.carbs||0),0));
+  const sumF=Math.round(entries.reduce((s,e)=>s+(e.fat||0),0));
+  const sumFib=Math.round(entries.reduce((s,e)=>s+(e.fiber||0),0));
   const ms=document.getElementById('macroSummary');
   if(ms) ms.innerHTML=(sumP||sumC||sumF||sumFib)?
     `<div class="macro-pill"><div class="mp-icon">💪</div><div class="mp-label">蛋白質</div><div class="mp-val">${sumP}</div><div class="mp-unit">g</div></div>`+
@@ -2028,10 +2030,16 @@ async function renderLog(){
     ZH_MEALS.forEach((meal,mi)=>{
       if(!grouped[meal]) return;
       const mc=grouped[meal].reduce((s,e)=>s+(e.calories||e.cal||0),0);
-      html+=`<div class="meal-group"><div class="mg-hdr"><div class="mg-title" style="color:${colors[meal]}">${mealEmoji(meal)} ${T.meals[mi]}</div><div class="mg-cal">${mc} kcal</div></div>`;
+      // collect one photo per meal_id (AI group photos shown at group level)
+      const aiPhotoMap={};
+      grouped[meal].forEach(e=>{if(e.source==='ai_photo'&&e.meal_id&&e.photo_url&&!aiPhotoMap[e.meal_id])aiPhotoMap[e.meal_id]=e.photo_url;});
+      const aiPhotos=Object.values(aiPhotoMap);
+      const aiPhotoStrip=aiPhotos.length?`<div class="food-photos mg-ai-photos">${aiPhotos.map(p=>`<img src="${p}" onclick="openLightbox(this.src)">`).join('')}</div>`:'';
+      html+=`<div class="meal-group"><div class="mg-hdr"><div class="mg-title" style="color:${colors[meal]}">${mealEmoji(meal)} ${T.meals[mi]}</div><div class="mg-cal">${mc} kcal</div></div>${aiPhotoStrip}`;
       grouped[meal].forEach(e=>{
         const cal=e.calories||e.cal||0;
-        const photos=e.photos&&e.photos.length?`<div class="food-photos">${e.photos.map(p=>`<img src="${p}" onclick="openLightbox(this.src)">`).join('')}</div>`:'';
+        // for AI entries share photo is already shown at group level; for manual entries show per-item
+        const photos=e.source!=='ai_photo'&&e.photos&&e.photos.length?`<div class="food-photos">${e.photos.map(p=>`<img src="${p}" onclick="openLightbox(this.src)">`).join('')}</div>`:'';
         html+=`<div class="food-item">
           <div class="food-ico">${foodEmoji(e.name)}</div>
           <div class="food-info">
@@ -2636,7 +2644,7 @@ async function analyzePhoto(imageDataUrl){
     const mealMap={breakfast:'早餐',lunch:'午餐',dinner:'晚餐',snack:'點心'};
     reviewMeal=mealMap[data.meal_type_suggestion]||(()=>{const h=new Date().getHours();return h<10?'早餐':h<14?'午餐':h<19?'晚餐':'點心';})();
     reviewPhotoUrl=imageDataUrl;
-    reviewItems=(data.items||[]).map(i=>({...i,checked:true,expanded:false}));
+    reviewItems=(data.items||[]).map(i=>({...i,kcal:Math.round(i.kcal||0),protein:i.protein!=null?Math.round(i.protein):null,carbs:i.carbs!=null?Math.round(i.carbs):null,fat:i.fat!=null?Math.round(i.fat):null,fiber:i.fiber!=null?Math.round(i.fiber):null,checked:true,expanded:false}));
     renderReviewSheet(data.overall_notes);
   }catch(e){
     document.getElementById('reviewBody').innerHTML=`<div class="ai-analyzing"><div style="font-size:2rem">❌</div><div style="font-size:.95rem;font-weight:700;color:var(--text);margin-top:4px;">辨識失敗</div><div style="font-size:.78rem;color:var(--text3);margin-top:4px;">${e.message}</div><button class="s-btn" onclick="closeReviewSheet()" style="margin-top:12px;width:auto;padding:12px 24px;">改用手動輸入 →</button></div>`;
@@ -2762,7 +2770,7 @@ async function saveReviewItems(){
         notes:'',mood:'😊',
         photos:photoForStorage?[photoForStorage]:[],
         time:now,
-        protein:item.protein||null,carbs:item.carbs||null,fat:item.fat||null,fiber:item.fiber||null,
+        protein:item.protein!=null?Math.round(item.protein):null,carbs:item.carbs!=null?Math.round(item.carbs):null,fat:item.fat!=null?Math.round(item.fat):null,fiber:item.fiber!=null?Math.round(item.fiber):null,
         meal_id:mealId,photo_url:photoForStorage||null,source:'ai_photo'
       },curUser);
       saved++;
