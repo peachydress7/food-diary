@@ -36,6 +36,7 @@ export default async function handler(req, res) {
       }
       const { data, error } = await q;
       if (error) throw error;
+      res.setHeader('Cache-Control', 'private, max-age=60, stale-while-revalidate=30');
       return res.status(200).json(data);
     }
 

@@ -1955,6 +1955,15 @@ async function deleteEntry(id){
   renderLog(); showToast(T.toastDeleted);
 }
 
+function prefetchAdjacentDays(dateStr, user){
+  [-1, 1].forEach(offset => {
+    const d = new Date(dateStr + 'T00:00:00');
+    d.setDate(d.getDate() + offset);
+    const ds = d.toISOString().split('T')[0];
+    if(!cachedEntries[ds]) apiGet(ds, user).then(data => { cachedEntries[ds] = data; }).catch(()=>{});
+  });
+}
+
 // ── Render Log ──
 async function renderLog(){
   const d=new Date(cur+'T00:00:00'), isToday=cur===todayStr();
@@ -1968,14 +1977,15 @@ async function renderLog(){
 
   document.getElementById('logList').innerHTML=`<div class="loading"><span>🍽</span><br>${T.loading}</div>`;
 
-  // fetch
-  if(!cachedEntries[cur]){
-    cachedEntries[cur] = await apiGet(cur, curUser);
-  }
+  // fetch entries + water in parallel
+  const _fetchEntries = cachedEntries[cur]
+    ? Promise.resolve()
+    : apiGet(cur, curUser).then(d => { cachedEntries[cur] = d; });
+  await Promise.all([_fetchEntries, loadWater(cur, curUser)]);
   const entries = cachedEntries[cur] || [];
 
-  // water
-  loadWater(cur, curUser);
+  // prefetch adjacent days silently
+  prefetchAdjacentDays(cur, curUser);
 
   // calorie ring
   const totalCal=entries.reduce((s,e)=>s+(e.calories||e.cal||0),0);

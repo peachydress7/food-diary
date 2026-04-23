@@ -33,6 +33,7 @@ export default async function handler(req, res) {
         .eq('entry_date', date)
         .order('created_at');
       if (error) throw error;
+      res.setHeader('Cache-Control', 'private, max-age=60, stale-while-revalidate=30');
       return res.status(200).json(data);
     }
 
