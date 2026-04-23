@@ -231,6 +231,12 @@ html,body{height:100%;background:#FFF8F0;color:var(--text);font-family:var(--fon
 @keyframes sup{from{transform:translateY(100%);}to{transform:translateY(0);}}
 .s-handle{width:34px;height:4px;background:var(--border2);border-radius:999px;margin:12px auto 6px;}
 .s-title{font-size:1.2rem;font-weight:var(--fw-title);text-align:center;padding:6px 20px 18px;font-family:var(--font-serif);letter-spacing:var(--ls-section);}
+.s-hdr{display:flex;align-items:center;justify-content:space-between;padding:2px 20px 16px;}
+.s-close-btn{width:34px;height:34px;border-radius:50%;border:2px solid var(--border2);background:var(--surface);font-size:.95rem;font-weight:700;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+.s-close-btn:active{background:var(--surface2);border-color:var(--text3);}
+.adv-toggle{width:calc(100% - 40px);margin:4px 20px 4px;padding:11px 15px;background:var(--surface);border:1.5px dashed var(--border2);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:space-between;font-size:.8rem;font-weight:600;color:var(--text3);cursor:pointer;transition:all .15s;}
+.adv-toggle:active{background:var(--surface2);}
+.adv-arr{font-size:.7rem;transition:transform .2s;}
 .f-sec{padding:0 20px;margin-bottom:18px;}
 .f-lbl{font-size:var(--fs-label);font-weight:600;color:var(--text2);letter-spacing:var(--ls-section);margin-bottom:9px;display:block;}
 .f-input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:13px 15px;font-family:var(--font);font-size:.92rem;font-weight:500;color:var(--text);outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none;}
@@ -1190,7 +1196,12 @@ html,body{background:linear-gradient(180deg,#FAF7F1 0%,#F5F1EA 48%,#F1E9DD 100%)
     <div class="s-backdrop" onclick="closeSheet()"></div>
     <div class="s-body">
       <div class="s-handle"></div>
-      <div class="s-title" id="sheetTitle">新增飲食 ✨</div>
+      <!-- Header row: title + close -->
+      <div class="s-hdr">
+        <div class="s-title" id="sheetTitle" style="padding:0;text-align:left;font-size:1.1rem;">新增飲食 ✨</div>
+        <button class="s-close-btn" onclick="closeSheet()" type="button" aria-label="關閉">✕</button>
+      </div>
+      <!-- AI photo button -->
       <button class="photo-ai-btn" id="photoAiBtn" onclick="startPhotoRecognition()">
         <div class="pab-left">
           <span style="font-size:1.5rem">📷</span>
@@ -1202,9 +1213,9 @@ html,body{background:linear-gradient(180deg,#FAF7F1 0%,#F5F1EA 48%,#F1E9DD 100%)
         <div class="pab-quota" id="photoAiQuotaLabel">…</div>
       </button>
       <div class="photo-ai-quota-msg" id="photoAiQuotaMsg" style="display:none;"></div>
-      <!-- Two separate inputs for Android reliability: one camera, one gallery -->
       <input type="file" id="photoAiInputCamera" accept="image/*" capture="environment" style="position:fixed;opacity:0;pointer-events:none;width:1px;height:1px;top:-9999px" onchange="handlePhotoAiInput(event)">
       <input type="file" id="photoAiInputGallery" accept="image/*" style="position:fixed;opacity:0;pointer-events:none;width:1px;height:1px;top:-9999px" onchange="handlePhotoAiInput(event)">
+      <!-- Core fields -->
       <div class="f-sec">
         <span class="f-lbl" id="lblMeal">餐次</span>
         <div class="mpills" id="mealPills">
@@ -1235,56 +1246,64 @@ html,body{background:linear-gradient(180deg,#FAF7F1 0%,#F5F1EA 48%,#F1E9DD 100%)
         </div>
         <div id="calTotalHint" class="cal-total-hint" style="display:none;"></div>
       </div>
-      <div class="f-sec">
-        <span class="f-lbl">營養素（克）<span style="font-weight:500;color:var(--text3);"> — AI 建議時自動填入</span></span>
-        <div class="macro-grid">
-          <div>
-            <span class="f-lbl macro-icon-lbl">💪 蛋白質</span>
-            <div class="macro-inp-wrap"><input class="f-input" id="iProtein" type="number" placeholder="0" min="0" inputmode="numeric"><span class="macro-unit">g</span></div>
-          </div>
-          <div>
-            <span class="f-lbl macro-icon-lbl">🍞 碳水</span>
-            <div class="macro-inp-wrap"><input class="f-input" id="iCarbs" type="number" placeholder="0" min="0" inputmode="numeric"><span class="macro-unit">g</span></div>
-          </div>
-          <div>
-            <span class="f-lbl macro-icon-lbl">🫙 脂肪</span>
-            <div class="macro-inp-wrap"><input class="f-input" id="iFat" type="number" placeholder="0" min="0" inputmode="numeric"><span class="macro-unit">g</span></div>
-          </div>
-          <div>
-            <span class="f-lbl macro-icon-lbl">🌿 纖維</span>
-            <div class="macro-inp-wrap"><input class="f-input" id="iFiber" type="number" placeholder="0" min="0" inputmode="numeric"><span class="macro-unit">g</span></div>
+      <!-- Advanced toggle -->
+      <button class="adv-toggle" id="advToggle" onclick="toggleAdvanced()" type="button">
+        <span id="advToggleLabel">＋ 進階（營養素、心情、照片…）</span>
+        <span class="adv-arr" id="advArr">▾</span>
+      </button>
+      <!-- Advanced fields (collapsed by default) -->
+      <div id="advBody" style="display:none;">
+        <div class="f-sec">
+          <span class="f-lbl">營養素（克）<span style="font-weight:500;color:var(--text3);"> — AI 建議時自動填入</span></span>
+          <div class="macro-grid">
+            <div>
+              <span class="f-lbl macro-icon-lbl">💪 蛋白質</span>
+              <div class="macro-inp-wrap"><input class="f-input" id="iProtein" type="number" placeholder="0" min="0" inputmode="numeric"><span class="macro-unit">g</span></div>
+            </div>
+            <div>
+              <span class="f-lbl macro-icon-lbl">🍞 碳水</span>
+              <div class="macro-inp-wrap"><input class="f-input" id="iCarbs" type="number" placeholder="0" min="0" inputmode="numeric"><span class="macro-unit">g</span></div>
+            </div>
+            <div>
+              <span class="f-lbl macro-icon-lbl">🫙 脂肪</span>
+              <div class="macro-inp-wrap"><input class="f-input" id="iFat" type="number" placeholder="0" min="0" inputmode="numeric"><span class="macro-unit">g</span></div>
+            </div>
+            <div>
+              <span class="f-lbl macro-icon-lbl">🌿 纖維</span>
+              <div class="macro-inp-wrap"><input class="f-input" id="iFiber" type="number" placeholder="0" min="0" inputmode="numeric"><span class="macro-unit">g</span></div>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="f-sec">
-        <div class="f-row">
-          <div><span class="f-lbl" id="lblPortion">份量說明</span><input class="f-input" id="iPortion" type="text" placeholder="1碗、1份…" autocomplete="off"></div>
-          <div><span class="f-lbl" id="lblTime">用餐時間</span><input class="f-input" id="iTime" type="time"></div>
+        <div class="f-sec">
+          <div class="f-row">
+            <div><span class="f-lbl" id="lblPortion">份量說明</span><input class="f-input" id="iPortion" type="text" placeholder="1碗、1份…" autocomplete="off"></div>
+            <div><span class="f-lbl" id="lblTime">用餐時間</span><input class="f-input" id="iTime" type="time"></div>
+          </div>
         </div>
-      </div>
-      <div class="f-sec">
-        <span class="f-lbl" id="lblNotes">備註</span>
-        <textarea class="f-input" id="iNotes" placeholder="口感？健不健康？有什麼特別感受？"></textarea>
-      </div>
-      <div class="f-sec">
-        <span class="f-lbl" id="lblMood">心情感受</span>
-        <div class="mood-grid" id="moodGrid">
-          <div class="mbtn active" data-mood="😊" onclick="pickMood(this)">😊<span>開心</span></div>
-          <div class="mbtn" data-mood="😋" onclick="pickMood(this)">😋<span>好吃</span></div>
-          <div class="mbtn" data-mood="😐" onclick="pickMood(this)">😐<span>普通</span></div>
-          <div class="mbtn" data-mood="😞" onclick="pickMood(this)">😞<span>不好</span></div>
-          <div class="mbtn" data-mood="😴" onclick="pickMood(this)">😴<span>好飽</span></div>
-          <div class="mbtn" data-mood="💪" onclick="pickMood(this)">💪<span>健康</span></div>
+        <div class="f-sec">
+          <span class="f-lbl" id="lblNotes">備註</span>
+          <textarea class="f-input" id="iNotes" placeholder="口感？健不健康？有什麼特別感受？"></textarea>
         </div>
-      </div>
-      <div class="f-sec">
-        <span class="f-lbl" id="lblPhoto">照片</span>
-        <div class="photo-zone" onclick="document.getElementById('iPhoto').click()">
-          <input type="file" id="iPhoto" accept="image/*" multiple onchange="handlePhotos(event)">
-          <div style="font-size:1.7rem">📷</div>
-          <div id="photoHint" style="font-size:.75rem;color:var(--text2);font-weight:600;">點擊上傳照片（可多張）</div>
+        <div class="f-sec">
+          <span class="f-lbl" id="lblMood">心情感受</span>
+          <div class="mood-grid" id="moodGrid">
+            <div class="mbtn active" data-mood="😊" onclick="pickMood(this)">😊<span>開心</span></div>
+            <div class="mbtn" data-mood="😋" onclick="pickMood(this)">😋<span>好吃</span></div>
+            <div class="mbtn" data-mood="😐" onclick="pickMood(this)">😐<span>普通</span></div>
+            <div class="mbtn" data-mood="😞" onclick="pickMood(this)">😞<span>不好</span></div>
+            <div class="mbtn" data-mood="😴" onclick="pickMood(this)">😴<span>好飽</span></div>
+            <div class="mbtn" data-mood="💪" onclick="pickMood(this)">💪<span>健康</span></div>
+          </div>
         </div>
-        <div class="p-thumbs" id="pThumbs"></div>
+        <div class="f-sec">
+          <span class="f-lbl" id="lblPhoto">照片</span>
+          <div class="photo-zone" onclick="document.getElementById('iPhoto').click()">
+            <input type="file" id="iPhoto" accept="image/*" multiple onchange="handlePhotos(event)">
+            <div style="font-size:1.7rem">📷</div>
+            <div id="photoHint" style="font-size:.75rem;color:var(--text2);font-weight:600;">點擊上傳照片（可多張）</div>
+          </div>
+          <div class="p-thumbs" id="pThumbs"></div>
+        </div>
       </div>
       <button class="s-btn" id="saveBtn" onclick="saveEntry()">儲存紀錄 ✓</button>
       <div style="height:6px"></div>
@@ -1819,9 +1838,17 @@ async function prefetchMonth(y, m){
 }
 
 // ── Sheet ──
+let advancedOpen=false;
+function toggleAdvanced(force){
+  advancedOpen=force!==undefined?force:!advancedOpen;
+  document.getElementById('advBody').style.display=advancedOpen?'block':'none';
+  document.getElementById('advArr').textContent=advancedOpen?'▴':'▾';
+  document.getElementById('advToggleLabel').textContent=advancedOpen?'－ 收起進階選項':'＋ 進階（營養素、心情、照片…）';
+}
 function toggleSheet(){ sheetOpen?closeSheet():openSheet(); }
 function openSheet(){
   sheetOpen=true;
+  if(advancedOpen) toggleAdvanced(false);
   document.getElementById('addSheet').classList.add('open');
   updateAiBtnLabel();
   fetchAiPhotoQuota();
@@ -1836,6 +1863,7 @@ function openSheet(){
 function closeSheet(){
   sheetOpen=false;
   editingEntryId=null;
+  if(advancedOpen) toggleAdvanced(false);
   document.getElementById('addSheet').classList.remove('open');
   const fab=document.getElementById('fab'); fab.classList.remove('rot'); fab.textContent='＋';
   document.getElementById('saveBtn').textContent=T.saveEntry;
@@ -1868,8 +1896,9 @@ function editEntry(id){
   selMood=e.mood||'😊';
   document.querySelectorAll('.mbtn').forEach(b=>{b.classList.toggle('active',b.dataset.mood===selMood);});
   updateCalTotal();
-  // open sheet
+  // open sheet with advanced expanded so all fields are visible for editing
   sheetOpen=true;
+  toggleAdvanced(true);
   document.getElementById('addSheet').classList.add('open');
   updateAiBtnLabel();
   const fab=document.getElementById('fab'); fab.classList.add('rot'); fab.textContent='×';
@@ -2556,6 +2585,9 @@ async function askAiCalories(){
     const cal=data.calories;
     if(!cal||isNaN(cal)) throw new Error('無法解析回應');
     document.getElementById('iCal').value=cal;
+    if(data.protein!=null||data.carbs!=null||data.fat!=null||data.fiber!=null){
+      if(!advancedOpen) toggleAdvanced(true);
+    }
     if(data.protein!=null) document.getElementById('iProtein').value=data.protein;
     if(data.carbs!=null)   document.getElementById('iCarbs').value=data.carbs;
     if(data.fat!=null)     document.getElementById('iFat').value=data.fat;
