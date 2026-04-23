@@ -53,6 +53,9 @@ export default async function handler(req, res) {
         mood:       entry.mood || '😊',
         photos:     entry.photos || [],
         entry_time: entry.time || '',
+        meal_id:    entry.meal_id    || null,
+        photo_url:  entry.photo_url  || null,
+        source:     entry.source     || 'manual',
       };
       const macroFields = {
         protein: entry.protein ?? null,
