@@ -1769,7 +1769,7 @@ function renderCalendar(){
   for(let d=1;d<=daysInMonth;d++){
     const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const isT=ds===today,isS=ds===cur;
-    const photos=(cachedEntries[ds]||[]).flatMap(e=>e.photos||[]);
+    const photos=uniquePhotosForDay(ds).map(p=>p.url);
     const photo=calCovers[ds]||photos[0]||'';
     const hasD=(cachedEntries[ds]||[]).length>0;
     let cls='cal-cell'+(photo?' has-photo':'')+(isT&&!isS?' today':'')+(isS?' selected':'');
@@ -1799,7 +1799,7 @@ function renderWeekCalendar(){
   let html='<div class="cal-grid" style="grid-template-columns:repeat(7,1fr);gap:3px;">';
   dates.forEach((ds,i)=>{
     const isT=ds===today,isS=ds===cur;
-    const photos=(cachedEntries[ds]||[]).flatMap(e=>e.photos||[]);
+    const photos=uniquePhotosForDay(ds).map(p=>p.url);
     const photo=calCovers[ds]||photos[0]||'';
     const hasD=(cachedEntries[ds]||[]).length>0;
     const d=new Date(ds+'T00:00:00').getDate();
@@ -2126,10 +2126,26 @@ function setCalCover(date, url){
   renderCalPhotoStrip();
   renderCalendar();
 }
+function uniquePhotosForDay(ds){
+  const seenUrls=new Set(), seenMids=new Set(), result=[];
+  for(const e of (cachedEntries[ds]||[])){
+    if(e.source==='ai_photo'&&e.meal_id){
+      if(!seenMids.has(e.meal_id)&&e.photo_url){
+        seenMids.add(e.meal_id);seenUrls.add(e.photo_url);
+        result.push({url:e.photo_url,name:e.meal+' 拍照辨識'});
+      }
+    } else {
+      for(const p of (e.photos||[])){
+        if(!seenUrls.has(p)){seenUrls.add(p);result.push({url:p,name:e.name});}
+      }
+    }
+  }
+  return result;
+}
 function renderCalPhotoStrip(){
   const el=document.getElementById('calPhotoStrip');
   if(!el) return;
-  const photos=(cachedEntries[cur]||[]).flatMap(e=>(e.photos||[]).map(p=>({url:p,name:e.name})));
+  const photos=uniquePhotosForDay(cur);
   if(!photos.length){el.innerHTML='';return;}
   const activeUrl=calCovers[cur]||photos[0].url;
   el.innerHTML=photos.map(p=>{
