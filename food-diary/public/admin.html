@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>吃記 · AI 成本監控</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Noto Sans TC',sans-serif;background:#0f0f11;color:#e8e8ec;min-height:100vh;}
+  #loginScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:12px;padding:24px;}
+  .login-card{background:#1c1c1f;border-radius:16px;padding:32px 28px;width:100%;max-width:340px;box-shadow:0 8px 40px rgba(0,0,0,.4);}
+  .login-title{font-size:1.3rem;font-weight:800;margin-bottom:20px;text-align:center;}
+  .l-input{width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid #333;background:#111;color:#e8e8ec;font-size:.95rem;font-family:inherit;outline:none;margin-bottom:10px;}
+  .l-input:focus{border-color:#e87230;}
+  .l-btn{width:100%;padding:13px;border-radius:10px;border:none;background:linear-gradient(135deg,#e87230,#d96840);color:white;font-size:.97rem;font-weight:800;cursor:pointer;font-family:inherit;margin-top:4px;}
+  .l-err{color:#e05a5a;font-size:.82rem;text-align:center;margin-top:6px;min-height:18px;}
+  #mainScreen{display:none;padding:0 0 40px;}
+  .top-bar{background:#1c1c1f;border-bottom:1px solid #2a2a2e;padding:16px 24px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10;}
+  .top-bar-title{font-size:1.1rem;font-weight:800;flex:1;}
+  .top-bar-user{font-size:.8rem;color:#888;font-weight:600;}
+  .logout-btn{background:none;border:1.5px solid #444;border-radius:8px;color:#888;font-size:.8rem;padding:6px 12px;cursor:pointer;font-family:inherit;}
+  .refresh-btn{background:#e87230;border:none;border-radius:8px;color:white;font-size:.8rem;padding:6px 12px;cursor:pointer;font-family:inherit;font-weight:700;}
+  .content{padding:20px 24px;max-width:960px;margin:0 auto;}
+  h2{font-size:1rem;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:.06em;margin:24px 0 12px;}
+  h2:first-child{margin-top:0;}
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:4px;}
+  .stat-card{background:#1c1c1f;border-radius:12px;padding:16px 18px;border:1px solid #2a2a2e;}
+  .stat-val{font-size:1.8rem;font-weight:900;color:#e87230;line-height:1.1;}
+  .stat-lbl{font-size:.75rem;color:#888;font-weight:600;margin-top:4px;}
+  .stat-card.green .stat-val{color:#3ec87a;}
+  .stat-card.red   .stat-val{color:#e05a5a;}
+  .stat-card.blue  .stat-val{color:#5ab4e0;}
+  table{width:100%;border-collapse:collapse;background:#1c1c1f;border-radius:12px;overflow:hidden;font-size:.85rem;}
+  th{padding:10px 14px;text-align:left;color:#888;font-weight:700;font-size:.75rem;text-transform:uppercase;border-bottom:1px solid #2a2a2e;}
+  td{padding:10px 14px;border-bottom:1px solid #232326;color:#e0e0e4;}
+  tr:last-child td{border-bottom:none;}
+  .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:.72rem;font-weight:700;}
+  .badge.ok{background:#1a3a2a;color:#3ec87a;}
+  .badge.err{background:#3a1a1a;color:#e05a5a;}
+  .trend-wrap{background:#1c1c1f;border-radius:12px;padding:18px;border:1px solid #2a2a2e;overflow-x:auto;}
+  .trend-bars{display:flex;align-items:flex-end;gap:6px;height:80px;min-width:max-content;}
+  .trend-bar-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:32px;}
+  .trend-bar{background:#e87230;border-radius:4px 4px 0 0;width:28px;min-height:2px;transition:height .3s;}
+  .trend-date{font-size:.62rem;color:#666;transform:rotate(-40deg);transform-origin:top right;white-space:nowrap;}
+  .trend-val{font-size:.65rem;color:#888;}
+  .loading{text-align:center;padding:60px;color:#555;font-size:.9rem;}
+  @media(max-width:600px){.content{padding:16px;}.stat-grid{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-title">🔐 管理員登入</div>
+    <input class="l-input" id="lUser" type="text" placeholder="用戶名" autocapitalize="none" autocorrect="off">
+    <input class="l-input" id="lPass" type="password" placeholder="密碼" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="l-btn" onclick="doLogin()">登入</button>
+    <div class="l-err" id="lErr"></div>
+  </div>
+</div>
+
+<!-- Main -->
+<div id="mainScreen">
+  <div class="top-bar">
+    <div class="top-bar-title">吃記 · AI 成本監控</div>
+    <div class="top-bar-user" id="adminUserLabel"></div>
+    <button class="refresh-btn" onclick="loadStats()">重新整理</button>
+    <button class="logout-btn" onclick="doLogout()">登出</button>
+  </div>
+  <div class="content" id="statsContent">
+    <div class="loading">載入中…</div>
+  </div>
+</div>
+
+<script>
+const APP_KEY = 'fd_xK9mP2nQ8rT4vW6yJ5cL1hA3';
+let adminUser = null;
+
+async function doLogin() {
+  const username = document.getElementById('lUser').value.trim().toLowerCase();
+  const password = document.getElementById('lPass').value;
+  const errEl    = document.getElementById('lErr');
+  errEl.textContent = '';
+  if (!username || !password) { errEl.textContent = '請填寫帳號密碼'; return; }
+
+  // Use existing auth API to verify credentials
+  try {
+    const r = await fetch('/api/auth?action=login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+    const data = await r.json();
+    if (!r.ok) { errEl.textContent = data.error || '登入失敗'; return; }
+
+    // Verify admin by trying to fetch stats
+    const check = await fetch('/api/ai-stats', {
+      headers: { 'x-app-key': APP_KEY, 'x-username': username },
+    });
+    if (check.status === 403) { errEl.textContent = '此帳號沒有管理員權限'; return; }
+    if (!check.ok) { errEl.textContent = '驗證失敗，請稍後再試'; return; }
+
+    adminUser = username;
+    document.getElementById('adminUserLabel').textContent = username;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('mainScreen').style.display = 'block';
+    renderStats(await check.json());
+  } catch(e) {
+    errEl.textContent = '連線失敗：' + e.message;
+  }
+}
+
+function doLogout() {
+  adminUser = null;
+  document.getElementById('mainScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('lPass').value = '';
+}
+
+async function loadStats() {
+  document.getElementById('statsContent').innerHTML = '<div class="loading">載入中…</div>';
+  try {
+    const r = await fetch('/api/ai-stats', {
+      headers: { 'x-app-key': APP_KEY, 'x-username': adminUser },
+    });
+    if (!r.ok) { document.getElementById('statsContent').innerHTML = '<div class="loading">載入失敗</div>'; return; }
+    renderStats(await r.json());
+  } catch(e) {
+    document.getElementById('statsContent').innerHTML = `<div class="loading">錯誤：${e.message}</div>`;
+  }
+}
+
+function fmt(n, digits=4) {
+  return typeof n === 'number' ? n.toFixed(digits) : '—';
+}
+
+function renderStats(d) {
+  const { today, month, top_users, recent_errors } = d;
+
+  // Daily trend bar chart
+  const maxCalls = Math.max(...(month.daily_trend.map(t => t.calls)), 1);
+  const bars = month.daily_trend.map(t => {
+    const h = Math.max(4, Math.round((t.calls / maxCalls) * 80));
+    return `<div class="trend-bar-wrap">
+      <div class="trend-val">${t.calls}</div>
+      <div class="trend-bar" style="height:${h}px"></div>
+      <div class="trend-date">${t.date.slice(5)}</div>
+    </div>`;
+  }).join('');
+
+  // Top users table
+  const topRows = top_users.map((u, i) =>
+    `<tr><td>${i+1}</td><td>${u.user_id}</td><td>${u.calls}</td><td>$${fmt(u.cost,6)}</td></tr>`
+  ).join('') || '<tr><td colspan="4" style="color:#555;text-align:center;">今日尚無資料</td></tr>';
+
+  // Error table
+  const errRows = recent_errors.map(e => {
+    const t = new Date(e.used_at).toLocaleString('zh-TW', { timeZone:'Asia/Taipei', month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' });
+    return `<tr><td>${e.user_id}</td><td>${t}</td><td style="color:#e05a5a;font-size:.8rem;">${e.error_reason||'—'}</td></tr>`;
+  }).join('') || '<tr><td colspan="3" style="color:#555;text-align:center;">近期無錯誤 🎉</td></tr>';
+
+  document.getElementById('statsContent').innerHTML = `
+    <h2>今日概況</h2>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-val">${today.total}</div><div class="stat-lbl">總呼叫次數</div></div>
+      <div class="stat-card green"><div class="stat-val">${today.success}</div><div class="stat-lbl">成功</div></div>
+      <div class="stat-card red"><div class="stat-val">${today.fail}</div><div class="stat-lbl">失敗</div></div>
+      <div class="stat-card blue"><div class="stat-val">$${fmt(today.cost_usd,4)}</div><div class="stat-lbl">今日花費 (USD)</div></div>
+    </div>
+
+    <h2>本月累計</h2>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-val">${month.total}</div><div class="stat-lbl">總呼叫次數</div></div>
+      <div class="stat-card green"><div class="stat-val">${month.success}</div><div class="stat-lbl">成功</div></div>
+      <div class="stat-card blue"><div class="stat-val">$${fmt(month.cost_usd,4)}</div><div class="stat-lbl">本月花費 (USD)</div></div>
+      <div class="stat-card" style="border-color:#e87230aa;"><div class="stat-val" style="color:#f5c842;">$${fmt(month.estimated_month_cost_usd,4)}</div><div class="stat-lbl">預估月底總費用</div></div>
+    </div>
+
+    <h2>每日趨勢（近14天）</h2>
+    <div class="trend-wrap">
+      ${month.daily_trend.length ? `<div class="trend-bars">${bars}</div>` : '<div style="color:#555;text-align:center;padding:20px;">尚無資料</div>'}
+    </div>
+
+    <h2>今日使用排行（Top 10）</h2>
+    <table>
+      <thead><tr><th>#</th><th>用戶</th><th>次數</th><th>花費</th></tr></thead>
+      <tbody>${topRows}</tbody>
+    </table>
+
+    <h2>最近錯誤（20筆）</h2>
+    <table>
+      <thead><tr><th>用戶</th><th>時間</th><th>錯誤原因</th></tr></thead>
+      <tbody>${errRows}</tbody>
+    </table>
+  `;
+}
+</script>
+</body>
+</html>
