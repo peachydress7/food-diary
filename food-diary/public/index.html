@@ -2215,7 +2215,11 @@ async function deleteAiGroup(mealId){
   if(!confirm(T.deleteConfirm)) return;
   const items=(cachedEntries[cur]||[]).filter(e=>e.meal_id===mealId);
   try{ await Promise.all(items.map(e=>apiDelete(e.id))); }catch(e){}
-  delete cachedEntries[cur];
+  const ids=new Set(items.map(e=>e.id));
+  if(cachedEntries[cur]) cachedEntries[cur]=cachedEntries[cur].filter(e=>!ids.has(e.id));
+  // also clear stale cover if its photo came from this group
+  const deletedUrls=new Set(items.map(e=>e.photo_url).filter(Boolean));
+  if(deletedUrls.has(calCovers[cur])){ delete calCovers[cur]; localStorage.setItem('chitji_covers_'+curUser,JSON.stringify(calCovers)); }
   renderLog(); showToast(T.toastDeleted);
 }
 async function deleteEntry(id){
@@ -2225,7 +2229,7 @@ async function deleteEntry(id){
     if(all[curUser]?.[cur]) all[curUser][cur]=all[curUser][cur].filter(e=>e.id!==id);
     localStorage.setItem('chitji_offline',JSON.stringify(all));
   }
-  delete cachedEntries[cur];
+  if(cachedEntries[cur]) cachedEntries[cur]=cachedEntries[cur].filter(e=>e.id!==id);
   renderLog(); showToast(T.toastDeleted);
 }
 
