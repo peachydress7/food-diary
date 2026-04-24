@@ -185,28 +185,49 @@ html,body{height:100%;background:#FFF8F0;color:var(--text);font-family:var(--fon
 .cal-ps-label{font-size:.58rem;color:var(--text2);font-weight:600;max-width:72px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;}
 
 /* food items */
-.meal-group{margin:0 20px 10px;}
-.mg-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding:0 2px;}
+.meal-group{margin:0 20px 12px;}
+.mg-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;padding:0 2px;}
 .mg-title{font-size:var(--fs-section);font-weight:var(--fw-title);letter-spacing:var(--ls-section);display:flex;align-items:center;gap:5px;font-family:var(--font-serif);}
-.mg-cal{font-size:.7rem;color:var(--text3);font-weight:600;}
-.food-item{background:var(--surface);border:2px solid var(--border2);border-radius:var(--radius-sm);padding:13px 15px;margin-bottom:6px;display:flex;align-items:center;gap:11px;box-shadow:var(--shadow-sketch);animation:slideUp .25s ease;}
+.mg-cal{font-size:.68rem;color:var(--text3);font-weight:600;background:var(--surface2);padding:3px 8px;border-radius:999px;border:1px solid var(--border2);}
+.food-item{background:var(--surface);border:1.5px solid var(--border2);border-radius:14px;padding:10px 12px;margin-bottom:5px;display:flex;align-items:center;gap:9px;box-shadow:var(--shadow-sketch);animation:slideUp .25s ease;}
+/* AI group cards */
+.ai-group{background:var(--surface);border:1.5px solid var(--border2);border-radius:14px;margin-bottom:5px;overflow:hidden;box-shadow:var(--shadow-sketch);animation:slideUp .25s ease;}
+.ai-group-hdr{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;user-select:none;-webkit-user-select:none;transition:background .15s;}
+.ai-group-hdr:active{background:var(--surface2);}
+.ai-group-thumb{width:40px;height:40px;border-radius:8px;object-fit:cover;flex-shrink:0;border:1px solid var(--border);}
+.ai-group-ph{width:40px;height:40px;border-radius:8px;flex-shrink:0;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+.ai-group-body{flex:1;min-width:0;}
+.ai-group-name{font-size:.83rem;font-weight:700;color:var(--text);}
+.ai-group-sub{font-size:.66rem;color:var(--text3);margin-top:2px;font-weight:500;}
+.ai-group-r{display:flex;flex-direction:column;align-items:flex-end;gap:1px;flex-shrink:0;}
+.ai-group-cal{font-size:.88rem;font-weight:800;font-family:var(--font-num);color:var(--accent);}
+.ai-group-cal-u{font-size:.52rem;color:var(--text3);font-weight:600;}
+.ai-group-arr{font-size:.58rem;color:var(--text3);margin-top:2px;transition:transform .2s;}
+.ai-group-arr.open{transform:rotate(180deg);}
+.ai-group-items{border-top:1px solid var(--border2);}
+.ai-sub{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--border2);}
+.ai-sub:last-child{border-bottom:none;}
+.ai-sub-info{flex:1;min-width:0;}
+.ai-sub-name{font-size:.79rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ai-sub-por{font-size:.64rem;color:var(--text3);margin-top:1px;}
+.ai-sub-r{display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.ai-sub-cal{font-size:.77rem;font-weight:700;font-family:var(--font-num);color:var(--text);}
+.ai-sub-cal-u{font-size:.52rem;color:var(--text3);font-weight:600;}
 @keyframes slideUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-.food-ico{width:40px;height:40px;border-radius:11px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;border:1px solid var(--border);}
+.food-ico{width:34px;height:34px;border-radius:9px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;border:1px solid var(--border);}
 .food-info{flex:1;min-width:0;}
-.food-name{font-size:.88rem;font-weight:700;white-space:normal;word-break:break-word;}
-.food-meta{font-size:.68rem;color:var(--text2);margin-top:2px;display:flex;align-items:center;gap:5px;font-weight:500;}
-.food-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;}
-.food-cal{font-size:var(--fs-num-md);font-weight:var(--fw-num);color:var(--accent);font-family:var(--font-num);}
-.food-cal-u{font-size:.55rem;color:var(--text3);font-weight:600;}
-.del-btn{width:26px;height:26px;border-radius:999px;border:none;background:var(--pink-bg);color:var(--pink);font-size:.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.food-name{font-size:.84rem;font-weight:700;white-space:normal;word-break:break-word;}
+.food-meta{font-size:.65rem;color:var(--text2);margin-top:2px;display:flex;align-items:center;gap:5px;font-weight:500;}
+.food-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+.food-cal{font-size:.88rem;font-weight:800;color:var(--accent);font-family:var(--font-num);}
+.food-cal-u{font-size:.52rem;color:var(--text3);font-weight:600;}
+.del-btn{width:24px;height:24px;border-radius:999px;border:none;background:var(--pink-bg);color:var(--pink);font-size:.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
 .del-btn:active{transform:scale(.88);}
-.edit-btn{width:26px;height:26px;border-radius:999px;border:none;background:var(--surface2);color:var(--text2);font-size:.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;margin-bottom:4px;}
+.edit-btn{width:24px;height:24px;border-radius:999px;border:none;background:var(--surface2);color:var(--text2);font-size:.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;margin-bottom:3px;}
 .edit-btn:active{transform:scale(.88);}
 .food-photos{display:flex;gap:4px;margin-top:7px;}
 .food-photos img{width:46px;height:46px;border-radius:9px;object-fit:cover;border:1.5px solid var(--border);cursor:pointer;transition:transform .15s;}
 .food-photos img:active{transform:scale(.93);}
-.mg-ai-photos{margin:0 2px 8px;margin-top:0;}
-.mg-ai-photos img{width:64px;height:64px;border-radius:10px;}
 /* lightbox */
 #lightbox{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;animation:bfin .2s ease;}
 #lightbox.open{display:flex;}
@@ -2089,22 +2110,69 @@ async function renderLog(){
     ZH_MEALS.forEach((meal,mi)=>{
       if(!grouped[meal]) return;
       const mc=grouped[meal].reduce((s,e)=>s+(e.calories||e.cal||0),0);
-      // collect one photo per meal_id (AI group photos shown at group level)
-      const aiPhotoMap={};
-      grouped[meal].forEach(e=>{if(e.source==='ai_photo'&&e.meal_id&&e.photo_url&&!aiPhotoMap[e.meal_id])aiPhotoMap[e.meal_id]=e.photo_url;});
-      const aiPhotos=Object.values(aiPhotoMap);
-      const aiPhotoStrip=aiPhotos.length?`<div class="food-photos mg-ai-photos">${aiPhotos.map(p=>`<img src="${p}" onclick="openLightbox(this.src)">`).join('')}</div>`:'';
-      html+=`<div class="meal-group"><div class="mg-hdr"><div class="mg-title" style="color:${colors[meal]}">${mealEmoji(meal)} ${T.meals[mi]}</div><div class="mg-cal">${mc} kcal</div></div>${aiPhotoStrip}`;
+      html+=`<div class="meal-group"><div class="mg-hdr"><div class="mg-title" style="color:${colors[meal]}">${mealEmoji(meal)} ${T.meals[mi]}</div><div class="mg-cal">${mc} kcal</div></div>`;
+
+      // Split: AI groups (by meal_id) vs solo entries
+      const aiGroupMap={}, soloEntries=[];
       grouped[meal].forEach(e=>{
+        if(e.source==='ai_photo'&&e.meal_id){
+          if(!aiGroupMap[e.meal_id]) aiGroupMap[e.meal_id]=[];
+          aiGroupMap[e.meal_id].push(e);
+        } else { soloEntries.push(e); }
+      });
+
+      // Render AI groups (collapsible)
+      Object.entries(aiGroupMap).forEach(([mealId,items])=>{
+        const gc=items.reduce((s,e)=>s+(e.calories||e.cal||0),0);
+        const photo=items[0].photo_url||'';
+        const time=items[0].entry_time||items[0].time||'';
+        const isOpen=expandedGroups.has(mealId);
+        const thumb=photo
+          ?`<img class="ai-group-thumb" src="${photo}" onclick="openLightbox('${photo}');event.stopPropagation()" loading="lazy">`
+          :`<div class="ai-group-ph">📷</div>`;
+        html+=`<div class="ai-group">
+          <div class="ai-group-hdr" onclick="toggleAiGroup('${mealId}')">
+            ${thumb}
+            <div class="ai-group-body">
+              <div class="ai-group-name">拍照辨識 · ${items.length} 項</div>
+              ${time?`<div class="ai-group-sub">${time}</div>`:''}
+            </div>
+            <div class="ai-group-r">
+              <span class="ai-group-cal">${gc}</span><span class="ai-group-cal-u"> kcal</span>
+              <span class="ai-group-arr${isOpen?' open':''}">▾</span>
+            </div>
+          </div>`;
+        if(isOpen){
+          html+=`<div class="ai-group-items">`;
+          items.forEach(e=>{
+            const ec=e.calories||e.cal||0;
+            html+=`<div class="ai-sub">
+              <div class="ai-sub-info">
+                <div class="ai-sub-name">${e.name}</div>
+                ${e.portion?`<div class="ai-sub-por">${e.portion}</div>`:''}
+              </div>
+              <div class="ai-sub-r">
+                <span class="ai-sub-cal">${ec}</span><span class="ai-sub-cal-u"> kcal</span>
+                <button class="edit-btn" onclick="editEntry(${e.id})">✎</button>
+                <button class="del-btn" onclick="deleteEntry(${e.id})">✕</button>
+              </div>
+            </div>`;
+          });
+          html+=`</div>`;
+        }
+        html+=`</div>`;
+      });
+
+      // Render solo (non-AI) entries
+      soloEntries.forEach(e=>{
         const cal=e.calories||e.cal||0;
-        // for AI entries share photo is already shown at group level; for manual entries show per-item
-        const photos=e.source!=='ai_photo'&&e.photos&&e.photos.length?`<div class="food-photos">${e.photos.map(p=>`<img src="${p}" onclick="openLightbox(this.src)">`).join('')}</div>`:'';
+        const photos=e.photos&&e.photos.length?`<div class="food-photos">${e.photos.map(p=>`<img src="${p}" onclick="openLightbox(this.src)" loading="lazy">`).join('')}</div>`:'';
         html+=`<div class="food-item">
           <div class="food-ico">${foodEmoji(e.name)}</div>
           <div class="food-info">
             <div class="food-name">${e.name}</div>
             <div class="food-meta">${e.entry_time||e.time?`<span>${e.entry_time||e.time}</span>`:''} ${e.portion?`<span>· ${e.portion}</span>`:''} <span>${e.mood}</span></div>
-            ${e.notes?`<div style="font-size:.7rem;color:var(--text3);margin-top:3px;font-weight:500;">${e.notes}</div>`:''}${photos}
+            ${e.notes?`<div style="font-size:.65rem;color:var(--text3);margin-top:3px;font-weight:500;">${e.notes}</div>`:''}${photos}
           </div>
           <div class="food-right">
             <div><span class="food-cal">${cal}</span><span class="food-cal-u"> kcal</span></div>
@@ -2122,6 +2190,12 @@ async function renderLog(){
 }
 
 let selUnit='g';
+const expandedGroups=new Set();
+function toggleAiGroup(mealId){
+  if(expandedGroups.has(mealId)) expandedGroups.delete(mealId);
+  else expandedGroups.add(mealId);
+  renderLog();
+}
 
 function setCalCover(date, url){
   if(calCovers[date]===url) delete calCovers[date];
