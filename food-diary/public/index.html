@@ -231,22 +231,26 @@ html,body{height:100%;background:#FFF8F0;color:var(--text);font-family:var(--fon
 @keyframes sup{from{transform:translateY(100%);}to{transform:translateY(0);}}
 .s-handle{width:34px;height:4px;background:var(--border2);border-radius:999px;margin:12px auto 6px;}
 .s-title{font-size:1.2rem;font-weight:var(--fw-title);text-align:center;padding:6px 20px 18px;font-family:var(--font-serif);letter-spacing:var(--ls-section);}
-.s-hdr{display:flex;align-items:center;justify-content:space-between;padding:4px 20px 20px;}
+.s-hdr{display:flex;align-items:center;justify-content:space-between;padding:2px 20px 14px;}
 .s-close-btn{width:34px;height:34px;border-radius:50%;border:2px solid var(--border2);background:var(--surface);font-size:.95rem;font-weight:700;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
 .s-close-btn:active{background:var(--surface2);border-color:var(--text3);}
-.adv-toggle{width:calc(100% - 40px);margin:0 20px 20px;padding:13px 16px;background:var(--surface);border:1.5px dashed var(--border2);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:space-between;font-size:.8rem;font-weight:600;color:var(--text3);cursor:pointer;transition:all .15s;}
+.adv-toggle{width:calc(100% - 40px);margin:0 20px 14px;padding:10px 14px;background:var(--surface);border:1.5px dashed var(--border2);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:space-between;font-size:.8rem;font-weight:600;color:var(--text3);cursor:pointer;transition:all .15s;}
 .adv-toggle:active{background:var(--surface2);}
 .adv-arr{font-size:.7rem;transition:transform .2s;}
-.f-sec{padding:0 20px;margin-bottom:22px;}
-.f-lbl{font-size:var(--fs-label);font-weight:600;color:var(--text2);letter-spacing:var(--ls-section);margin-bottom:10px;display:block;}
-.f-input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:15px 16px;font-family:var(--font);font-size:.95rem;font-weight:500;color:var(--text);outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none;}
+.f-sec{padding:0 20px;margin-bottom:16px;}
+.f-lbl{font-size:var(--fs-label);font-weight:600;color:var(--text2);letter-spacing:var(--ls-section);margin-bottom:7px;display:block;}
+.f-input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:11px 14px;font-family:var(--font);font-size:.9rem;font-weight:500;color:var(--text);outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none;}
+.amount-unit-row{display:flex;align-items:center;gap:8px;}
+.amount-inp{width:82px!important;flex-shrink:0;}
+.unit-pills{display:flex;gap:6px;overflow-x:auto;flex:1;padding-bottom:2px;scrollbar-width:none;}
+.unit-pills::-webkit-scrollbar{display:none;}
 .f-input::placeholder{color:var(--text3);}
 .f-input:focus{border-color:var(--accent);}
 textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
 .f-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .mpills{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;}
 .mpills::-webkit-scrollbar{display:none;}
-.mpill{padding:11px 19px;border-radius:999px;border:1.5px solid var(--border);font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;color:var(--text2);background:var(--surface);flex-shrink:0;}
+.mpill{padding:9px 16px;border-radius:999px;border:1.5px solid var(--border);font-size:.8rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;color:var(--text2);background:var(--surface);flex-shrink:0;}
 .mpill.s-b{background:var(--gold-bg);border-color:var(--gold);color:var(--gold);}
 .mpill.s-l{background:var(--green-bg);border-color:var(--green);color:var(--green);}
 .mpill.s-d{background:var(--accent-bg);border-color:var(--accent);color:var(--accent);}
@@ -264,7 +268,7 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
 .s-btn:active{transform:scale(.97);}
 .s-btn:disabled{opacity:.6;transform:none;}
 /* ── Photo AI Button ── */
-.photo-ai-btn{width:calc(100% - 40px);margin:0 20px 18px;padding:16px 18px;border-radius:var(--radius-sm);border:2px solid var(--accent);background:var(--surface);color:var(--accent);font-family:var(--font);font-size:.95rem;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;transition:all .2s;box-shadow:0 2px 12px rgba(232,130,90,.15);}
+.photo-ai-btn{width:calc(100% - 40px);margin:0 20px 14px;padding:13px 16px;border-radius:var(--radius-sm);border:2px solid var(--accent);background:var(--surface);color:var(--accent);font-family:var(--font);font-size:.95rem;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;transition:all .2s;box-shadow:0 2px 12px rgba(232,130,90,.15);}
 .photo-ai-btn:active{transform:scale(.97);}
 .photo-ai-btn.disabled{opacity:.45;cursor:not-allowed;border-color:var(--border2);color:var(--text3);box-shadow:none;}
 .pab-left{display:flex;align-items:center;gap:10px;}
@@ -1233,18 +1237,24 @@ html,body{background:linear-gradient(180deg,#FAF7F1 0%,#F5F1EA 48%,#F1E9DD 100%)
         </div>
       </div>
       <div class="f-sec">
-        <div class="f-row">
-          <div><span class="f-lbl" id="lblCal">單份熱量 (kcal)</span><input class="f-input" id="iCal" type="number" placeholder="0" min="0" inputmode="numeric" oninput="updateCalTotal()"></div>
-          <div>
-            <span class="f-lbl" id="lblQty">份數</span>
-            <div class="qty-wrap">
-              <button type="button" class="qty-btn" onclick="changeQty(-1)">−</button>
-              <input class="f-input" id="iQty" type="number" value="1" min="1" inputmode="numeric" oninput="updateCalTotal()">
-              <button type="button" class="qty-btn" onclick="changeQty(1)">＋</button>
-            </div>
+        <span class="f-lbl" id="lblCal">熱量 (kcal)</span>
+        <input class="f-input" id="iCal" type="number" placeholder="0" min="0" inputmode="numeric">
+      </div>
+      <div class="f-sec">
+        <span class="f-lbl">份量</span>
+        <div class="amount-unit-row">
+          <input class="f-input amount-inp" id="iAmount" type="number" placeholder="數量" min="0" step="any" inputmode="decimal">
+          <div class="unit-pills" id="unitPills">
+            <div class="upill active" data-unit="g" onclick="pickUnit(this)">g</div>
+            <div class="upill" data-unit="ml" onclick="pickUnit(this)">ml</div>
+            <div class="upill" data-unit="oz" onclick="pickUnit(this)">oz</div>
+            <div class="upill" data-unit="份" onclick="pickUnit(this)">份</div>
+            <div class="upill" data-unit="碗" onclick="pickUnit(this)">碗</div>
+            <div class="upill" data-unit="個" onclick="pickUnit(this)">個</div>
+            <div class="upill" data-unit="片" onclick="pickUnit(this)">片</div>
+            <div class="upill" data-unit="杯" onclick="pickUnit(this)">杯</div>
           </div>
         </div>
-        <div id="calTotalHint" class="cal-total-hint" style="display:none;"></div>
       </div>
       <!-- Advanced toggle -->
       <button class="adv-toggle" id="advToggle" onclick="toggleAdvanced()" type="button">
@@ -1275,10 +1285,8 @@ html,body{background:linear-gradient(180deg,#FAF7F1 0%,#F5F1EA 48%,#F1E9DD 100%)
           </div>
         </div>
         <div class="f-sec">
-          <div class="f-row">
-            <div><span class="f-lbl" id="lblPortion">份量說明</span><input class="f-input" id="iPortion" type="text" placeholder="1碗、1份…" autocomplete="off"></div>
-            <div><span class="f-lbl" id="lblTime">用餐時間</span><input class="f-input" id="iTime" type="time"></div>
-          </div>
+          <span class="f-lbl" id="lblTime">用餐時間</span>
+          <input class="f-input" id="iTime" type="time">
         </div>
         <div class="f-sec">
           <span class="f-lbl" id="lblNotes">備註</span>
@@ -1495,10 +1503,7 @@ function applyLang(){
   document.getElementById('lblName').textContent=T.nameLabel;
   document.getElementById('iName').placeholder=T.namePlaceholder2;
   document.getElementById('lblCal').textContent=T.calLabel;
-  document.getElementById('lblQty').textContent=T.qtyLabel;
   document.getElementById('lblTime').textContent=T.timeLabel;
-  document.getElementById('lblPortion').textContent=T.portionLabel;
-  document.getElementById('iPortion').placeholder=T.portionPlaceholder;
   document.getElementById('lblNotes').textContent=T.notesLabel;
   document.getElementById('iNotes').placeholder=T.notesPlaceholder;
   document.getElementById('lblMood').textContent=T.moodLabel;
@@ -1878,9 +1883,19 @@ function editEntry(id){
   document.getElementById('iName').value=e.name||'';
   const cal=e.calories||e.cal||0;
   document.getElementById('iCal').value=cal;
-  document.getElementById('iQty').value='1';
   document.getElementById('iTime').value=e.entry_time||e.time||'';
-  document.getElementById('iPortion').value=e.portion||'';
+  // parse portion back into amount + unit
+  const portionStr=e.portion||'';
+  const UNITS=['g','ml','oz','份','碗','個','片','杯'];
+  const pm=portionStr.match(/^([\d.]+)\s*(.+)$/);
+  if(pm&&UNITS.includes(pm[2].trim())){
+    document.getElementById('iAmount').value=pm[1];
+    selUnit=pm[2].trim();
+  } else {
+    document.getElementById('iAmount').value='';
+    selUnit='g';
+  }
+  document.querySelectorAll('.upill[data-unit]').forEach(p=>p.classList.toggle('active',p.dataset.unit===selUnit));
   document.getElementById('iNotes').value=e.notes||'';
   document.getElementById('iProtein').value=e.protein!=null?e.protein:'';
   document.getElementById('iCarbs').value=e.carbs!=null?e.carbs:'';
@@ -1895,7 +1910,6 @@ function editEntry(id){
   // set mood
   selMood=e.mood||'😊';
   document.querySelectorAll('.mbtn').forEach(b=>{b.classList.toggle('active',b.dataset.mood===selMood);});
-  updateCalTotal();
   // open sheet with advanced expanded so all fields are visible for editing
   sheetOpen=true;
   toggleAdvanced(true);
@@ -1941,13 +1955,13 @@ async function saveEntry(){
   const btn=document.getElementById('saveBtn');
   btn.disabled=true; btn.textContent=T.saving;
   const baseCal=parseInt(document.getElementById('iCal').value)||0;
-  const qty=Math.max(1,parseInt(document.getElementById('iQty').value)||1);
+  const amountVal=document.getElementById('iAmount').value.trim();
   const timeVal=document.getElementById('iTime').value;
   const macroVal=id=>{const v=parseInt(document.getElementById(id).value); return isNaN(v)||v===0?null:v;};
   const entry={
     meal:selMeal, name, date:cur,
-    cal:baseCal*qty,
-    portion:document.getElementById('iPortion').value.trim(),
+    cal:baseCal,
+    portion:amountVal?`${amountVal} ${selUnit}`:'',
     notes:document.getElementById('iNotes').value.trim(),
     mood:selMood, photos:[...pendingPhotos],
     time:timeVal||new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'}),
@@ -1979,11 +1993,11 @@ async function saveEntry(){
   editingEntryId=null;
   // clear form
   document.getElementById('iName').value='';document.getElementById('iCal').value='';
-  document.getElementById('iQty').value='1';document.getElementById('iTime').value='';
-  document.getElementById('iPortion').value='';document.getElementById('iNotes').value='';
+  document.getElementById('iAmount').value='';document.getElementById('iTime').value='';
+  document.getElementById('iNotes').value='';
   ['iProtein','iCarbs','iFat','iFiber'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('iPhoto').value='';
-  document.getElementById('calTotalHint').style.display='none';
+  selUnit='g';document.querySelectorAll('.upill[data-unit]').forEach(p=>p.classList.toggle('active',p.dataset.unit==='g'));
   pendingPhotos=[];renderThumbs();selMood='😊';
   document.querySelectorAll('.mbtn').forEach((b,i)=>b.classList.toggle('active',i===0));
   btn.disabled=false; btn.textContent=T.saveEntry;
@@ -2106,17 +2120,10 @@ async function renderLog(){
   renderCalPhotoStrip();
 }
 
-function changeQty(d){
-  const el=document.getElementById('iQty');
-  el.value=Math.max(1,(parseInt(el.value)||1)+d);
-  updateCalTotal();
-}
-function updateCalTotal(){
-  const base=parseInt(document.getElementById('iCal').value)||0;
-  const qty=Math.max(1,parseInt(document.getElementById('iQty').value)||1);
-  const hint=document.getElementById('calTotalHint');
-  if(base>0&&qty>1){hint.textContent=`= 總計 ${(base*qty).toLocaleString()} kcal`;hint.style.display='block';}
-  else{hint.style.display='none';}
+let selUnit='g';
+function pickUnit(el){
+  selUnit=el.dataset.unit;
+  document.querySelectorAll('.upill[data-unit]').forEach(p=>p.classList.toggle('active',p.dataset.unit===selUnit));
 }
 
 function setCalCover(date, url){
@@ -2584,14 +2591,15 @@ async function askAiCalories(){
   if(!isMaxine&&getAiUsage().count>=AI_LIMIT){
     showToast('今日 AI 建議次數已達上限（5 次）');return;
   }
-  const portion=document.getElementById('iPortion').value.trim();
+  const amountForAi=document.getElementById('iAmount').value.trim();
+  const portionHint=amountForAi?`${amountForAi} ${selUnit}`:'';
   const btn=document.getElementById('aiBtn');
   btn.disabled=true; btn.textContent=T.aiLoading;
   try{
     const res=await fetch('/api/calories',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-app-key':'fd_xK9mP2nQ8rT4vW6yJ5cL1hA3'},
-      body:JSON.stringify({name,portion})
+      body:JSON.stringify({name,portion:portionHint})
     });
     if(!res.ok){
       const err=await res.json().catch(()=>({}));
@@ -2608,7 +2616,6 @@ async function askAiCalories(){
     if(data.carbs!=null)   document.getElementById('iCarbs').value=data.carbs;
     if(data.fat!=null)     document.getElementById('iFat').value=data.fat;
     if(data.fiber!=null)   document.getElementById('iFiber').value=data.fiber;
-    updateCalTotal();
     showToast(T.toastAiSuggest(cal));
     if(!isMaxine) incAiUsage();
   }catch(e){
