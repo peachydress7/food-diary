@@ -2211,6 +2211,13 @@ async function saveEntry(){
   delete cachedEntries[cur];
   closeSheet(); renderLog();
 }
+async function deleteAiGroup(mealId){
+  if(!confirm(T.deleteConfirm)) return;
+  const items=(cachedEntries[cur]||[]).filter(e=>e.meal_id===mealId);
+  try{ await Promise.all(items.map(e=>apiDelete(e.id))); }catch(e){}
+  delete cachedEntries[cur];
+  renderLog(); showToast(T.toastDeleted);
+}
 async function deleteEntry(id){
   if(!confirm(T.deleteConfirm)) return;
   try{ await apiDelete(id); }catch(e){
@@ -2329,8 +2336,11 @@ async function renderLog(){
               ${time?`<div class="ai-group-sub">${time}</div>`:''}
             </div>
             <div class="ai-group-r">
-              <span class="ai-group-cal">${gc}</span><span class="ai-group-cal-u"> kcal</span>
-              <span class="ai-group-arr${isOpen?' open':''}">▾</span>
+              <div style="display:flex;align-items:center;gap:3px;"><span class="ai-group-cal">${gc}</span><span class="ai-group-cal-u"> kcal</span></div>
+              <div style="display:flex;align-items:center;gap:4px;margin-top:3px;">
+                <button class="del-btn" onclick="deleteAiGroup('${mealId}');event.stopPropagation()" title="刪除整組">✕</button>
+                <span class="ai-group-arr${isOpen?' open':''}">▾</span>
+              </div>
             </div>
           </div>`;
         if(isOpen){
@@ -2344,8 +2354,8 @@ async function renderLog(){
               </div>
               <div class="ai-sub-r">
                 <span class="ai-sub-cal">${ec}</span><span class="ai-sub-cal-u"> kcal</span>
-                <button class="edit-btn" onclick="editEntry(${e.id})">✎</button>
-                <button class="del-btn" onclick="deleteEntry(${e.id})">✕</button>
+                <button class="edit-btn" onclick="editEntry(${e.id});event.stopPropagation()">✎</button>
+                <button class="del-btn" onclick="deleteEntry(${e.id});event.stopPropagation()">✕</button>
               </div>
             </div>`;
           });
