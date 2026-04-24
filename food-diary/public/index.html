@@ -282,8 +282,8 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
 .photo-zone{border:1.5px dashed var(--border2);border-radius:var(--radius-sm);padding:18px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;background:var(--surface);transition:all .2s;}
 .photo-zone:active{background:var(--surface2);border-color:var(--accent);}
 .photo-zone input{display:none;}
-.p-thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
-.p-thumbs img{width:60px;height:60px;border-radius:10px;object-fit:cover;border:1.5px solid var(--border);}
+.p-thumbs{display:flex;gap:6px;flex-wrap:wrap;}
+.p-thumbs img{width:44px;height:44px;border-radius:8px;object-fit:cover;border:1.5px solid var(--border);cursor:pointer;}
 .s-btn{margin:4px 20px 0;width:calc(100% - 40px);padding:15px;border-radius:var(--radius-sm);border:none;background:linear-gradient(135deg,var(--accent),#d96840);color:white;font-family:var(--font);font-size:.98rem;font-weight:800;cursor:pointer;box-shadow:0 4px 18px rgba(232,130,90,.35);transition:transform .2s;letter-spacing:.02em;}
 .s-btn:active{transform:scale(.97);}
 .s-btn:disabled{opacity:.6;transform:none;}
@@ -296,6 +296,10 @@ textarea.f-input{resize:none;min-height:68px;line-height:1.6;}
 .pab-sub{font-size:.72rem;font-weight:500;opacity:.75;margin-top:1px;}
 .pab-quota{font-size:.72rem;font-weight:700;background:var(--accent);color:white;border-radius:999px;padding:3px 10px;flex-shrink:0;}
 .photo-ai-btn.disabled .pab-quota{background:var(--border2);color:var(--text3);}
+/* Manual photo upload compact button */
+.photo-upload-row{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.photo-upload-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:999px;border:1.5px solid var(--border2);background:var(--surface);font-family:var(--font);font-size:.76rem;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;}
+.photo-upload-btn:active{background:var(--surface2);border-color:var(--accent);color:var(--accent);}
 .photo-ai-quota-msg{text-align:center;font-size:.74rem;color:var(--text3);font-weight:600;margin:-4px 20px 10px;}
 /* ── Review Sheet ── */
 #reviewSheet{position:fixed;inset:0;z-index:300;display:none;flex-direction:column;background:var(--bg);}
@@ -1225,7 +1229,7 @@ html,body{background:linear-gradient(180deg,#FAF7F1 0%,#F5F1EA 48%,#F1E9DD 100%)
         <div class="s-title" id="sheetTitle" style="padding:0;text-align:left;font-size:1.1rem;">新增飲食 ✨</div>
         <button class="s-close-btn" onclick="closeSheet()" type="button" aria-label="關閉">✕</button>
       </div>
-      <!-- AI photo button -->
+      <!-- AI photo button (full-width, at top) -->
       <button class="photo-ai-btn" id="photoAiBtn" onclick="startPhotoRecognition()">
         <div class="pab-left">
           <span style="font-size:1.5rem">📷</span>
@@ -1254,6 +1258,14 @@ html,body{background:linear-gradient(180deg,#FAF7F1 0%,#F5F1EA 48%,#F1E9DD 100%)
         <div style="display:flex;gap:8px;align-items:stretch;">
           <input class="f-input" id="iName" type="text" placeholder="例：滷肉飯、珍珠奶茶…" autocomplete="off" style="flex:1;">
           <button class="ai-btn" id="aiBtn" onclick="askAiCalories()" type="button" style="display:none;">✨ AI建議</button>
+        </div>
+        <!-- Manual photo upload — compact button row below name -->
+        <div class="photo-upload-row" id="photoUploadRow">
+          <button type="button" class="photo-upload-btn" onclick="document.getElementById('iPhoto').click()">
+            <span>🖼</span><span id="photoUploadLabel">上傳照片</span>
+          </button>
+          <input type="file" id="iPhoto" accept="image/*" multiple onchange="handlePhotos(event)" style="display:none;">
+          <div class="p-thumbs" id="pThumbs"></div>
         </div>
       </div>
       <div class="f-sec">
@@ -1324,15 +1336,6 @@ html,body{background:linear-gradient(180deg,#FAF7F1 0%,#F5F1EA 48%,#F1E9DD 100%)
             <div class="mbtn" data-mood="😴" onclick="pickMood(this)">😴<span>好飽</span></div>
             <div class="mbtn" data-mood="💪" onclick="pickMood(this)">💪<span>健康</span></div>
           </div>
-        </div>
-        <div class="f-sec">
-          <span class="f-lbl" id="lblPhoto">照片</span>
-          <div class="photo-zone" onclick="document.getElementById('iPhoto').click()">
-            <input type="file" id="iPhoto" accept="image/*" multiple onchange="handlePhotos(event)">
-            <div style="font-size:1.7rem">📷</div>
-            <div id="photoHint" style="font-size:.75rem;color:var(--text2);font-weight:600;">點擊上傳照片（可多張）</div>
-          </div>
-          <div class="p-thumbs" id="pThumbs"></div>
         </div>
       </div>
       <button class="s-btn" id="saveBtn" onclick="saveEntry()">儲存紀錄 ✓</button>
@@ -1529,8 +1532,7 @@ function applyLang(){
   document.getElementById('lblNotes').textContent=T.notesLabel;
   document.getElementById('iNotes').placeholder=T.notesPlaceholder;
   document.getElementById('lblMood').textContent=T.moodLabel;
-  document.getElementById('lblPhoto').textContent=T.photoLabel;
-  document.getElementById('photoHint').textContent=T.photoHint;
+
   document.getElementById('saveBtn').textContent=T.saveEntry;
   document.getElementById('aiBtn').textContent=T.aiBtn;
   // Meal pills (keep data-meal as zh key for data storage)
