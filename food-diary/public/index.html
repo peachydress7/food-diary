@@ -925,6 +925,130 @@ html,body{background:linear-gradient(180deg,#FAF7F1 0%,#F5F1EA 48%,#F1E9DD 100%)
   .page-title{font-size:1.4rem;}
   .page-kicker{letter-spacing:.2em;}
 }
+
+/* ── Compact Home Header ── */
+.home-hdr{
+  position:sticky;top:0;z-index:10;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:calc(env(safe-area-inset-top,40px) + 6px) 16px 10px;
+  min-height:56px;
+  background:rgba(245,241,234,.96);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(217,192,154,.45);
+}
+.home-hdr-l{display:flex;align-items:center;gap:8px;}
+.home-logo-img{height:24px;width:auto;filter:drop-shadow(0 1px 0 rgba(255,255,255,.8));}
+.home-today-lbl{font-size:.72rem;font-weight:800;color:var(--text3);letter-spacing:.08em;}
+.home-hdr-r{display:flex;align-items:center;gap:5px;}
+.home-date-nav{display:flex;align-items:center;gap:3px;}
+.darr-sm{width:26px;height:26px;border-radius:999px;background:rgba(255,252,247,.9);border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.85rem;color:var(--text2);flex-shrink:0;transition:all .2s;}
+.darr-sm:active{transform:scale(.88);}
+.home-dpill{flex-shrink:0;font-size:.72rem;padding:5px 10px;max-width:116px;background:rgba(255,252,247,.9);}
+.home-settings-btn{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border2);background:rgba(255,252,247,.9);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
+.home-settings-btn svg{width:15px;height:15px;stroke:var(--text3);stroke-width:1.8;}
+.home-settings-btn:active{background:var(--surface2);}
+
+/* ── Today Summary Card ── */
+.today-card{
+  margin:10px 16px 8px;
+  background:linear-gradient(135deg,rgba(255,252,247,.99) 0%,rgba(244,235,221,.98) 100%);
+  border:2px solid var(--border2);
+  border-radius:22px;
+  padding:16px 16px 14px;
+  box-shadow:var(--shadow-sketch-lg);
+  position:relative;overflow:hidden;
+}
+.today-card::before{
+  content:'';position:absolute;top:12px;right:12px;width:18px;height:13px;
+  background:
+    linear-gradient(62deg,transparent 38%,var(--accent2) 38% 62%,transparent 62%) 0 2px/5px 10px no-repeat,
+    linear-gradient(62deg,transparent 38%,var(--accent2) 38% 62%,transparent 62%) 6px 0/5px 11px no-repeat,
+    linear-gradient(62deg,transparent 38%,var(--accent2) 38% 62%,transparent 62%) 12px 2px/5px 9px no-repeat;
+  opacity:.8;pointer-events:none;
+}
+.tc-top{display:flex;align-items:center;gap:14px;margin-bottom:13px;}
+.tc-info{flex:1;display:flex;flex-direction:column;gap:6px;}
+.tc-row{display:flex;align-items:baseline;gap:5px;}
+.tc-lbl{font-size:.65rem;color:var(--text3);font-weight:600;flex-shrink:0;letter-spacing:.02em;}
+.tc-val{font-size:1rem;font-weight:800;font-family:var(--font-num);color:var(--text);line-height:1;}
+.tc-val-lg{font-size:1.3rem;}
+.tc-unit{font-size:.62rem;color:var(--text3);font-weight:500;}
+.tc-divider{height:1px;background:var(--border);margin:1px 0;}
+.tc-add-btn{
+  width:100%;padding:12px;
+  border:none;border-radius:16px;
+  background:var(--text);color:var(--surface);
+  font-family:var(--font);font-size:.88rem;font-weight:800;
+  cursor:pointer;letter-spacing:.06em;
+  box-shadow:0 6px 18px rgba(31,31,31,.13);
+  transition:all .2s;
+}
+.tc-add-btn:active{transform:scale(.97);}
+.goal-warning-inline{
+  margin:0 0 10px;padding:6px 10px;
+  background:#F7E6E1;border:1.5px solid #D39A90;border-radius:12px;
+  font-size:.72rem;font-weight:700;color:#73433C;
+  display:none;
+}
+.goal-warning-inline.show{display:block;}
+
+/* ── Meal Grid ── */
+.meal-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:8px;margin:0 16px 8px;
+}
+.meal-card{
+  background:rgba(255,252,247,.94);
+  border:1.5px solid var(--border2);
+  border-radius:18px;
+  padding:13px 12px 12px;
+  box-shadow:var(--shadow-sketch);
+  display:flex;flex-direction:column;
+  cursor:pointer;transition:all .15s;
+  position:relative;
+}
+.meal-card:active{transform:scale(.97);}
+.mc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.mc-title{display:flex;align-items:center;gap:5px;}
+.mc-emoji{font-size:.95rem;line-height:1;}
+.mc-name{font-size:.72rem;font-weight:700;color:var(--text2);}
+.mc-plus{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border2);background:rgba(255,252,247,.9);color:var(--text2);font-size:.85rem;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;line-height:1;flex-shrink:0;padding:0;}
+.mc-plus:active{background:var(--text);color:var(--surface);border-color:var(--text);}
+.mc-cal-row{display:flex;align-items:baseline;gap:3px;}
+.mc-cal{font-size:1.3rem;font-weight:400;font-family:'Fredoka One',cursive;color:var(--text);line-height:1;}
+.mc-cal-u{font-size:.58rem;color:var(--text3);font-weight:600;}
+
+/* ── Compact Water Strip ── */
+.water-compact{
+  margin:0 16px 8px;
+  background:rgba(255,252,247,.94);
+  border:1.5px solid var(--border2);
+  border-radius:18px;
+  padding:11px 14px;
+  box-shadow:var(--shadow-sketch);
+}
+.wc-top{display:flex;align-items:center;gap:9px;}
+.wc-icon{font-size:1rem;flex-shrink:0;}
+.wc-info{flex:1;min-width:0;}
+.wc-amounts{display:flex;align-items:baseline;gap:3px;line-height:1;}
+.wc-total{font-size:1rem;font-weight:400;font-family:'Fredoka One',cursive;color:var(--text);}
+.wc-goal{font-size:.62rem;color:var(--text3);font-weight:500;}
+.wc-bar{height:4px;background:rgba(217,192,154,.3);border-radius:999px;overflow:hidden;margin-top:3px;}
+.wc-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--text));border-radius:999px;transition:width .5s cubic-bezier(.4,0,.2,1);}
+.wc-quick{padding:7px 14px;border-radius:999px;border:1.5px solid var(--border2);background:rgba(255,252,247,.9);color:var(--text);font-size:.78rem;font-weight:800;cursor:pointer;white-space:nowrap;transition:all .2s;font-family:var(--font);flex-shrink:0;}
+.wc-quick:active{background:var(--text);color:var(--surface);}
+.wc-expand{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border2);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.65rem;color:var(--text3);transition:transform .2s;flex-shrink:0;padding:0;}
+.wc-expand.open{transform:rotate(180deg);}
+.wc-expand:active{background:var(--surface2);}
+.wc-detail{display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+.wc-detail.open{display:block;}
+.wc-btns-row{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
+.wc-custom-row{display:flex;gap:6px;}
+.wc-custom-row input{flex:1;min-width:0;background:rgba(255,252,247,.9);border:1.5px solid var(--border2);border-radius:999px;padding:7px 12px;font-size:.8rem;font-weight:700;color:var(--text);outline:none;font-family:var(--font);}
+.wc-custom-row input::placeholder{color:var(--text3);font-weight:500;}
+.wc-custom-row input:focus{border-color:var(--text);}
+.wc-custom-row button{padding:7px 14px;border-radius:999px;border:none;background:var(--text);color:var(--surface);font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap;font-family:var(--font);}
+.wc-log-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
 </style>
 </head>
 <body>
@@ -981,61 +1105,121 @@ html,body{background:linear-gradient(180deg,#FAF7F1 0%,#F5F1EA 48%,#F1E9DD 100%)
 
   <!-- ══ PAGE: LOG ══ -->
   <div id="p-log" class="page active">
-    <div class="page-header">
-      <div class="page-kicker">EAT FIRST, TALK LATER.</div>
-      <div id="logTitle">
-        <img src="logo-home.svg" alt="先吃再說" style="height:60px;width:auto;display:block;">
+
+    <!-- Compact home header -->
+    <div class="home-hdr">
+      <div class="home-hdr-l">
+        <img class="home-logo-img" src="logo-home.svg" alt="先吃再說">
+        <span class="home-today-lbl">今日</span>
       </div>
-      <div class="page-sub" id="hdrSub"></div>
+      <div class="home-hdr-r">
+        <div class="home-date-nav">
+          <div class="darr-sm" onclick="changeDay(-1)">‹</div>
+          <div class="dpill home-dpill" id="dpill">
+            <input type="date" id="datePicker" onchange="selectDate(this.value)">
+            <span id="dpillTxt"></span>
+          </div>
+          <div class="darr-sm" onclick="changeDay(1)">›</div>
+        </div>
+        <button class="home-settings-btn" onclick="switchTab('settings')" aria-label="設定">
+          <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        </button>
+      </div>
     </div>
+    <div id="hdrSub" style="display:none"></div>
 
     <!-- User switcher -->
     <div class="user-bar" id="userBar"></div>
 
-    <div class="date-nav">
-      <div class="darr" onclick="changeDay(-1)">‹</div>
-      <div class="dpill" id="dpill">
-        <input type="date" id="datePicker" onchange="selectDate(this.value)">
-        <span id="dpillTxt"></span>
-      </div>
-      <div class="darr" onclick="changeDay(1)">›</div>
-    </div>
-
-    <div class="cal-card">
-      <div class="cal-ring">
-        <svg viewBox="0 0 72 72" width="72" height="72">
-          <circle class="ring-bg" cx="36" cy="36" r="29"/>
-          <circle class="ring-fg" id="ringFg" cx="36" cy="36" r="29" stroke-dasharray="182.2" stroke-dashoffset="182.2"/>
-        </svg>
-        <div class="cal-inner">
-          <div class="cal-num" id="calNum">0</div>
-          <div class="cal-unit">kcal</div>
+    <!-- Today summary card -->
+    <div class="today-card" id="todayCard">
+      <div class="tc-top">
+        <div class="cal-ring">
+          <svg viewBox="0 0 72 72" width="72" height="72">
+            <circle class="ring-bg" cx="36" cy="36" r="29"/>
+            <circle class="ring-fg" id="ringFg" cx="36" cy="36" r="29" stroke-dasharray="182.2" stroke-dashoffset="182.2"/>
+          </svg>
+          <div class="cal-inner">
+            <div class="cal-num" id="calNum">0</div>
+            <div class="cal-unit">kcal</div>
+          </div>
+        </div>
+        <div class="tc-info">
+          <div class="tc-row">
+            <span class="tc-lbl">目標</span>
+            <span class="tc-val" id="tcGoal">2000</span>
+            <span class="tc-unit">kcal</span>
+          </div>
+          <div class="tc-divider"></div>
+          <div class="tc-row">
+            <span class="tc-lbl">還可以吃</span>
+            <span class="tc-val tc-val-lg" id="tcRemain">2000</span>
+            <span class="tc-unit">kcal</span>
+          </div>
         </div>
       </div>
-      <div class="meal-stats">
-        <div class="ms-row"><div class="ms-dot" style="background:var(--gold)"></div><div class="ms-name" id="msName0">早餐</div><div class="ms-val" id="ms0" style="color:var(--gold)">0</div></div>
-        <div class="ms-row"><div class="ms-dot" style="background:var(--green)"></div><div class="ms-name" id="msName1">午餐</div><div class="ms-val" id="ms1" style="color:var(--green)">0</div></div>
-        <div class="ms-row"><div class="ms-dot" style="background:var(--accent)"></div><div class="ms-name" id="msName2">晚餐</div><div class="ms-val" id="ms2" style="color:var(--accent)">0</div></div>
-        <div class="ms-row"><div class="ms-dot" style="background:var(--blue)"></div><div class="ms-name" id="msName3">點心</div><div class="ms-val" id="ms3" style="color:var(--blue)">0</div></div>
+      <div id="goalWarning" class="goal-warning-inline"></div>
+      <button class="tc-add-btn" onclick="openSheet()">＋ 新增飲食</button>
+    </div>
+
+    <!-- Meal quick cards 2×2 -->
+    <div class="meal-grid">
+      <div class="meal-card" onclick="openSheetForMeal('早餐')">
+        <div class="mc-header">
+          <div class="mc-title"><span class="mc-emoji">🌅</span><span class="mc-name" id="msName0">早餐</span></div>
+          <button class="mc-plus" onclick="openSheetForMeal('早餐');event.stopPropagation()">＋</button>
+        </div>
+        <div class="mc-cal-row"><span class="mc-cal" id="mc0">0</span><span class="mc-cal-u"> kcal</span></div>
+      </div>
+      <div class="meal-card" onclick="openSheetForMeal('午餐')">
+        <div class="mc-header">
+          <div class="mc-title"><span class="mc-emoji">☀️</span><span class="mc-name" id="msName1">午餐</span></div>
+          <button class="mc-plus" onclick="openSheetForMeal('午餐');event.stopPropagation()">＋</button>
+        </div>
+        <div class="mc-cal-row"><span class="mc-cal" id="mc1">0</span><span class="mc-cal-u"> kcal</span></div>
+      </div>
+      <div class="meal-card" onclick="openSheetForMeal('晚餐')">
+        <div class="mc-header">
+          <div class="mc-title"><span class="mc-emoji">🌙</span><span class="mc-name" id="msName2">晚餐</span></div>
+          <button class="mc-plus" onclick="openSheetForMeal('晚餐');event.stopPropagation()">＋</button>
+        </div>
+        <div class="mc-cal-row"><span class="mc-cal" id="mc2">0</span><span class="mc-cal-u"> kcal</span></div>
+      </div>
+      <div class="meal-card" onclick="openSheetForMeal('點心')">
+        <div class="mc-header">
+          <div class="mc-title"><span class="mc-emoji">🍪</span><span class="mc-name" id="msName3">點心</span></div>
+          <button class="mc-plus" onclick="openSheetForMeal('點心');event.stopPropagation()">＋</button>
+        </div>
+        <div class="mc-cal-row"><span class="mc-cal" id="mc3">0</span><span class="mc-cal-u"> kcal</span></div>
       </div>
     </div>
 
-    <div class="water-card" id="waterCard">
-      <div class="water-top">
-        <div class="water-title">💧 喝水</div>
-        <div><span class="water-total" id="waterTotal">0</span> <span class="water-goal">/ <span id="waterGoal">2000</span> ml</span></div>
+    <!-- Compact water strip -->
+    <div class="water-compact" id="waterCard">
+      <div class="wc-top">
+        <div class="wc-icon">💧</div>
+        <div class="wc-info">
+          <div class="wc-amounts">
+            <span class="wc-total" id="waterTotal">0</span>
+            <span class="wc-goal"> / <span id="waterGoal">2000</span> ml</span>
+          </div>
+          <div class="wc-bar"><div class="wc-fill" id="waterFill" style="width:0%"></div></div>
+        </div>
+        <button class="wc-quick" onclick="addWater(250)">＋250ml</button>
+        <button class="wc-expand" id="wcExpand" onclick="toggleWaterDetail()">▾</button>
       </div>
-      <div class="water-track"><div class="water-fill" id="waterFill" style="width:0%"></div></div>
-      <div class="water-btns">
-        <button class="water-btn" onclick="addWater(150)">+150</button>
-        <button class="water-btn" onclick="addWater(250)">+250</button>
-        <button class="water-btn" onclick="addWater(500)">+500</button>
-        <div class="water-custom">
+      <div class="wc-detail" id="wcDetail">
+        <div class="wc-btns-row">
+          <button class="water-btn" onclick="addWater(150)">+150</button>
+          <button class="water-btn" onclick="addWater(250)">+250</button>
+          <button class="water-btn" onclick="addWater(500)">+500</button>
+        </div>
+        <div class="wc-custom-row">
           <input type="number" id="waterCustomInput" placeholder="自訂 ml" min="1" max="9999">
           <button onclick="addWaterCustom()">+</button>
         </div>
+        <div class="wc-log-row" id="waterLog"></div>
       </div>
-      <div class="water-log" id="waterLog"></div>
     </div>
 
     <div id="macroSummary" class="macro-summary"></div>
@@ -1061,7 +1245,6 @@ html,body{background:linear-gradient(180deg,#FAF7F1 0%,#F5F1EA 48%,#F1E9DD 100%)
     </div>
     <div id="calPhotoStrip" class="cal-photo-strip"></div>
 
-    <div id="goalWarning" class="goal-warning"></div>
     <div id="logList"></div>
     <div style="height:6px"></div>
   </div>
@@ -1897,6 +2080,19 @@ function closeSheet(){
   const fab=document.getElementById('fab'); fab.classList.remove('rot'); fab.textContent='＋';
   document.getElementById('saveBtn').textContent=T.saveEntry;
 }
+function openSheetForMeal(meal){
+  openSheet();
+  selMeal=meal;
+  const mp={早餐:'s-b',午餐:'s-l',晚餐:'s-d',點心:'s-s'};
+  document.querySelectorAll('.mpill').forEach(p=>{p.className='mpill';if(p.dataset.meal===selMeal)p.classList.add(mp[selMeal]);});
+}
+let waterDetailOpen=false;
+function toggleWaterDetail(){
+  waterDetailOpen=!waterDetailOpen;
+  const d=document.getElementById('wcDetail'),b=document.getElementById('wcExpand');
+  if(d) d.classList.toggle('open',waterDetailOpen);
+  if(b) b.classList.toggle('open',waterDetailOpen);
+}
 
 function editEntry(id){
   const entries=cachedEntries[cur]||[];
@@ -2071,20 +2267,26 @@ async function renderLog(){
   // prefetch adjacent days silently
   prefetchAdjacentDays(cur, curUser);
 
-  // calorie ring
+  // calorie ring + today card
   const totalCal=entries.reduce((s,e)=>s+(e.calories||e.cal||0),0);
   const goal=getGoal();
   document.getElementById('calNum').textContent=totalCal.toLocaleString();
   const pct=Math.min(totalCal/goal,1);
   const exceeded=totalCal>goal;
   document.getElementById('ringFg').style.strokeDashoffset=182.2-(182.2*pct);
-  document.getElementById('ringFg').style.stroke=exceeded?'#e74c3c':'var(--accent)';
+  document.getElementById('ringFg').style.stroke=exceeded?'#e05a5a':'var(--text)';
+  // today summary card
+  const tcGoalEl=document.getElementById('tcGoal');
+  const tcRemainEl=document.getElementById('tcRemain');
+  if(tcGoalEl) tcGoalEl.textContent=goal.toLocaleString();
+  const remain=Math.max(0,goal-totalCal);
+  if(tcRemainEl){tcRemainEl.textContent=remain.toLocaleString();tcRemainEl.style.color=exceeded?'#e05a5a':'var(--text)';}
   const gw=document.getElementById('goalWarning');
-  if(exceeded){gw.textContent=T.goalWarning(goal,totalCal);gw.classList.add('show');}
-  else{gw.classList.remove('show');}
+  if(gw){if(exceeded){gw.textContent=T.goalWarning(goal,totalCal);gw.classList.add('show');}else{gw.classList.remove('show');}}
   const meals=['早餐','午餐','晚餐','點心'];
   meals.forEach((m,i)=>{
-    document.getElementById('ms'+i).textContent=entries.filter(e=>e.meal===m).reduce((s,e)=>s+(e.calories||e.cal||0),0);
+    const mCal=entries.filter(e=>e.meal===m).reduce((s,e)=>s+(e.calories||e.cal||0),0);
+    const el=document.getElementById('mc'+i);if(el) el.textContent=mCal;
   });
 
   // macro summary
