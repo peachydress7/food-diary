@@ -1159,37 +1159,24 @@ html,body{background:linear-gradient(180deg,#FAF7F1 0%,#F5F1EA 48%,#F1E9DD 100%)
         </div>
       </div>
       <div id="goalWarning" class="goal-warning-inline"></div>
-      <button class="tc-add-btn" onclick="openSheet()">＋ 新增飲食</button>
     </div>
 
-    <!-- Meal quick cards 2×2 -->
+    <!-- Meal info cards 2×2 (tap to add for that meal) -->
     <div class="meal-grid">
       <div class="meal-card" onclick="openSheetForMeal('早餐')">
-        <div class="mc-header">
-          <div class="mc-title"><span class="mc-emoji">🌅</span><span class="mc-name" id="msName0">早餐</span></div>
-          <button class="mc-plus" onclick="openSheetForMeal('早餐');event.stopPropagation()">＋</button>
-        </div>
+        <div class="mc-title"><span class="mc-emoji">🌅</span><span class="mc-name" id="msName0">早餐</span></div>
         <div class="mc-cal-row"><span class="mc-cal" id="mc0">0</span><span class="mc-cal-u"> kcal</span></div>
       </div>
       <div class="meal-card" onclick="openSheetForMeal('午餐')">
-        <div class="mc-header">
-          <div class="mc-title"><span class="mc-emoji">☀️</span><span class="mc-name" id="msName1">午餐</span></div>
-          <button class="mc-plus" onclick="openSheetForMeal('午餐');event.stopPropagation()">＋</button>
-        </div>
+        <div class="mc-title"><span class="mc-emoji">☀️</span><span class="mc-name" id="msName1">午餐</span></div>
         <div class="mc-cal-row"><span class="mc-cal" id="mc1">0</span><span class="mc-cal-u"> kcal</span></div>
       </div>
       <div class="meal-card" onclick="openSheetForMeal('晚餐')">
-        <div class="mc-header">
-          <div class="mc-title"><span class="mc-emoji">🌙</span><span class="mc-name" id="msName2">晚餐</span></div>
-          <button class="mc-plus" onclick="openSheetForMeal('晚餐');event.stopPropagation()">＋</button>
-        </div>
+        <div class="mc-title"><span class="mc-emoji">🌙</span><span class="mc-name" id="msName2">晚餐</span></div>
         <div class="mc-cal-row"><span class="mc-cal" id="mc2">0</span><span class="mc-cal-u"> kcal</span></div>
       </div>
       <div class="meal-card" onclick="openSheetForMeal('點心')">
-        <div class="mc-header">
-          <div class="mc-title"><span class="mc-emoji">🍪</span><span class="mc-name" id="msName3">點心</span></div>
-          <button class="mc-plus" onclick="openSheetForMeal('點心');event.stopPropagation()">＋</button>
-        </div>
+        <div class="mc-title"><span class="mc-emoji">🍪</span><span class="mc-name" id="msName3">點心</span></div>
         <div class="mc-cal-row"><span class="mc-cal" id="mc3">0</span><span class="mc-cal-u"> kcal</span></div>
       </div>
     </div>
